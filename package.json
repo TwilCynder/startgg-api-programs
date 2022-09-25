@@ -1,0 +1,15 @@
+{
+  "name": "smashggoomba",
+  "version": "0.1.0",
+  "description": "Fetches data from smashgg",
+  "main": "main.js",
+  "scripts": {
+    "test": "node main.js"
+  },
+  "author": "TwilCynder",
+  "license": "ISC",
+  "dependencies": {
+    "graphql-request": "^4.1.0"
+  },
+  "type": "module"
+}
