@@ -4,11 +4,21 @@ import * as fs from 'fs'
 import { leagueHeadToHead } from "./lib/leagueHead2Head.js";
 
 if (process.argv.length < 3 ){
-    console.log("Need one argument");
+    console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " IDsListFilename [timestamp]");
     process.exit()
 }
 
 var IDs = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', '').split('\n');
+
+var begin = null;
+if (process.argv.length > 3){
+    begin = parseInt(process.argv[3]);
+}
+
+var end = null;
+if (process.argv.length > 4){
+    end = parseInt(process.argv[4]);
+}
 
 var players = await Player.createPlayers(client, IDs);
 
@@ -17,10 +27,9 @@ for (let player of players){
     result += '\t' + player.name;
 }
 
-let res = await leagueHeadToHead(client, players)
+let res = await leagueHeadToHead(client, players, begin, end)
 
 for (let i = 0; i < res.length ; i++){
-    let length = res.length
     result+= '\n' + players[i].name
     for (let j = 0; j < res.length; j++){
         console.log(i, j)
