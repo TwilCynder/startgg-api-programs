@@ -1,0 +1,34 @@
+query StandinsgQuery($id: ID!, $page: Int!) {
+	user(id: $id) {
+    events (query : {
+      perPage: 3,
+      page: $page,
+      sortBy: "startAt desc"
+    }){
+      nodes {
+        tournament {
+          name
+        }
+        entrantSizeMin
+        id
+        startAt
+        standings (query : {
+          perPage: 48,
+          page: 1
+        }){
+          nodes {
+            placement
+            entrant {
+              participants {
+                user {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+  }	
+}

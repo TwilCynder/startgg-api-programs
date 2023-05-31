@@ -1,0 +1,20 @@
+query EventStandingsQuery($slug: String!) {
+	event(slug: $slug) {
+    tournament {
+      name
+    }
+    id
+    startAt
+    standings (query : {
+      perPage: 192,
+      page: 1
+    }){
+      nodes {
+        placement
+        entrant {
+          name
+        }
+      }
+    }
+  }
+}
