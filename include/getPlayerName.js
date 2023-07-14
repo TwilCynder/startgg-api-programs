@@ -1,6 +1,5 @@
 import { readFileSync } from 'fs';
-import { relurl } from './dirname.js';
-
+import { relurl } from './lib/dirname.js';
 
 const schemaFilename = "./PlayerName.txt";
 

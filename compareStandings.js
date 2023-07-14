@@ -1,7 +1,7 @@
-import { client } from "./lib/common.js";
+import { client } from "./include/lib/common.js";
 import * as fs from 'fs'
-import { User } from "./lib/user.js";
-import * as SC from "./lib/computeStandingComparison.js";   
+import { User } from "./include/user.js";
+import * as SC from "./include/computeStandingComparison.js";   
 
 if (process.argv.length < 3 ){
     console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " IDsListFilename [startDate [endDate]]");

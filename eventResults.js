@@ -1,5 +1,5 @@
-import { getEventResults } from "./lib/getEventResults.js";
-import {client} from "./lib/common.js";
+import { getEventResults } from "./include/getEventResults.js";
+import {client} from "./include/lib/common.js";
 import { writeFileSync } from "fs";
 
 const replaceNames = {

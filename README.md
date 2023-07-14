@@ -1,5 +1,5 @@
 # StartGG API Programs
-
+Haven't done a proper readme oops this is still the default gitlab one
 
 
 ## Getting started

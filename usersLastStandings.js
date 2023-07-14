@@ -1,5 +1,5 @@
-import { getPlayersLastStandings } from "./lib/getLastStandings.js";
-import { client } from "./lib/common.js";
+import { getPlayersLastStandings } from "./include/getLastStandings.js";
+import { client } from "./include/lib/common.js";
 import * as fs from 'fs';
 
 if (process.argv.length < 3 ){

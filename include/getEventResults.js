@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { relurl } from './dirname.js';
+import { relurl } from './lib/dirname.js';
 
 const schemaFilename = "./EventStanding.txt";
 

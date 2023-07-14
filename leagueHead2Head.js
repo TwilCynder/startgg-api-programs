@@ -1,7 +1,7 @@
-import { client } from "./lib/common.js";
-import { Player } from "./lib/player.js";
+import { client } from "./include/lib/common.js";
+import { Player } from "./include/player.js";
 import * as fs from 'fs'
-import { leagueHeadToHead } from "./lib/leagueHead2Head.js";
+import { leagueHeadToHead } from "./include/leagueHead2Head.js";
 
 if (process.argv.length < 3 ){
     console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " IDsListFilename [timestamp]");

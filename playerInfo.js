@@ -1,5 +1,5 @@
-import { client } from "./lib/common.js";
-import { getPlayerInfo } from "./lib/getPlayerInfo.js";
+import { client } from "./include/lib/common.js";
+import { getPlayerInfo } from "./include/getPlayerInfo.js";
 
 if (process.argv.length < 3 ){
     console.log("Need one argument");

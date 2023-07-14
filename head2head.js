@@ -1,6 +1,6 @@
-import {client} from "./lib/common.js"
-import {getHead2Head} from "./lib/head2head.js";
-import { Player } from "./lib/player.js";
+import {client} from "./include/lib/common.js"
+import {getHead2Head} from "./include/head2head.js";
+import { Player } from "./include/player.js";
 
 if (process.argv.length < 4 ){
     console.log("Need two arguments");

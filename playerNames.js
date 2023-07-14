@@ -1,5 +1,5 @@
-import { getPlayersNames } from "./lib/getPlayerName.js";
-import { client } from "./lib/common.js";
+import { getPlayersNames } from "./include/getPlayerName.js";
+import { client } from "./include/lib/common.js";
 import * as fs from 'fs';
 
 if (process.argv.length < 3 ){
