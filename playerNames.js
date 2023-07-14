@@ -12,6 +12,8 @@ var IDs = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', ''
 var players = await getPlayersNames(client, IDs);
 
 console.log(players.length);
+let i = 1;
 for (let p of players){
-    console.log(p.user ? p.user.player.gamerTag : p);
+    console.log(i, p.user ? p.user.player.gamerTag : p)
+    i ++;
 }

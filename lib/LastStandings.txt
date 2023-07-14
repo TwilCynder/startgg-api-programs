@@ -1,0 +1,16 @@
+query UserTournamentQuery($slug: String){
+  user(slug: $slug) {
+    player {
+      gamerTag
+      recentStandings(limit: 20){
+        placement
+        entrant {
+          event {
+            slug
+          }
+          initialSeedNum
+        }
+      }
+    }
+  }
+}
