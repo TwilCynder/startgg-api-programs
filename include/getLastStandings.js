@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { relurl } from './lib/dirname.js';
 
 
-const schemaFilename = "./LastStandings.txt";
+const schemaFilename = "./GraphQLSchemas/LastStandings.txt";
 
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 
