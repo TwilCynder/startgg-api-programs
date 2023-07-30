@@ -47,6 +47,7 @@ for (let i = 0; i < res.length ; i++){
 
 console.log(result);
 
-fs.writeFileSync('./out.txt', result, (err) => {
+fs.mkdir('out', () => {});
+fs.writeFileSync('./out/leagueHead2Head.txt', result, (err) => {
     console.error(err);
 })

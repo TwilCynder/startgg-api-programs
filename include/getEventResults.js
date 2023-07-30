@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { relurl } from './lib/dirname.js';
 
-const schemaFilename = "./EventStanding.txt";
+const schemaFilename = "./GraphQLSchemas/EventStanding.txt";
 
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 

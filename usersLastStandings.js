@@ -100,6 +100,7 @@ let res = processPlayers(users);
 
 console.log(res);
 
-fs.writeFileSync('./out.txt', res, (err) => {
+fs.mkdir('out', () => {});
+fs.writeFileSync('./out/recentstandings.txt', res, (err) => {
     console.error(err);
 })

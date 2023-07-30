@@ -6,7 +6,7 @@ import { updateEntrantsAttendance } from './entrantAttendanceUtilities.js';
 import { Console } from 'console';
 
 
-const schemaFilename = "./EventEntrants.txt";
+const schemaFilename = "./GraphQLSchemas/EventEntrants.txt";
 
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 

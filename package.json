@@ -9,7 +9,8 @@
   "author": "TwilCynder",
   "license": "ISC",
   "dependencies": {
-    "graphql-request": "^4.1.0"
+    "graphql-request": "^4.1.0",
+    "timezone": "*"
   },
   "type": "module"
 }

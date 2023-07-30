@@ -13,3 +13,9 @@ export function relpath(url, path){
 export function relurl(url, path){
     return new URL(path, url);
 }
+
+export function makeRelurl(baseUrl){
+    return function (path){
+        return relurl(baseUrl, path);
+    }
+}

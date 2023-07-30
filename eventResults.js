@@ -52,4 +52,5 @@ let result = generateLine(
 );
 
 console.log(result);
-writeFileSync('out.txt', result);
+fs.mkdir('out', () => {});
+writeFileSync('out/eventResults.txt', result);

@@ -64,7 +64,8 @@ for (let e of entrantsList){
 }
 pools[t] = count;
 
-let file = createWriteStream("out.txt", {encoding: "utf-8"});
+fs.mkdir('out', () => {});
+let file = createWriteStream("out/attendance.txt", {encoding: "utf-8"});
 
 let cumulative = 0;
 for (let i = list.length; i > 0; i--){

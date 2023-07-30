@@ -47,7 +47,8 @@ for (let i = 0; i < users.length ; i++){
 
 console.log(result);
 
-fs.writeFileSync('./out.txt', result, (err) => {
+fs.mkdir('out', () => {});
+fs.writeFileSync('./out/standingComparison.txt', result, (err) => {
     console.error(err);
 })
 

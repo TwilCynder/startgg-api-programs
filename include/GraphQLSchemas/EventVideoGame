@@ -1,0 +1,9 @@
+query EventVideoGame($slug: String!){
+  event(slug: $slug){
+    videogame {
+      id
+      name
+      slug
+  	}
+  }
+}
