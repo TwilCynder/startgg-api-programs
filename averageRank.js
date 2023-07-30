@@ -11,22 +11,21 @@ var lines = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', 
 
 let players = {}
 
-let rank = 20;
+let rank = 30;
 for (let line of lines){
 
-    if (line.length > 0 && !line.startsWith(" ")){
-        line = line.toLowerCase()
-
-        let currentScore = (players[line] ? players[line] : 0);
-        players[line] = currentScore + rank;
-        console.log(rank, ":", line);
-
-        rank--;
-        if (rank < 1){
-            rank = 20;
-            console.log("------------");
-        }
+    if (line.length < 1 || line.startsWith(" ")){
+        rank = 30;
+        continue;
     }
+
+    line = line.toLowerCase().trim();
+
+    let currentScore = (players[line] ? players[line] : 0);
+    players[line] = currentScore + rank;
+    console.log(rank, ":", line);
+
+    rank--;
 }
 
 var items = Object.keys(players).map(function(key) {
@@ -37,8 +36,8 @@ items.sort(function(first, second) {
     return second[1] - first[1];
 });
   
-// Create a new array with only the first 5 items
+
+console.log("---------------")
 for (let i = 0; i < items.length; i++){
-    console.log(items[i][0], ":", items[i][1])
+    console.log(i, items[i][0], ":", items[i][1])
 }
-console.log(items.slice(0, 30));
