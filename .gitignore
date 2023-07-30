@@ -1,5 +1,5 @@
 node_modules/
 test.js
-out.txt
+out/
 IDLists/
 IDs
