@@ -1,0 +1,5 @@
+query EventStandingsQuery($slug: String!) {
+  event(slug: $slug) {
+    numEntrants
+  }
+}

@@ -1,29 +1,32 @@
 import { readFileSync } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { relurl } from './lib/dirname.js';
 import { updateEntrantsAttendance } from './entrantAttendanceUtilities.js';
-import { Console } from 'console';
 
 
 const schemaFilename = "./GraphQLSchemas/EventEntrants.txt";
 
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 
-export async function getEntrants(client, slug, silentErrors = false){
+export async function getEntrants_(client, slug, tries, silentErrors = false){
     console.log("Getting entrants from event : ", slug);
     try {
         let data = await client.request(schema, {
             slug: slug
         });
         if (data && data.event){
+            console.log("Successfully fetched entrants for", slug, "!");
             return data.event.entrants.nodes;
         }
         return null;
     } catch (e) {
-        if (!silentErrors) console.log("/!\\ Request failed.", "Message : ", e);
-        return null;
+        if (tries > 2) throw e;
+        console.log(`/!\\ Request failed for slug ${slug}. Retrying.`);
+        return getEntrants(client, slug,  + 1, silentErrors);
     }
+}
+
+export async function getEntrants(client, slug, tries, silentErrors = false){
+    return getEntrants_(client, slug, 0, silentErrors);
 }
 
 export function Mutex() {
@@ -45,9 +48,7 @@ export async function updateEntrantsAttendanceFromSlug(client, current, slug, mu
         return;
     }
     if (mutex) await mutex.lock();
-    console.log("Lock")
     updateEntrantsAttendance(current, entrants);
-    console.log("unlock");
     if (mutex) mutex.unlock();
 }
 
