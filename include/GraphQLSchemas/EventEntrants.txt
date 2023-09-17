@@ -4,6 +4,7 @@ query EventStandingsQuery($slug: String!) {
       nodes {
         participants {
           player {
+            id
             gamerTag
           }
         }

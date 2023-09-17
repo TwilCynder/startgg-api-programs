@@ -1,3 +1,5 @@
+//TODO : USE ID INSTEAD OF TAG
+
 export function updateEntrantAttendance(current, entrantName){
     if (current[entrantName]){
         current[entrantName]++;
