@@ -1,4 +1,6 @@
-class Query {
+import { deep_get } from './lib.js';
+
+export class Query {
     #schema;
     #maxTries;
 
@@ -8,7 +10,7 @@ class Query {
     }
 
     #getLog(logName, params){
-        if (!this.log);
+        if (!this.log) return null;
         let log = this.log[logName];
         if (log){
             if (typeof log == "string"){
@@ -21,20 +23,49 @@ class Query {
     }
 
     async #execute_(client, params, tries, silentErrors = false, maxTries = null){
-        maxTries = maxTries || this.#maxTries || 0
+        maxTries = maxTries || this.#maxTries || 1
 
-        console.log(this.#getLog("query", params) || "Querying ..." + " Try " + tries + 1);
+        console.log(this.#getLog("query", params) || "Querying ..." + " Try " + (tries + 1));
         try {
             let data = await client.request(this.#schema, params);
             return data;
         } catch (e) {
-            if (tries > maxTries) throw e;
+            if (tries > maxTries - 1) throw e;
             console.log(this.#getLog("error", params) || "Request failed." + " Retrying.");
             return this.#execute_(client, params, tries + 1, silentErrors, maxTries);
         }
     }
 
     async execute(client, params, silentErrors = false, maxTries = null){
-        return await this.#execute_(client, params, silentErrors, maxTries);
+        return await this.#execute_(client, params, 0, silentErrors, maxTries);
+    }
+
+    async executePaginated(client, params, collectionPathInQuery, delay = null, pageParamName = "page", silentErrors = false, maxTries = null){
+        let result = [];
+
+        params = Object.assign({}, params);
+        params[pageParamName] = 1;
+
+        while (true){
+            let data = await this.execute(client, params, silentErrors, maxTries);
+
+            if (!data) throw this.#getLog("error", params) || "Request failed." + "(in paginated execution, at page " + params[pageParamName] + ")";
+
+
+            let localResult = deep_get(data, collectionPathInQuery);
+
+            if (!localResult) throw "The given path does not point to anything."
+            if (!localResult.push) throw "The given path does not point to an array."
+
+            if (localResult.length < 1) break;
+
+            result = result.concat(localResult);
+            params[pageParamName]++;
+
+            if (delay)
+                await new Promise(r => setTimeout(r, delay));
+        }
+
+        return result;
     }
 }
