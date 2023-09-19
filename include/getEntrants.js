@@ -21,7 +21,7 @@ export async function getEntrants_(client, slug, tries, silentErrors = false){
     } catch (e) {
         if (tries > 2) throw e;
         console.log(`/!\\ Request failed for slug ${slug}. Retrying.`);
-        return getEntrants(client, slug,  + 1, silentErrors);
+        return getEntrants(client, slug, tries + 1, silentErrors);
     }
 }
 

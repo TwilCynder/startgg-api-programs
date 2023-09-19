@@ -18,8 +18,9 @@ if (!list) {
 let attendance = await getAttendanceOverLeague(client, list);
 let entrantsList = []
 
-for (let entrant in attendance) {
-    entrantsList.push({name: entrant, attendance: attendance[entrant]});
+for (let id in attendance) {
+    let entrant = attendance[id]
+    entrantsList.push({name: entrant.name, attendance: entrant.count});
 }
 entrantsList.sort((a, b) => a.attendance - b.attendance);
 

@@ -1,0 +1,8 @@
+query VieogameChars($slug: String!) {
+	videogame(slug: $slug){
+    characters {
+      id
+      name
+    }
+  }
+}

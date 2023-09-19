@@ -1,0 +1,7 @@
+query EventVGQuery($slug: String!) {
+	event(slug: $slug){
+    videogame {
+      slug
+    }
+  }
+}

@@ -1,10 +1,13 @@
 //TODO : USE ID INSTEAD OF TAG
 
-export function updateEntrantAttendance(current, entrantName){
-    if (current[entrantName]){
-        current[entrantName]++;
+export function updateEntrantAttendance(current, id, name){
+    if (current[id]){
+        current[id].count++;
     } else {
-        current[entrantName] = 1;
+        current[id] = {
+            count: 1,
+            name
+        };
     }
     
 }
@@ -12,7 +15,7 @@ export function updateEntrantAttendance(current, entrantName){
 export function updateEntrantsAttendance(current, entrantList){
     for (let e of entrantList){
         for (let p of e.participants){
-            updateEntrantAttendance(current, p.player.gamerTag);
+            updateEntrantAttendance(current, p.player.id, p.player.gamerTag);
         }
     }
 }
