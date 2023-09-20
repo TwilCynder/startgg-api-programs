@@ -22,12 +22,12 @@ export class Query {
         return null;
     }
 
-    async #execute_(client, params, tries, silentErrors = false, maxTries = null){
+    async #execute_(client, params, tries, limiter = null, silentErrors = false, maxTries = null){
         maxTries = maxTries || this.#maxTries || 1
 
         console.log(this.#getLog("query", params) || "Querying ..." + " Try " + (tries + 1));
         try {
-            let data = await client.request(this.#schema, params);
+            let data = await ( limiter ? limiter.execute(client, this.#schema, params) : client.request(this.#schema, params) );
             return data;
         } catch (e) {
             if (tries > maxTries - 1) throw e;
@@ -36,25 +36,25 @@ export class Query {
         }
     }
 
-    async execute(client, params, silentErrors = false, maxTries = null){
-        return await this.#execute_(client, params, 0, silentErrors, maxTries);
+    async execute(client, params, limiter = null, silentErrors = false, maxTries = null){
+        return await this.#execute_(client, params, 0, limiter, silentErrors, maxTries);
     }
 
-    async executePaginated(client, params, collectionPathInQuery, delay = null, pageParamName = "page", silentErrors = false, maxTries = null){
+    async executePaginated(client, params, collectionPathInQuery, limiter = null, delay = null, pageParamName = "page", silentErrors = false, maxTries = null){
         let result = [];
 
         params = Object.assign({}, params);
         params[pageParamName] = 1;
 
         while (true){
-            let data = await this.execute(client, params, silentErrors, maxTries);
+            let data = await this.execute(client, params, limiter, silentErrors, maxTries);
 
             if (!data) throw this.#getLog("error", params) || "Request failed." + "(in paginated execution, at page " + params[pageParamName] + ")";
 
 
             let localResult = deep_get(data, collectionPathInQuery);
 
-            if (!localResult) throw "The given path does not point to anything."
+            if (!localResult) throw `The given path ${collectionPathInQuery} does not point to anything.`
             if (!localResult.push) throw "The given path does not point to an array."
 
             if (localResult.length < 1) break;

@@ -1,6 +1,8 @@
+import {readFileSync} from 'fs';
+import { relurl } from './lib/dirname.js';
 import { Query } from "./lib/query.js";
 
-const schemaFilename = "./GraphQLSchemas/EventEntrants.txt";
+const schemaFilename = "./GraphQLSchemas/VideogameCharacters.txt";
 
 let schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 
@@ -11,6 +13,7 @@ query.log = {
 }
 
 export async function getCharacters(client, slug){
-    let result = query.execute(client, {slug});
+    let result = await query.execute(client, {slug});
     return result;
 }
+
