@@ -13,7 +13,7 @@ query.log = {
 }
 
 export async function getSetsCharsInEvent(client, slug, limiter){
-    let sets = await query.executePaginated(client, {slug, perPage: 50}, "event.sets.nodes", limiter);
+    let sets = await query.executePaginated(client, {slug, perPage: 50}, "event.sets.nodes", limiter, 60000);
     return sets;
 }
 
@@ -55,16 +55,17 @@ export async function getCharsInEvents(client, slugs){
 
     let events = await Promise.all(slugs.map( async (slug) => {
         try {
-            return await getCharsInEvent(client, slug, limiter);
+            return await getCharsInEvent(client, slug);
         } catch (err) {
             console.log("Slug", slug, "kaput.", err);
         }
     } ));
 
+
     let chars = {}
 
     for (let eventChars of events) {
-        if (!eventChars) return;
+        if (!eventChars) continue;
         for (let char in eventChars){
             if (!chars[char]) chars[char] = 0;
             chars[char] += eventChars[char];

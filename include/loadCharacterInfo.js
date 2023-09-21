@@ -17,10 +17,12 @@ export async function loadCharacterInfo(filename, client, slug, writeIfNeeded){
     } catch (e) {
         if (client && slug) {
             let charsList = await getCharacters(client, slug);
+            if (!charsList.videogame) throw "Slug didn't return any videogame";
+            charsList = charsList.videogame.characters;
 
             if (writeIfNeeded){
                 let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-                file.write(JSON.stringify(result));
+                file.write(JSON.stringify(charsList));
             }
 
             return convertCharsList(charsList);
