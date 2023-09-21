@@ -51,7 +51,7 @@ export async function getCharsInEvent(client, slug, limiter){
 }
 
 export async function getCharsInEvents(client, slugs){
-    let limiter = new QueryLimiter(39);
+    let limiter = new QueryLimiter(60);
 
     let events = await Promise.all(slugs.map( async (slug) => {
         try {

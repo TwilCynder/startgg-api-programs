@@ -6,13 +6,15 @@ import { loadCharacterInfo } from './include/loadCharacterInfo.js';
 
 try {
     let [outputMode, list] = parseArguments(process.argv.slice(2), new OutputModeParser("stdout"), new EventListParser());
-    
+
+
     let [charStats, charNames] = await Promise.all([
         getCharsInEvents(client, list),
         loadCharacterInfo("out/ssbu_chars.json", client, "game/ultimate", true)
     ]);
     
-
+    console.warn("ALLO TA MERE LA GROSSE PUTE")
+    
     let result = [];
     for (let char in charStats){
         result.push({name: charNames[char], count: charStats[char]})
@@ -23,7 +25,8 @@ try {
         console.log(char.name, ":", char.count);
     }
 } catch (e) {
-    console.log("Bruh.")
-    console.error(e);
+    console.error("SHIT WENT WRONG")
+    console.error(e)
 }
 
+console.error("END");   
