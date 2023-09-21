@@ -8,7 +8,8 @@ const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: 
 
 let query = new Query(schema, 2);
 query.log = {
-    query: params => `Fetching sets from event ${params.slug}, page ${params.page}`
+    query: params => `Fetching sets from event ${params.slug}, page ${params.page}`,
+    error: params => `Request failed for event ${params.slug}, page ${params.page}`
 }
 
 export async function getSetsCharsInEvent(client, slug, limiter){
@@ -50,7 +51,7 @@ export async function getCharsInEvent(client, slug, limiter){
 }
 
 export async function getCharsInEvents(client, slugs){
-    let limiter = new QueryLimiter(60);
+    let limiter = new QueryLimiter(39);
 
     let events = await Promise.all(slugs.map( async (slug) => {
         try {

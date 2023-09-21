@@ -23,16 +23,29 @@ export class Query {
     }
 
     async #execute_(client, params, tries, limiter = null, silentErrors = false, maxTries = null){
+        console.log("#execute_", tries)
         maxTries = maxTries || this.#maxTries || 1
+
+        params = Object.assign({}, params);
+
+        params["tries"] = tries * 8;
+        params["limiter"] = !!limiter;
 
         console.log(this.#getLog("query", params) || "Querying ..." + " Try " + (tries + 1));
         try {
-            let data = await ( limiter ? limiter.execute(client, this.#schema, params) : client.request(this.#schema, params) );
+            console.error("What the fuuuuuuck")
+            let data = await ( limiter.execute(client, this.#schema, params));
+            console.error("On est toujours bons ?");
             return data;
         } catch (e) {
-            if (tries > maxTries - 1) throw e;
-            console.log(this.#getLog("error", params) || "Request failed." + " Retrying.");
-            return this.#execute_(client, params, tries + 1, silentErrors, maxTries);
+            console.error("FAIL", tries, params);
+            console.error("Error", e);
+            if (tries > -1) {
+                console.error("Maximum number of tries reached. Throwing ?", e);
+                throw e;
+            }
+            console.error((this.#getLog("error", params) || "Request failed.") + ` Retrying (try ${tries + 1})`);
+            return this.#execute_(client, params, tries + 1, limiter, silentErrors, maxTries);
         }
     }
 
