@@ -28,7 +28,7 @@ export class Query {
         console.log(this.#getLog("query", params) || "Querying ..." + " Try " + (tries + 1));
         try {
             let data = await ( limiter ? limiter.execute(client, this.#schema, params) : client.request(this.#schema, params));
-
+            
             return data;
         } catch (e) {
             if (tries >= maxTries) {
