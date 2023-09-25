@@ -62,3 +62,9 @@ export class QueryLimiter extends QueryTimedSemaphore {
         super(1, 60000 / rpm);
     }
 }
+
+export class StartGGQueryLimiter extends QueryLimiter {
+    constructor(){
+        super(70);
+    }
+}

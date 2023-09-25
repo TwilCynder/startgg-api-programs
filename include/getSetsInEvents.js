@@ -1,7 +1,5 @@
-import {readFileSync} from 'fs';
-import { relurl } from './lib/dirname.js';
-import { Query } from './lib/query.js   ';
-import { QueryLimiter } from './lib/queryLimiter.js';
+import { Query } from './lib/query.js';
+import { QueryLimiter, StartGGQueryLimiter } from './lib/queryLimiter.js';
 
 /**
  * Fetches all sets in the given event with the given query, which must have a "event(slug) { sets { nodes { ANYTHING } } }" schema.  
@@ -13,13 +11,16 @@ import { QueryLimiter } from './lib/queryLimiter.js';
  * @returns {Promise<object[]>}
  */
 export async function getSetsInEvent(client, query, slug, limiter){
-    let sets = await query.executePaginated(client, {slug, perPage: 50}, "event.sets.nodes", limiter);
+    //LIMITER PATCH
+    let sets = await query.executePaginated(client, {slug, perPage: 50}, "event.sets.nodes", null, 60000);
     return sets; 
 }
 
-export async function getSetsInEvents(client, query, slugs, limiter) {
+export async function getSetsInEvents(client, query, slugs, limiter, noLimit = false) {
+    limiter = limiter || (noLimit ? null : new StartGGQueryLimiter);
+
     return Promise.all(slugs.map( (slug) => getSetsInEvent(client, query, slug, limiter).catch((err) => console.log("Slug", slug, "kaput : ", err))))
-        .then( (arr) => arr.reduce( (accumulator, currentArray) => accumulator.concat(currentArray), []));
+        .then( (arr) => arr.reduce( (accumulator, currentArray) => (currentArray ? accumulator.concat(currentArray) : accumulator) , []));
 }
 
 /**
@@ -32,7 +33,9 @@ export async function getSetsInEvents(client, query, slugs, limiter) {
  * @param {QueryLimiter} limiter 
  * @returns {T}
  */
-export async function reduceSetsInEvents(client, query, slugs, callback, initValue, limiter){
+export async function reduceSetsInEvents(client, query, slugs, callback, initValue, limiter, noLimit = false){
+    limiter = limiter || (noLimit ? null : new StartGGQueryLimiter);
+
     return Promise.all( slugs.map( ( slug ) => 
         getSetsInEvent(client, query, slug, limiter)
             .catch((err) => console.log("Slug", slug, "kaput : ", err))

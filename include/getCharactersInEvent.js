@@ -2,7 +2,7 @@ import {readFileSync} from 'fs';
 import { relurl } from './lib/dirname.js';
 import { Query } from './lib/query.js   ';
 import { QueryLimiter } from './lib/queryLimiter.js';
-import { getSetsInEvents, reduceSetsInEvents } from './getSetsInEvents.js';
+import { reduceSetsInEvents } from './getSetsInEvents.js';
 
 const schemaFilename = "./GraphQLSchemas/EventSetsCharacter.txt"
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
@@ -14,7 +14,8 @@ query.log = {
 }
 
 export async function getSetsCharsInEvent(client, slug, limiter){
-    let sets = await query.executePaginated(client, {slug, perPage: 50}, "event.sets.nodes", limiter);
+    //LIMITER PATCH
+    let sets = await query.executePaginated(client, {slug, perPage: 50}, "event.sets.nodes", null, 60000);
     return sets;
 }
 

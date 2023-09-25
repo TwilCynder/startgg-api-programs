@@ -1,4 +1,4 @@
-query EventStandingsQuery($slug: String!, $page: Int, $perPage: Int) {
+query EventSetsQuery($slug: String!, $page: Int, $perPage: Int) {
     event(slug: $slug) {
         sets  (page: $page, perPage: $perPage)  {
             nodes {
@@ -9,6 +9,13 @@ query EventStandingsQuery($slug: String!, $page: Int, $perPage: Int) {
                                 gamerTag
                             }
                         }
+                    }
+                  	standing {
+                      stats {
+                        score {
+                          value
+                        }
+                      }
                     }
                 }
             }

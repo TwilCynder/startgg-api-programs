@@ -24,7 +24,9 @@ export function getHead2HeadFromSets(p1Sets, p1, p2){
     let result = new Head2Head(p1, p2);
 
     p1Sets.forEach(set => {
+        if (!set.slots[0].entrant || !set.slots[1].entrant) return;
         let setP1 = set.slots[0].entrant.participants;
+
         if (setP1.length > 1) {
             //console.log("[Ignoring non-1v1 set]");
             return;

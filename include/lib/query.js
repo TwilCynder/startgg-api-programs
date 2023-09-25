@@ -35,7 +35,7 @@ export class Query {
                 console.error("Maximum number of tries reached. Throwing.", e);
                 throw e;
             }
-            console.error((this.#getLog("error", params) || "Request failed.") + ` Retrying (try ${tries + 1})`);
+            console.error((this.#getLog("error", params) || "Request failed.") + ` Retrying (try ${tries + 1}). Error : `, e);
             return this.#execute_(client, params, tries + 1, limiter, silentErrors, maxTries);
         }
     }
