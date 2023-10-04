@@ -1,9 +1,10 @@
 import { GraphQLClient } from 'graphql-request';
 
-const endpoint = 'https://api.smash.gg/gql/alpha'
+const endpoint = 'https://www.start.gg/api/-/gql'
 
 const headers = {
-    authorization: 'Bearer aaf87de047c2449475ebf9ae83bb0e97',
+    "client-version": "21",
+    'Content-Type': 'application/json'
 }
 
 export const client = new GraphQLClient(endpoint, {

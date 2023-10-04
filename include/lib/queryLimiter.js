@@ -1,7 +1,8 @@
 //i am a god of JS
 
-class QueryTimedSemaphore {
+class TimedQuerySemaphore {
     #queue = [];
+    #timers = [];
     #counter;
     #delay;
 
@@ -11,9 +12,10 @@ class QueryTimedSemaphore {
     }
 
     #startTimeout(){
-        setTimeout(() => {
+        let t = setTimeout(() => {
             this.#release();
-        }, this.#delay);
+        }, this.#delay); 
+        this.#timers.push(t);
     }
 
     #execute(client, schema, params){
@@ -48,23 +50,39 @@ class QueryTimedSemaphore {
         let query = this.#queue.shift();
         if (query){
             //console.error("A query was queued. Executing :", query.params);
-            let p = this.#executeQuery(query);
-            p.then(res => query.resolve(res));
-            p.catch(err => query.reject(err));
+            this.#executeQuery(query)
+                .then(res => query.resolve(res))
+                .catch(err => query.reject(err));
         } else {
             this.#counter++;
         }
     }
+
+    stop(){
+
+    }
 }
 
-export class QueryLimiter extends QueryTimedSemaphore {
+export class ClockQueryLimiter extends TimedQuerySemaphore {
     constructor(rpm){
         super(1, 60000 / rpm);
     }
 }
 
-export class StartGGQueryLimiter extends QueryLimiter {
+export class StartGGClockQueryLimiter extends ClockQueryLimiter {
     constructor(){
         super(70);
+    }
+}
+
+export class DelayQueryLimiter extends TimedQuerySemaphore {
+    constructor(rpm){
+        super (rpm, 60000);
+    }
+}
+
+export class StartGGDelayQueryLimiter extends DelayQueryLimiter {
+    constructor(){
+        super(60)
     }
 }

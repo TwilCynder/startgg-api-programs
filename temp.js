@@ -1,14 +1,19 @@
-import { readJSONAsync } from "./include/lib/lib.js";
+import {client} from "./include/lib/common.js";
 
-let chars = await readJSONAsync('./out/season-2022-2023-characters.json');
-
-let count = 0;
-let current_char = "";
-
-for (let char of chars){
-    count += char.count;
-    if (count >= 2228) break;
-    current_char = char.name
-}
-
-console.log(current_char);
+let data = await client.request(`
+mutation reportSet($setId: ID!, $winnerId: ID, $gameData: [BracketSetGameDataInput]) {
+    reportBracketSet(setId: $setId, winnerId: $winnerId, gameData: $gameData) {
+      id
+      state
+    }
+  }
+`, {
+    "setId": 65854495,
+    "gameData": [
+      {
+        "winnerId": 14443844,
+        "gameNum": 1
+      }
+      
+    ]
+  })

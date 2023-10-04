@@ -31,7 +31,7 @@ try {
     if (outputMode.file){
         let filename = "./out/" + outputMode.file;
         let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-    
+        
         file.write(JSON.stringify(result));
     }
     

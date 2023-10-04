@@ -1,8 +1,8 @@
 import {readFileSync} from 'fs';
 import { relurl } from './lib/dirname.js';
 import { Query } from './lib/query.js   ';
-import { QueryLimiter } from './lib/queryLimiter.js';
-import { reduceSetsInEvents } from './getSetsInEvents.js';
+import { ClockQueryLimiter, StartGGClockQueryLimiter, StartGGDelayQueryLimiter } from './lib/queryLimiter.js';
+import { getSetsInEvent, getSetsInEvents, reduceSetsInEvents } from './getSetsInEvents.js';
 
 const schemaFilename = "./GraphQLSchemas/EventSetsCharacter.txt"
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
@@ -14,29 +14,16 @@ query.log = {
 }
 
 export async function getSetsCharsInEvent(client, slug, limiter){
-    //LIMITER PATCH
-    let sets = await query.executePaginated(client, {slug, perPage: 50}, "event.sets.nodes", null, 60000);
+    let sets = await getSetsInEvent(client, query, slug, limiter);
     return sets;
 }
 
 export async function getSetsCharsInEvents(client, eventSlugs, limiter){
-    let bigarray = await Promise.all(eventSlugs.map( (slug) => {
-        return getSetsCharsInEvent(client, slug, limiter);
-    }));
-
-    let result = [];
-    for (arr of bigarray){
-        result += arr;
-    }
-
-    return result;
+    let sets = await getSetsInEvents(client, query, slugs, limiter);
+    return sets;
 }
 
-export async function getCharsInEvent(client, slug, limiter){
-    let sets = await getSetsCharsInEvent(client, slug, limiter);
-
-    let chars = {}
-
+function updateCharsCount(chars, sets){
     for (let set of sets){
         if (!set.games) continue;
         for (let game of set.games){
@@ -48,28 +35,22 @@ export async function getCharsInEvent(client, slug, limiter){
             }
         }
     }
-
     return chars;
 }
 
+export async function getCharsInEvent(client, slug, limiter){
+    let sets = await getSetsCharsInEvent(client, slug, limiter);
+
+    return updateCharsCount({}, sets);
+}
+
 export async function getCharsInEvents(client, slugs){
-    let limiter = new QueryLimiter(60);
+    let limiter = new StartGGDelayQueryLimiter;
 
     let chars = await reduceSetsInEvents(client, query, slugs, (chars, sets) => {
         console.log("Reducing", chars);
         if (!sets) return chars;    
-        for (let set of sets){
-            if (!set.games) continue;
-            for (let game of set.games){
-                for (let selection of game.selections){
-                    let char = selection.selectionValue;
-    
-                    if (!chars[char]) chars[char] = 0;
-                    chars[char]++;
-                }
-            }
-        }
-        return chars;
+        return updateCharsCount(chars, sets);
     }, {}, limiter)
     console.log(chars);
 
