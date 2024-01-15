@@ -1,8 +1,8 @@
 query EventInfo($slug: String!) {
     event(slug: $slug) {
-				startAt
-    		name
-    		videogame {
+		startAt
+		name
+		videogame {
         		slug
         }
     		numEntrants

@@ -59,7 +59,9 @@ class TimedQuerySemaphore {
     }
 
     stop(){
-
+        for (let timer of this.#timers){
+            clearTimeout(timer);
+        }
     }
 }
 

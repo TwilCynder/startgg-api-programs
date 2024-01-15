@@ -31,6 +31,8 @@ export class Query {
             
             return data;
         } catch (e) {
+            console.log("LENKBVKHBKB ERROR")
+            
             if (tries >= maxTries) {
                 console.error("Maximum number of tries reached. Throwing.", e);
                 throw e;

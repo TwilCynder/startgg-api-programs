@@ -1,7 +1,7 @@
 import {readFileSync} from 'fs';
 import { relurl } from './lib/dirname.js';
 import { Query } from './lib/query.js   ';
-import { ClockQueryLimiter, StartGGClockQueryLimiter, StartGGDelayQueryLimiter } from './lib/queryLimiter.js';
+import { StartGGDelayQueryLimiter } from './lib/queryLimiter.js';
 import { getSetsInEvent, getSetsInEvents, reduceSetsInEvents } from './getSetsInEvents.js';
 
 const schemaFilename = "./GraphQLSchemas/EventSetsCharacter.txt"

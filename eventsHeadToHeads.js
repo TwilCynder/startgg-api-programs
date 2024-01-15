@@ -65,10 +65,10 @@ if (outputMode.file){
 
 switch (outputMode.stdout){
     case "log":
-        console.log(result);
+        console.log(h2h);
         break;
     case "string": 
-        console.log(JSON.stringify(result));
+        console.log(JSON.stringify(h2h));
 }
 
 } catch (e) {
