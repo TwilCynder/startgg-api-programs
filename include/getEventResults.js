@@ -1,9 +1,8 @@
 import { readFileSync } from 'fs';
-import { Query } from './lib/query.js';
 import { relurl } from './lib/dirname.js';
+import { Query } from "./lib/query.js";
 
 const schemaFilename = "./GraphQLSchemas/EventStanding.txt";
-
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 const query = new Query(schema, 4);
 

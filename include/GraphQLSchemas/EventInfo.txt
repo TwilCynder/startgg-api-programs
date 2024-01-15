@@ -5,8 +5,8 @@ query EventInfo($slug: String!) {
 		videogame {
         		slug
         }
-    		numEntrants
-    		teamRosterSize {
+		numEntrants
+		teamRosterSize {
           	maxPlayers
         }
     }
