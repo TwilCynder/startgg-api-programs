@@ -9,7 +9,7 @@
   "author": "TwilCynder",
   "license": "ISC",
   "dependencies": {
-    "@twilcynder/goombalib-js": "^1.1.4",
+    "@twilcynder/goombalib-js": "<2.0.0",
     "graphql-request": "^4.1.0",
     "timezone": "*"
   },

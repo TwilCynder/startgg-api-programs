@@ -5,6 +5,11 @@ export function readSchema(source, filename){
     return fs.readFileSync(relurl(source, filename), {encoding: "utf-8"});
 }
 
+/**
+ * Reads all lines of a file into an array
+ * @param {string} filename 
+ * @returns {string[]}
+ */
 export function readLines(filename){
     return fs.readFileSync(filename).toString('utf-8').replaceAll('\r', '').split('\n');
 }
