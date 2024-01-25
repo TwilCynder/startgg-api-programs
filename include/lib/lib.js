@@ -28,7 +28,7 @@ export function deep_get(obj, path, def = null){
     return obj;
 };
 
-function outputString(s, outputMode){
+export function outputString(s, outputMode){
     if (outputMode.file){
         let filename = "./out/" + outputMode.file;
         let file = fs.createWriteStream(filename, {encoding: "utf-8"});
