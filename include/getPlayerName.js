@@ -15,7 +15,7 @@ export async function getPlayerName(client, slug, limiter = null){
 
         console.log("Fetched name for user ", slug);
     
-        return res.user.player.gamerTag
+        return res.user.player.gamerTag;
     } catch (e) {
         console.log("Could not retrieve info for slug " + slug + " : " + e);
         return null;
