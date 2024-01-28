@@ -22,6 +22,21 @@ export async function getSetsInEvents(client, query, slugs, limiter, noLimit = f
         .then( (arr) => arr.reduce( (accumulator, currentArray) => (currentArray ? accumulator.concat(currentArray) : accumulator) , []));
 }
 
+export async function getSetsInEventsHashmap(client, query, slugs, limiter, noLimit = false){
+    limiter = limiter || (noLimit ? null : new StartGGClockQueryLimiter);
+
+    let events = {}
+    await Promise.all( slugs.map( async slug => {
+        try {   
+            let sets = await getSetsInEvent(client, query, slug, limiter);
+            events[slug] = sets;
+        } catch (err) {
+            console.warn("Slug", slug, "kaput : ", err);
+        }
+    }));
+    return events;
+}
+
 /**
  * 
  * @param {GraphQLClient} client 

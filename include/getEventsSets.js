@@ -1,5 +1,5 @@
 import { Query } from './lib/query.js';
-import { getSetsInEvent, getSetsInEvents} from './getSetsInEvents.js';
+import { getSetsInEvent, getSetsInEvents, getSetsInEventsHashmap} from './getSetsInEvents.js';
 import { readSchema } from './lib/lib.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSets.txt");
@@ -11,4 +11,12 @@ export function getEventSetsBasic(client, slug, limiter){
 
 export function getEventsSetsBasic(client, slugs, limiter){
     return getSetsInEvents(client, query, slugs, limiter);
+}
+
+export function getEventsSetsBasicSeparated(client, slugs, limiter){
+    return Promise.all(slugs.map(slug => getEventSetsBasic(client, slug, limiter)))
+}
+
+export async function getEventsSetsBasicHashmap(client, slugs, limiter){
+    return getSetsInEventsHashmap(client, quert, slugs, limiter);
 }
