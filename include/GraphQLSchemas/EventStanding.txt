@@ -13,6 +13,7 @@ query EventStandingsQuery($slug: String!, $numEntrants: Int) {
       nodes {
         placement
         entrant {
+          id
           name
           participants {
             user {
