@@ -10,8 +10,7 @@ export async function getPlayerName(client, slug){
         let res = await client.request(schema, {
             slug: slug
         });
-        console.log(res);
-        return res.user ? res : slug;
+        return res.user ? res.user.player.gamerTag : slug;
     } catch (e) {
         console.log(`/!\\ Request failed for slug ${slug}. Retrying.`);
         return getPlayerName(client, slug);
