@@ -7,17 +7,17 @@ const schemaFilename = "./GraphQLSchemas/PlayerName.txt";
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 const query = new Query(schema, 4);
 
-export async function getPlayerName(client, slug, limiter = null){
-    console.log("Getting standings from event : ", slug);
+export async function getPlayerName(client, slug, limiter = null, silent = false){
+    if (!silent) console.log("Getting standings from player : ", slug);
     try {
         let res = await query.execute(client, {slug}, limiter);
         if (!res.user) throw "Slug " + slug + " not found.";
 
-        console.log("Fetched name for user ", slug);
+        if (!silent) console.log("Fetched name for user ", slug);
     
         return res.user.player.gamerTag;
     } catch (e) {
-        console.log("Could not retrieve info for slug " + slug + " : " + e);
+        if (!silent) console.error("Could not retrieve info for slug " + slug + " : " + e);
         return null;
     }
 }
