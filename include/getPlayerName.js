@@ -1,12 +1,21 @@
 import { readFileSync } from 'fs';
 import { relurl } from './lib/dirname.js';
 import { Query } from './lib/query.js';
+import { GraphQLClient } from 'graphql-request';
 
 
 const schemaFilename = "./GraphQLSchemas/PlayerName.txt";
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 const query = new Query(schema, 4);
 
+/**
+ * Returns the player name ("gamertag") associated with a user slug
+ * @param {GraphQLClient} client 
+ * @param {string} slug 
+ * @param {any} limiter 
+ * @param {boolean} silent 
+ * @returns {string?}
+ */
 export async function getPlayerName(client, slug, limiter = null, silent = false){
     if (!silent) console.log("Getting standings from player : ", slug);
     try {
