@@ -14,7 +14,7 @@ const query = new Query(schema, 4);
  * @param {string} slug 
  * @param {any} limiter 
  * @param {boolean} silent 
- * @returns {string?}
+ * @returns {Promise<string?>}
  */
 export async function getPlayerName(client, slug, limiter = null, silent = false){
     if (!silent) console.log("Getting standings from player : ", slug);
