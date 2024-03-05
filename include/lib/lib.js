@@ -14,6 +14,15 @@ export function readLines(filename){
     return fs.readFileSync(filename).toString('utf-8').replaceAll('\r', '').split('\n');
 }
 
+/**
+ * Reads all line of a file into an array
+ * @param {string} filename 
+ */
+export function readLinesAsync(filename){
+    return fs.promises.readFile(filename)
+        .then(buf => buf.toString('utf-8').replace('\r', '').split('\n'));
+}
+
 export async function readJSONAsync(filename){
     const buf = await fs.promises.readFile(filename);
     return JSON.parse(buf);
