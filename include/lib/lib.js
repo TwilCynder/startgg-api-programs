@@ -75,3 +75,8 @@ export function parseCSV(text, options){
 
     return lines.filter(line => !!line).map(line => line.trim().split(options.separator));
 }
+
+let currentID = 0;
+export function generateUniqueID(){
+    return currentID++;
+}
