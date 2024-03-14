@@ -50,3 +50,28 @@ export function outputString(s, outputMode){
     }
 
 }
+
+/**
+ * 
+ * @param {string} text 
+ * @returns 
+ */
+function splitNewline(text){
+    return text.replace(/\r/g, "").split("\n");
+}
+
+/**
+ * Reads a CSV text into an array of arrays. 
+ * Does not even try to handle edge cases, use a real csv package if you need to read complicated/weird CSVs
+ * @param {string} text 
+ * @param {{separator: string, delimiter: string}} options 
+ */
+export function parseCSV(text, options){    
+
+    options = Object.assign({delimiter: 'newline', separator: ','}, options);
+    let lines = options.delimiter == "newline" ? 
+        splitNewline(text) :
+        text.split(options.delimiter);
+
+    return lines.filter(line => !!line).map(line => line.trim().split(options.separator));
+}

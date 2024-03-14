@@ -2,6 +2,7 @@ query EventStandingsQuery($slug: String!, $numEntrants: Int) {
 	event(slug: $slug) {
     tournament {
       name
+      id
     }
     id
     startAt
