@@ -1,6 +1,6 @@
 import { client } from "./include/lib/common.js";
 import { getCharacters } from "./include/getVideogameCharacters.js";
-import {Parser, parseArguments, OutputModeParser} from '@twilcynder/goombalib-js'
+import {Parser, parseArguments, OutputModeParser} from '@twilcynder/arguments-parser'
 import fs from 'fs'
 
 let [outputMode, slug] = parseArguments(process.argv.slice(2), 

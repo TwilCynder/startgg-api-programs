@@ -1,5 +1,5 @@
 
-import { Parser, parseArguments, argsLeft } from "@twilcynder/goombalib-js";
+import { Parser, parseArguments, argsLeft } from "@twilcynder/arguments-parser";
 
 export function computeEventList(argList){
     let [list] = parseArguments(argList, new EventListParser());

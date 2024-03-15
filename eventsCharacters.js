@@ -1,4 +1,4 @@
-import { parseArguments, OutputModeParser } from '@twilcynder/goombalib-js'
+import { parseArguments, OutputModeParser } from '@twilcynder/arguments-parser'
 import { EventListParser } from './include/lib/computeEventList.js'
 import { getCharsInEvents } from './include/getCharactersInEvent.js';
 import { client } from './include/lib/common.js';

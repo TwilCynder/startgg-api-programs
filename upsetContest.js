@@ -1,7 +1,7 @@
 import { getEventSetsBasic, getEventsSetsBasic } from "./include/getEventsSets.js";
 
 import { EventListParser } from "./include/lib/computeEventList.js";
-import { OutputModeParser, parseArguments } from "@twilcynder/goombalib-js"; 
+import { OutputModeParser, parseArguments } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/common.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
