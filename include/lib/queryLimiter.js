@@ -1,6 +1,6 @@
 //i am a god of JS
 
-class TimedQuerySemaphore {
+export class TimedQuerySemaphore {
     #queue = [];
     #timers = [];
     #counter;

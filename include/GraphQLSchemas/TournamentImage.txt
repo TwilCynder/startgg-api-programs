@@ -1,0 +1,8 @@
+query TournamentImage($type: String, $id: ID, $slug: String) {
+	tournament (id: $id, slug: $slug) {
+    images (type: $type) {
+      type
+      url
+    }
+  }
+}
