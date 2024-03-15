@@ -42,3 +42,11 @@ export function getDoubleEliminationUpsetFactorFromSet(set){
 
     return (score1 > score2) ? [getDoubleEliminationUpsetFactorFromSeeds(seed1, seed2), 0] : [getDoubleEliminationUpsetFactorFromSeeds(seed2, seed1), 1];
 }
+
+/**
+ * Returns the tournament part in an event slug. Assumes the event slug is valid
+ * @param {string} eventSlug 
+ */
+export function getTournamentSlugFromEventSlug(eventSlug){
+    return eventSlug.split(/\/event/g)[0];
+}
