@@ -1,4 +1,4 @@
-import { relurl } from "./lib/dirname.js";
+import { relurl } from './lib/dirname.js';
 import { readFileSync } from 'fs';
 import { Query } from "./lib/query.js"
 import { GraphQLClient } from "graphql-request";
@@ -16,14 +16,15 @@ const query = new Query(schema, 3);
 /**
  * 
  * @param {GraphQLClient} client 
- * @param {{imgType?: string, id?: number, slug?: string}} params 
+ * @param {{type?: string, id?: number, slug?: string}} params 
  * @param {TimedQuerySemaphore} limiter 
  * @returns {Promise<TournamentImage[]>}
  */
-async function getTournamentImageExecute(client, params, limiter){
-    let res = await query.execute(client, params, limiter);
+async function getTournamentImageExecute(client, params, limiter, silent = false){
+    let res = await query.execute(client, params, limiter, silent);
 
     if (!res.tournament) throw "Tournament not found.";
+    if (!silent) console.log("Fecthed image" + (!params.type ? "s" : " " + params.type) + " " + "for " + (params.id ? ("ID " + params.id) : ("slug " + params.slug)));
 
     return res.tournament.images;
 }
@@ -38,8 +39,8 @@ async function getTournamentImageExecute(client, params, limiter){
  * @param {TimedQuerySemaphore} limiter 
  * @returns 
  */
-export function getTournamentImage_(client, imgType, id, slug, limiter = null){
-    return getTournamentImageExecute(client, {type: imgType ?? undefined, id: id ?? undefined, slug: slug ?? undefined}, limiter);
+export function getTournamentImage_(client, imgType, id, slug, limiter = null, silent = false){
+    return getTournamentImageExecute(client, {type: imgType ?? undefined, id: id ?? undefined, slug: slug ?? undefined}, limiter, silent);
 }
 
 /**
@@ -50,7 +51,7 @@ export function getTournamentImage_(client, imgType, id, slug, limiter = null){
  * @param {TimedQuerySemaphore} limiter 
  * @returns 
  */
-export function getTournamentImage(client, imgType, idOrSlug, limiter = null){
+export function getTournamentImage(client, imgType, idOrSlug, limiter = null, silent = false){
     let params;
     switch (typeof idOrSlug){
         case "string":
@@ -63,7 +64,7 @@ export function getTournamentImage(client, imgType, idOrSlug, limiter = null){
             throw "Invalid type for parameter idOrSlug : expected string or number, got " + typeof idOrSlug;
     }
     
-    return getTournamentImageExecute(client, params, limiter);
+    return getTournamentImageExecute(client, params, limiter, silent);
 }
 
 /**
@@ -73,8 +74,8 @@ export function getTournamentImage(client, imgType, idOrSlug, limiter = null){
  * @param {TimedQuerySemaphore} limiter 
  * @returns 
  */
-export async function getTournamentLogo(client, idOrSlug, limiter = null){
-    return (await getTournamentImage(client, "profile", idOrSlug, limiter))[0];
+export async function getTournamentLogo(client, idOrSlug, limiter = null, silent = false){
+    return (await getTournamentImage(client, "profile", idOrSlug, limiter, silent))[0];
 }   
 
 /**
@@ -84,6 +85,6 @@ export async function getTournamentLogo(client, idOrSlug, limiter = null){
  * @param {TimedQuerySemaphore} limiter 
  * @returns 
  */
-export async function getTournamentBanner(client, idOrSlug, limiter = null){
-    return (await getTournamentImage(client, "banner", idOrSlug, limiter))[0];
+export async function getTournamentBanner(client, idOrSlug, limiter = null, silent = false){
+    return (await getTournamentImage(client, "banner", idOrSlug, limiter, silent))[0];
 }   
