@@ -1,11 +1,33 @@
 //i am a god of JS
 
+import { GraphQLClient } from "graphql-request";
+
 export class TimedQuerySemaphore {
-    #queue = [];
+    /**
+     * @typedef {{client: GraphQLClient, schema: string, 
+     *  params: {[varName: string]: value}, 
+     *  resolve: (value: any) => void, 
+     *  reject: (reason?: any) => void}
+     * } Query
+     */
+
+    /**@type {Query[]} */
+    #queue = [];    
+
+    /**@type {NodeJS.Timeout[]} */
     #timers = [];
+
+    /**@type {number} */
     #counter;
+
+    /**@type {number}*/
     #delay;
 
+    /**
+     * 
+     * @param {number} size Semaphore counter initial value
+     * @param {number} delay 
+     */
     constructor(size, delay){
         this.#counter = size;
         this.#delay = delay;
@@ -18,6 +40,12 @@ export class TimedQuerySemaphore {
         this.#timers.push(t);
     }
 
+    /**
+     * @param {GraphQLClient} client 
+     * @param {string} schema 
+     * @param {{[varName: string]: value}} params 
+     * @returns 
+     */
     #execute(client, schema, params){
         //console.log("Executing", params);
 
@@ -30,10 +58,21 @@ export class TimedQuerySemaphore {
         }, 500))*/
     }
 
+    /**
+     * @param {Query} query 
+     * @returns 
+     */
     #executeQuery(query){
         return this.#execute(query.client, query.schema, query.params);
     }
 
+    /**
+     * Executes the given query with the given GraphQL Client
+     * @param {GraphQLClient} client 
+     * @param {string} schema 
+     * @param {{[varName: string]: value}} params 
+     * @returns 
+     */
     execute(client, schema, params){
         if (this.#counter > 0){
             this.#counter--;
@@ -66,6 +105,7 @@ export class TimedQuerySemaphore {
 }
 
 export class ClockQueryLimiter extends TimedQuerySemaphore {
+    /** @param {number} rpm */
     constructor(rpm){
         super(1, 60000 / rpm);
     }
@@ -78,6 +118,7 @@ export class StartGGClockQueryLimiter extends ClockQueryLimiter {
 }
 
 export class DelayQueryLimiter extends TimedQuerySemaphore {
+    /** @param {number} rpm */
     constructor(rpm){
         super (rpm, 60000);
     }

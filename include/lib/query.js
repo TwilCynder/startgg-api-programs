@@ -1,14 +1,27 @@
+import { GraphQLClient } from 'graphql-request';
 import { deep_get } from './lib.js';
+import { TimedQuerySemaphore } from './queryLimiter.js'
 
 export class Query {
     #schema;
     #maxTries;
 
+    /**
+     * 
+     * @param {string} schema 
+     * @param {number?} maxTries 
+     */
     constructor (schema, maxTries = null){
         this.#schema = schema;
         this.#maxTries = maxTries;
     }
 
+    /**
+     * 
+     * @param {string} logName 
+     * @param {{[varName: string]: value}} params 
+     * @returns 
+     */
     #getLog(logName, params){
         if (!this.log) return null;
         let log = this.log[logName];
@@ -22,6 +35,16 @@ export class Query {
         return null;
     }
 
+    /**
+     * 
+     * @param {GraphQLClient} client 
+     * @param {{[varName: string]: value}} params 
+     * @param {number} tries How many tries in are we 
+     * @param {TimedQuerySemaphore} limiter 
+     * @param {boolean} silentErrors 
+     * @param {number} maxTries Overrides this.#maxTries
+     * @returns 
+     */
     async #execute_(client, params, tries, limiter = null, silentErrors = false, maxTries = null){
         maxTries = maxTries || this.#maxTries || 1
 
@@ -41,10 +64,31 @@ export class Query {
         }
     }
 
+    /**
+     * Executes the query with given parameters and client
+     * @param {GraphQLClient} client 
+     * @param {{[varName: string]: value}} params 
+     * @param {TimedQuerySemaphore} limiter 
+     * @param {boolean} silentErrors 
+     * @param {number} maxTries Overrides the default maximum tries count for this query
+     * @returns 
+     */
     async execute(client, params, limiter = null, silentErrors = false, maxTries = null){
         return await this.#execute_(client, params, 0, limiter, silentErrors, maxTries);
     }
 
+    /**
+     * Executes a query containing a paginated collection, repeatedly, increasing the page index each time until nothing is returned, returning an aggregation of all the pages.
+     * @param {GraphQLClient} client 
+     * @param {{[varName: string]: value}} params 
+     * @param {string} collectionPathInQuery JSON path to the paginated collection that must aggregated in the query (JSON path : property names separated by dots)
+     * @param {TimedQuerySemaphore} limiter 
+     * @param {number} delay Adds a delay between calls (does not interact with the limiter)
+     * @param {string} pageParamName Name of the query parameter that must be updated with a page index for each query
+     * @param {boolean} silentErrors 
+     * @param {number} maxTries 
+     * @returns 
+     */
     async executePaginated(client, params, collectionPathInQuery, limiter = null, delay = null, pageParamName = "page", silentErrors = false, maxTries = null){
         let result = [];
 
