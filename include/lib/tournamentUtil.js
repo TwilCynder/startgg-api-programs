@@ -6,7 +6,7 @@ const placements = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 64, 96, 128, 192, 256];
  */
 export function extractSlug(string){
     if (string.includes("start.gg/")){
-        return string.split("start.gg/");
+        return string.split("start.gg/")[1];
     } 
     return string;
 }
