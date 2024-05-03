@@ -1,5 +1,16 @@
 const placements = [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 64, 96, 128, 192, 256];
 
+/**
+ * Extracts a slug from a string. Can be either the slug directly or the full URL.
+ * @param {string} string 
+ */
+export function extractSlug(string){
+    if (string.includes("start.gg/")){
+        return string.split("start.gg/");
+    } 
+    return string;
+}
+
 export function getDoubleEliminationPlacementTier(placement){
     for (let tier of placements){
         if (placement <= tier) return tier;
