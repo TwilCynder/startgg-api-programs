@@ -1,7 +1,7 @@
 import fs from "fs";
 import { client } from "./include/lib/common.js";
 import { EventListParser, computeEventList } from "./include/lib/computeEventList.js";
-import { getSortedAttendanceOverLeague } from "./include/getEntrants.js";
+import { getSortedAttendanceOverLeague } from "./include/getAttendance.js";
 import { OutputModeParser, parseArguments } from "@twilcynder/arguments-parser";
 import {  getEventsInfo } from "./include/getEventInfo.js";
 import { StartGGQueryLimiter } from "./include/lib/queryLimiter.js";
