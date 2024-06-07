@@ -11,6 +11,15 @@ export function extractSlug(string){
     return string;
 }
 
+/**
+ * 
+ * @param {string[]} list 
+ * @returns 
+ */
+export function extractSlugs(list){
+    return list.map(str => extractSlug(str));
+}
+
 export function getDoubleEliminationPlacementTier(placement){
     for (let tier of placements){
         if (placement <= tier) return tier;

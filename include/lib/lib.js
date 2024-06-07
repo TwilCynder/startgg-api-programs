@@ -56,8 +56,12 @@ export function outputString(s, outputMode){
  * @param {string} text 
  * @returns 
  */
-function splitNewline(text){
+export function splitNewline(text){
     return text.replace(/\r/g, "").split("\n");
+}
+
+export function splitWhitespace(text){
+    return text.replace(/\s+/g, " ").split(" ");
 }
 
 /**
