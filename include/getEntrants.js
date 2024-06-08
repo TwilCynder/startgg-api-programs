@@ -26,6 +26,14 @@ export async function getEntrants_(client, slug, tries, limiter = null, silentEr
 }
 */
 
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {string} slug 
+ * @param {DelayQueryLimiter} limiter 
+ * @param {boolean} silentErrors 
+ * @returns 
+ */
 export async function getEntrants(client, slug, limiter, silentErrors = false){
     let data = await query.execute(client, {slug}, limiter, silentErrors);
     console.log("Fetched entrans for slug", slug);
@@ -33,4 +41,37 @@ export async function getEntrants(client, slug, limiter, silentErrors = false){
 
     return data.event.entrants.nodes;
     //return getEntrants_(client, slug, 0, limiter, silentErrors);
+}
+
+/**
+ * @param {GraphQLClient} client 
+ * @param {string[]} slugs 
+ * @param {DelayQueryLimiter} limiter 
+ * @param {boolean} silentErrors 
+ * @returns 
+ */
+export function getEntrantsForEvents(client, slugs, limiter, silentErrors = false){
+    return Promise.all(slugs.map( async slug => ({
+        entrants: await getEntrants(client, slug, limiter, silentErrors).catch( err => console.log("Slug", slug, "kaput : ", err)), 
+        slug
+    })));
+}
+
+export async function getUniqueUsersOverLeague(client, slugs, limiter, silentErrors = false){
+
+    let data = (await getEntrantsForEvents(client, slugs, limiter, silentErrors)).reduce((acc, event, index) => {
+        if (!event) return acc;
+        for (let entrant of event.entrants){
+            for (let participant of entrant.participants){
+                if (participant.user){
+                    acc[participant.user.id] = participant.user;
+                } else if (!silentErrors){
+                    console.warn("Entrant", entrant.id, `(${entrant.name})`, "at event", event.slug, "doesn't have a user account associated.");
+                }
+            }
+        }
+        return acc;
+    }, {})
+
+    return Object.values(data);
 }
