@@ -1,5 +1,5 @@
 import fs from "fs";
-import { client } from "./include/lib/common.js";
+import { client } from "./include/lib/client.js";
 import { getEntrantsCountOverLeague } from "./include/getEntrantsCount.js";
 import { computeEventList } from "./include/lib/computeEventList.js";
 

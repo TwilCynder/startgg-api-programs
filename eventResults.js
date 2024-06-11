@@ -1,5 +1,5 @@
 import { getEventResults, getEventsResults } from "./include/getEventResults.js";
-import {client} from "./include/lib/common.js";
+import {client} from "./include/lib/client.js";
 import { splitNewline, splitWhitespace } from "./include/lib/lib.js"
 import { extractSlugs } from "./include/lib/tournamentUtil.js"
 import { OutputModeParser, SingleOptionParser, parseArguments } from "@twilcynder/arguments-parser";

@@ -1,4 +1,4 @@
-import {client} from "./common.js"
+import {client} from "./client.js"
 import { standingTiers, tierNames } from './standingTiers.js';
 import { removeTags } from './smashggData.js';
 

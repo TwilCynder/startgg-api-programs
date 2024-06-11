@@ -34,11 +34,16 @@ async function loadInputText(inputFile){
 }
 
 /**
- * Loads the input data as JSON text either from the given file or the standdard input
+ * Loads the input data as JSON text either from the given file or the standard input
  * @param {string} inputFile 
  * @returns 
  */
 export async function loadInput(inputFile){
     let text = await loadInputText(inputFile);
+    return JSON.parse(text);
+}
+
+export async function loadInputFromStdin(){
+    let text = await readFromStdin();
     return JSON.parse(text);
 }

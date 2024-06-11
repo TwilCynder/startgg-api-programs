@@ -1,4 +1,4 @@
-import { client } from "./include/lib/common.js";
+import { client } from "./include/lib/client.js";
 import * as fs from 'fs'
 import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
