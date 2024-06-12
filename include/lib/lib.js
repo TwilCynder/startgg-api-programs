@@ -20,7 +20,7 @@ export function readLines(filename){
  */
 export function readLinesAsync(filename){
     return fs.promises.readFile(filename)
-        .then(buf => buf.toString('utf-8').replace('\r', '').split('\n'));
+        .then(buf => buf.toString('utf-8').replace(/\r/g, '').split('\n'));
 }
 
 export async function readJSONAsync(filename){
