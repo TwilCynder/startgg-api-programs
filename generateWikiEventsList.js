@@ -1,5 +1,5 @@
 import fs from "fs";
-import { client } from "./include/lib/common.js";
+import { client } from "./include/lib/client.js";
 import { EventListParser } from "./include/lib/computeEventList.js";
 import { OutputModeParser, parseArguments } from "@twilcynder/arguments-parser";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";

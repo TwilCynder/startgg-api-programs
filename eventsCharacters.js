@@ -1,7 +1,7 @@
 import { parseArguments, OutputModeParser } from '@twilcynder/arguments-parser'
 import { EventListParser } from './include/lib/computeEventList.js'
 import { getCharsInEvents } from './include/getCharactersInEvent.js';
-import { client } from './include/lib/common.js';
+import { client } from './include/lib/client.js';
 import { loadCharacterInfo } from './include/loadCharacterInfo.js';
 import fs from 'fs';
 

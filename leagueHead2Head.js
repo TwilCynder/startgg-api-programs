@@ -1,4 +1,4 @@
-import { client } from "./include/lib/common.js";
+import { client } from "./include/lib/client.js";
 import { Player } from "./include/player.js";
 import * as fs from 'fs'
 import { leagueHeadToHead } from "./include/leagueHead2Head.js";

@@ -1,5 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 
+
 const endpoint = 'https://www.start.gg/api/-/gql'
 
 const headers = {
@@ -7,6 +8,8 @@ const headers = {
     'Content-Type': 'application/json'
 }
 
-export const client = new GraphQLClient(endpoint, {
-    headers: headers
-})
+export function createClient(){
+    return new GraphQLClient(endpoint, {
+        headers: headers
+    });
+}

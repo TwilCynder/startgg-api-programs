@@ -1,4 +1,4 @@
-import { client } from "./include/lib/common.js";
+import { client } from "./include/lib/client.js";
 import { getPlayerInfo } from "./include/getPlayerInfo.js";
 
 if (process.argv.length < 3 ){

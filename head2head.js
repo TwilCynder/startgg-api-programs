@@ -1,4 +1,4 @@
-import {client} from "./include/lib/common.js"
+import {client} from "./include/lib/client.js"
 import {getHead2Head} from "./include/head2head.js";
 import { Player } from "./include/player.js";
 

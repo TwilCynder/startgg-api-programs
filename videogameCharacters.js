@@ -1,4 +1,4 @@
-import { client } from "./include/lib/common.js";
+import { client } from "./include/lib/client.js";
 import { getCharacters } from "./include/getVideogameCharacters.js";
 import {Parser, parseArguments, OutputModeParser} from '@twilcynder/arguments-parser'
 import fs from 'fs'
