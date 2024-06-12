@@ -19,9 +19,9 @@ let {list, outputFormat, outputfile, logdata} = new ArgumentsManager()
         dest: "logdata",
         description: "Use to log the processed data (in a nice and pretty format) to the std output, the actual output is emitted"
     })
+    .enableHelpParameter()
     .parseProcessArguments();
 
-console.log(list);
 
 let limiter = new StartGGDelayQueryLimiter;
 let users = await getUniqueUsersOverLeague(client, list, limiter);

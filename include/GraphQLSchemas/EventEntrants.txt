@@ -8,6 +8,7 @@ query EventStandingsQuery($slug: String!) {
         participants {
           user {
             id
+            slug
             player {
               id
               gamerTag
