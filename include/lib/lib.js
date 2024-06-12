@@ -84,3 +84,27 @@ let currentID = 1;
 export function generateUniqueID(){
     return currentID++;
 }
+
+/**
+ * 
+ * @param {(() => any)[]} fArray 
+ */
+export function fResultsArray(fArray){
+    let result = [];
+    for (let f of fArray){
+        let res = f();
+        if (res !== undefined){
+            result.push(res);
+        }
+    }
+
+    return result;
+} 
+
+/**
+ * 
+ * @param  {...(() => any)} functions 
+ */
+export function fResults(...functions){
+    return fResultsArray(functions);
+}
