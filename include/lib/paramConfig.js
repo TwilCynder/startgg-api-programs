@@ -16,7 +16,11 @@ export function addOutputParams(argumentsManager){
         })
         .addSwitch(["-l", "--log-data"], {
             dest: "logdata",
-            description: "Use to log the processed data (in a nice and pretty format) to the std output, the actual output is emitted"
+            description: "Use to log the processed data (in a nice and pretty format) to the std output. True by default if neither -o or -p are specified."
+        })
+        .addSwitch(["-p", "--print-output"], {
+            dest: "printdata",
+            description: "Output the result to stdout"
         })
 }
 
@@ -29,3 +33,16 @@ export function addInputParams(argumentsManager){
         .addOption(["-i", "--input-file"], {dest: "inputfile"})
         .addSwitch(["-S", "--stdin-input"], {dest: "stdinput"})
 }
+
+/**
+ * Returns two values, indicating if we should log data, and if the program should be silent
+ * @param {boolean} logdata 
+ * @param {boolean} printdata 
+ * @param {string} outputfile 
+ * @returns 
+ */
+export function doWeLog(logdata, printdata, outputfile){
+    let log = logdata || (!outputfile && !printdata)
+    return [log, !log];
+}
+
