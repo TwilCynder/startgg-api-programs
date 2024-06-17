@@ -24,8 +24,8 @@ export function readLinesAsync(filename){
 }
 
 export async function readJSONAsync(filename){
-    const buf = await fs.promises.readFile(filename);
-    return JSON.parse(buf);
+    return fs.readFile(filename)
+        .then(buf => JSON.parse(buf))
 }
 
 export function deep_get(obj, path, def = null){
@@ -107,4 +107,14 @@ export function fResultsArray(fArray){
  */
 export function fResults(...functions){
     return fResultsArray(functions);
+}
+
+let write = process.stdout.write;
+
+export function muteStdout(){
+    process.stdout.write = ()=>{};
+}
+
+export function unmuteStdout(){
+    process.stdout.write = write;
 }

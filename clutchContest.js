@@ -1,30 +1,54 @@
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 
 import { EventListParser } from "./include/lib/computeEventList.js";
-import { OutputModeParser, SingleOptionParser, parseArguments } from "@twilcynder/arguments-parser"; 
+import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
-import fs from 'fs';
 import { getPlayerName } from "./include/getPlayerName.js";
+import { addInputParams, addOutputParams } from "./include/lib/paramConfig.js";
+import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/lib.js";
+import { loadInputFromStdin } from "./include/lib/loadInput.js";
 
-let [outputMode, inputFile, slugs] = parseArguments(process.argv.slice(2), 
-    new OutputModeParser("log", "casseur2bracket"),
-    new SingleOptionParser("-f"),
-    new EventListParser()
-)
+let {slugs, outputFormat, outputfile, logdata, inputfile, stdinput} = new ArgumentsManager()
+    .addCustomParser(new EventListParser, "slugs")
+    .apply(addInputParams)
+    .apply(addOutputParams)
+    .parseProcessArguments();
 
-let data;
+const silent = !outputfile && !logdata;
+if (silent) muteStdout();
+
 let limiter = new StartGGDelayQueryLimiter();
 
-if (inputFile){
-    data = fs.readFileSync(inputFile).toString();
+let data = await Promise.all([
+    inputfile ? 
+        readJSONAsync(inputfile).catch(err => {
+            console.warn(`Could not open file ${inputfile} : ${err}`)
+            return [];
+        }) 
+    : null,
+    stdinput ? loadInputFromStdin() : null,
+    slugs.length > 0 ?
+        getEventsSetsBasic(client, slugs, limiter)
+    : null
+])
+data = data.reduce( (prev, curr) => {
+    return curr ? prev.concat(curr) : prev;
+}, []);
+
+console.log(data.length);
+
+/*
+if (inputfile){
+    data = fs.readFileSync(inputfile).toString();
     data = JSON.parse(data);
     console.log("Finished reading data from file");
 } else {
     data = await getEventsSetsBasic(client, slugs, limiter);
 }
+*/
 
 let players = {}
 function addSet(user, clutch){
@@ -64,6 +88,8 @@ await Promise.all(players.map(player =>
         player.name = name;
     })
 ))
+
+if (silent) unmuteStdout();
 
 for (let player of players){
     console.log(player.name, player.average, player.clutchs, player.sets);

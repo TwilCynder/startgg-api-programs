@@ -12,7 +12,7 @@ let {inputfile, stdinput, list, names, namesfile, outputfile, outputFormat} = ne
     .addMultiParameter("names")
     .addOption(["-f", "--names-file"], {dest: "namesfile"})
     .addOption(["-i", "--input-file"], {dest: "inputfile"})
-    .addSwitch(["-S", "--stdin-input"], {dest: "stdininput"})
+    .addSwitch(["-S", "--stdin-input"], {dest: "stdinput"})
     .addOption(["-o", "--output-file"], {dest: "outputfile"})
     .addOption("--format", {dest: "outputFormat", default: "txt"})
     .parseProcessArguments();

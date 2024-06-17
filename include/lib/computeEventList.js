@@ -26,7 +26,6 @@ export class EventListParser extends Parser {
                     let template = args[i + 1];
                     let min = parseInt(args[i + 2]);
                     let max = parseInt(args[i + 3]);
-                    console.log(template, min, max);
                     for (let i = min; i <= max; i++){
                         this._state.push(template.replace("%", i));
                     }
