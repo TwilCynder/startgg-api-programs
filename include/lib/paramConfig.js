@@ -1,3 +1,9 @@
+import { ArgumentsManager } from "@twilcynder/arguments-parser"
+
+/**
+ * Added dests : outputFormat, outputfile, logdata
+ * @param {ArgumentsManager} argumentsManager 
+ */
 export function addOutputParams(argumentsManager){
     argumentsManager
         .addOption("--format", {
@@ -12,4 +18,14 @@ export function addOutputParams(argumentsManager){
             dest: "logdata",
             description: "Use to log the processed data (in a nice and pretty format) to the std output, the actual output is emitted"
         })
+}
+
+/**
+ * Dests added : inputfile, stdinput
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addInputParams(argumentsManager){
+    argumentsManager
+        .addOption(["-i", "--input-file"], {dest: "inputfile"})
+        .addSwitch(["-S", "--stdin-input"], {dest: "stdinput"})
 }
