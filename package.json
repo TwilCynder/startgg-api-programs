@@ -9,7 +9,7 @@
   "author": "TwilCynder",
   "license": "ISC",
   "dependencies": {
-    "@twilcynder/arguments-parser": "^1.8.2",
+    "@twilcynder/arguments-parser": "<=2.0.0",
     "graphql-request": "^4.3.0",
     "timezone": "^1.0.23"
   },
