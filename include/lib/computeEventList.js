@@ -18,7 +18,7 @@ export class EventListParser extends Parser {
             case "-f":
                 console.log("-f is not suported yet sorryyyyy");
                 return false
-            case "-s":
+            case "-t":
                 {
                     if (!argsLeft(args, i, 3)){
                         throw "Argument -s usage : -s template min max"
