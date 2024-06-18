@@ -7,17 +7,19 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
 import { getPlayerName } from "./include/getPlayerName.js";
-import { addInputParams, addOutputParams } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/lib.js";
 import { loadInputFromStdin } from "./include/lib/loadInput.js";
+import { output } from "./include/lib/util.js";
 
-let {slugs, outputFormat, outputfile, logdata, inputfile, stdinput} = new ArgumentsManager()
+let {slugs, outputFormat, outputfile, logdata, printdata, inputfile, stdinput} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "slugs")
     .apply(addInputParams)
     .apply(addOutputParams)
     .parseProcessArguments();
 
-const silent = !outputfile && !logdata;
+let [log, silent] = doWeLog(logdata, printdata, outputfile, silent);
+
 if (silent) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
@@ -78,12 +80,16 @@ for (let set of data){
     addSet(set.slots[1].entrant.participants[0].player.user, clutch);
 }
 
-players = Object.entries(players).map(([id, player]) => {
+/**
+ * @type {{sets: number, clutchs: number, average: number, slug: string, name: string}[]}
+ */
+let playerList = Object.entries(playerList).map(([id, player]) => {
     player.average = player.clutchs / player.sets;
     player.slug = id;
     return player;
 }).filter(player => player.sets > 10).sort((a, b) => a.average - b.average).slice(-10);
-await Promise.all(players.map(player =>
+
+await Promise.all(playerList.map(player =>
     getPlayerName(client, player.slug, limiter).then(name => {
         player.name = name;
     })
@@ -91,8 +97,17 @@ await Promise.all(players.map(player =>
 
 if (silent) unmuteStdout();
 
-for (let player of players){
-    console.log(player.name, player.average, player.clutchs, player.sets);
+if (logdata){
+    for (let player of playerList){
+        console.log(player.name, player.average, player.clutchs, player.sets);
+    }
 }
+
+output(outputFormat, outputfile, printdata, playerList, (players) => {
+    let str = "";
+    for (let player of players){
+        str += `${player.name}\t${player.slug}\t${player.clutchs}\t${player.sets}\t${player.average}\n`
+    }
+})
 
 limiter.stop();

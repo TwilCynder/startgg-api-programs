@@ -22,6 +22,10 @@ export function addOutputParams(argumentsManager){
             dest: "printdata",
             description: "Output the result to stdout"
         })
+        .addSwitch(["-s", "--silent"], {
+            description: "Do not log anything besides the output. True by default if printing the output to stdout"
+        })
+        
 }
 
 /**
@@ -39,10 +43,12 @@ export function addInputParams(argumentsManager){
  * @param {boolean} logdata 
  * @param {boolean} printdata 
  * @param {string} outputfile 
+ * @param {boolean} silent 
  * @returns 
  */
-export function doWeLog(logdata, printdata, outputfile){
-    let log = logdata || (!outputfile && !printdata)
-    return [log, !log];
+export function doWeLog(logdata, printdata, outputfile, silent){
+    return [
+        logdata || (!printdata && !outputfile && !silent),
+        silent || printdata
+    ]
 }
-
