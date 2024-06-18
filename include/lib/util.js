@@ -15,12 +15,14 @@ export function output(format, filename, printdata, data, CSVtransform){
         (CSVtransform(data) ?? "") :
         JSON.stringify(data, null, format == "prettyjson" ? 4 : undefined);
 
+
     if (filename){
         fs.mkdir("out", ()=>{})
-        filename = "./out/" + file;
+        filename = "./out/" + filename;
         let file = fs.createWriteStream(filename, {encoding: "utf-8"});
         file.write(resultString);
-    } else { //printdata == true
+    } 
+    if (printdata) {
         console.log(resultString);
     }
 }

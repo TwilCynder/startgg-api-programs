@@ -12,15 +12,15 @@ import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/lib.js";
 import { loadInputFromStdin } from "./include/lib/loadInput.js";
 import { output } from "./include/lib/util.js";
 
-let {slugs, outputFormat, outputfile, logdata, printdata, inputfile, stdinput} = new ArgumentsManager()
+let {slugs, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "slugs")
     .apply(addInputParams)
     .apply(addOutputParams)
     .parseProcessArguments();
 
-let [log, silent] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
-if (silent) muteStdout();
+if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
 
@@ -83,7 +83,7 @@ for (let set of data){
 /**
  * @type {{sets: number, clutchs: number, average: number, slug: string, name: string}[]}
  */
-let playerList = Object.entries(playerList).map(([id, player]) => {
+let playerList = Object.entries(players).map(([id, player]) => {
     player.average = player.clutchs / player.sets;
     player.slug = id;
     return player;
@@ -95,9 +95,9 @@ await Promise.all(playerList.map(player =>
     })
 ))
 
-if (silent) unmuteStdout();
+if (silent_) unmuteStdout();
 
-if (logdata){
+if (logdata_){
     for (let player of playerList){
         console.log(player.name, player.average, player.clutchs, player.sets);
     }
