@@ -1,0 +1,10 @@
+query UserInfo($slug : String!){
+    user(slug: $slug){
+        id
+        player {
+            id
+            gamerTag,
+          	prefix
+        }
+    }
+}

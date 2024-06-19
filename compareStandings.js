@@ -16,22 +16,7 @@ let {slugs, outputFormat, outputfile, logdata, printdata, silent} = new Argument
 
 let [logData_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
-if (process.argv.length < 3 ){
-    console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " IDsListFilename [startDate [endDate]]");
-    process.exit()
-}
-
 var IDs = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', '').split('\n');
-
-var begin = null;
-if (process.argv.length > 3){
-    begin = parseInt(process.argv[3]);
-}
-
-var end = null;
-if (process.argv.length > 4){
-    end = parseInt(process.argv[4]);
-}
 
 let users = await User.createUsers(client, IDs);
 

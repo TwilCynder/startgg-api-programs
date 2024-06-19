@@ -1,11 +1,8 @@
-import { readFileSync } from 'fs';
-import { relurl } from './lib/dirname.js';
 import { Query } from './lib/query.js';
+import { readSchema } from './lib/lib.js';
 
-const schemaFilename = "./GraphQLSchemas/EventEntrants.txt";
-const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
-
-const query = new Query(schema, 4);
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrants.txt");
+const query = new Query(schema, 3);
 
 /*
 export async function getEntrants_(client, slug, tries, limiter = null, silentErrors = false){
@@ -36,7 +33,7 @@ export async function getEntrants_(client, slug, tries, limiter = null, silentEr
  */
 export async function getEntrants(client, slug, limiter, silentErrors = false){
     let data = await query.execute(client, {slug}, limiter, silentErrors);
-    console.log("Fetched entrans for slug", slug);
+    console.log("Fetched entrants for slug", slug);
     if (!data.event) return null;
 
     return data.event.entrants.nodes;

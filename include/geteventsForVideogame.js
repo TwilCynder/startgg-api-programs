@@ -1,9 +1,8 @@
-import { readFileSync } from 'fs';
-import { relurl } from './lib/dirname.js';
+import { Query } from './lib/query.js';
+import { readSchema } from './lib/lib.js';
 
-const schemaFilename = "./GraphQLSchemas/EventsByVideogame.txt";
-
-const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrEventsByVideogameantsCount.txt");
+const query = new Query(schema, 3);
 
 const perPage = 100;
 const lastPage = 50;

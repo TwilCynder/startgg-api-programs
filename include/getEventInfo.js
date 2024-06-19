@@ -1,10 +1,7 @@
-import { relurl } from "./lib/dirname.js";
-import { readFileSync } from 'fs';
-import { Query } from "./lib/query.js"
+import { Query } from './lib/query.js';
+import { readSchema } from './lib/lib.js';
 
-const schemaFilename = "./GraphQLSchemas/EventInfo.txt";
-const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
-
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrantsCount.txt");
 const query = new Query(schema, 3);
 
 export async function getEventInfo(client, slug, limiter = null){

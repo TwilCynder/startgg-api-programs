@@ -1,7 +1,0 @@
-query PlayerName($slug : String!){
-    user(slug: $slug){
-        player {
-            gamerTag
-        }
-    }
-}

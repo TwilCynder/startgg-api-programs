@@ -1,10 +1,8 @@
-import { readFileSync } from 'fs';
-import { relurl } from './lib/dirname.js';
-import { Query } from "./lib/query.js";
+import { Query } from './lib/query.js';
+import { readSchema } from './lib/lib.js';
 
-const schemaFilename = "./GraphQLSchemas/EventStanding.txt";
-const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
-const query = new Query(schema, 4);
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventStanding.txt");
+const query = new Query(schema, 3);
 
 export async function getEventResults(client, slug, numEntrants = 192, limiter = null){
     console.log("Getting standings from event : ", slug);
