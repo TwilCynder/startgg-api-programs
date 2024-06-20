@@ -1,26 +1,20 @@
-import {readFileSync} from 'fs';
-import { relurl } from './lib/dirname.js';
-import { Query } from './lib/query.js   ';
 import { StartGGDelayQueryLimiter } from './lib/queryLimiter.js';
 import { getSetsInEvent, getSetsInEvents, reduceSetsInEvents } from './getSetsInEvents.js';
 
-const schemaFilename = "./GraphQLSchemas/EventSetsCharacter.txt"
-const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacter.txt");
+const query = new Query(schema, 3);
 
-let query = new Query(schema, 2);
 query.log = {
     query: params => `Fetching sets from event ${params.slug}, page ${params.page}`,
     error: params => `Request failed for event ${params.slug}, page ${params.page}`
 }
 
 export async function getSetsCharsInEvent(client, slug, limiter){
-    let sets = await getSetsInEvent(client, query, slug, limiter);
-    return sets;
+    return await getSetsInEvent(client, query, slug, limiter);
 }
 
-export async function getSetsCharsInEvents(client, eventSlugs, limiter){
-    let sets = await getSetsInEvents(client, query, slugs, limiter);
-    return sets;
+export async function getSetsCharsInEvents(client, slugs, limiter){
+    return await getSetsInEvents(client, query, slugs, limiter);
 }
 
 function updateCharsCount(chars, sets){
@@ -44,9 +38,7 @@ export async function getCharsInEvent(client, slug, limiter){
     return updateCharsCount({}, sets);
 }
 
-export async function getCharsInEvents(client, slugs){
-    let limiter = new StartGGDelayQueryLimiter;
-
+export async function getCharsInEvents(client, slugs, limiter = null){
     let chars = await reduceSetsInEvents(client, query, slugs, (chars, sets) => {
         console.log("Reducing", chars);
         if (!sets) return chars;    

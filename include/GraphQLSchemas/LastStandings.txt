@@ -1,8 +1,8 @@
-query UserTournamentQuery($slug: String){
+query UserTournamentQuery($slug: String!, $count: Int!){
   user(slug: $slug) {
     player {
       gamerTag
-      recentStandings(limit: 20){
+      recentStandings(limit: $count){
         placement
         entrant {
           event {

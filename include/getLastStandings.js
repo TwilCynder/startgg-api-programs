@@ -1,33 +1,18 @@
-import { readFileSync } from 'fs';
-import { relurl } from './lib/dirname.js';
+import { Query } from './lib/query.js';
+import { deep_get, readSchema } from './lib/lib.js';
 
+const DEFAULT_COUNT = 20;
 
-const schemaFilename = "./GraphQLSchemas/LastStandings.txt";
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/LastStandings.txt");
+const query = new Query(schema, 3);
 
-const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
-
-async function getLastStandings_(client, slug, tries){
-    if (!slug) return;
-    console.log("Querying " + slug)
-    try {
-        let res = await client.request(schema, {
-            slug: slug
-        });
-        return res.user ? res : slug;
-    } catch (e) {
-        if (tries > 2) throw e;
-        console.log(`/!\\ Request failed for slug ${slug}. Retrying.`);
-        return getLastStandings_(client, slug, tries + 1);
-    }
+export async function getLastStandings(client, slug, limiter = null, count = DEFAULT_COUNT, silentErrors = false){
+    let data = await query.execute(client, {slug, count}, limiter, silentErrors);
+    console.log("Fetched last standings for slug", slug);
+    let result = deep_get(data, "user.player.recentStandings");
+    return result;
 }
 
-export async function getLastStandings(client, slug){
-    return getLastStandings_(client, slug, 0)
-}
-
-export async function getPlayersLastStandings(client, slugs){
-    let players = []
-    await Promise.all(slugs.map( (slug) => getLastStandings(client, slug)))
-        .then(values => players = values);
-    return players;
+export async function getPlayersLastStandings(client, slugs, limiter = null, count = DEFAULT_COUNT){
+    return await Promise.all(slugs.map( (slug) => getLastStandings(client, slug, limiter, count).catch(err => console.error("Slug", slug, "kaput :", err))))
 }
