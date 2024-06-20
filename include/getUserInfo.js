@@ -11,3 +11,7 @@ export async function getUserInfo(client, slug, limiter = null){
   return data.user;
 
 }
+
+export function getUsersInfo(client, slugs, limiter = null){
+  return Promise.all(slugs.map((slug) => getUserInfo(client, slug, limiter).catch((err) => console.log("User slug", slug, "kaput : ", err))));
+}
