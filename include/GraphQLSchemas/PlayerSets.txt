@@ -1,0 +1,28 @@
+query PlayerSets($p1Id: ID!, $perPage: Int!, $page: Int!, $after: Timestamp) {
+    player (id: $p1Id) {
+        sets(perPage: $perPage, page: $page, filters : {
+          updatedAfter: $after
+        }) {
+            nodes {
+                completedAt
+                slots {
+                    entrant {
+                        participants {
+                            player {
+                                id
+                                gamerTag
+                            }
+                            user {
+                                id
+                            }    
+                        } 
+                    }
+                    standing {
+                        placement
+                    }
+                }
+                displayScore         
+            }
+        }
+    }
+}
