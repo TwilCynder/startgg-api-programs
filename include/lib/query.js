@@ -100,13 +100,17 @@ export class Query {
 
             console.log(data);
 
-            if (!data) throw this.#getLog("error", params) || "Request failed." + "(in paginated execution, at page " + params[pageParamName] + ")";
+            if (!data) throw (this.#getLog("error", params) ?? "Request failed.") + "(in paginated execution, at page " + params[pageParamName] + ")";
 
             let localResult = deep_get(data, collectionPathInQuery);
 
             console.log(localResult)
 
-            if (!localResult) throw `The given path ${collectionPathInQuery} does not point to anything.`
+            if (!localResult) {
+                console.warn(`The given path ${collectionPathInQuery} does not point to anything.`);
+                return null;
+            }
+            
             if (!localResult.push) throw "The given path does not point to an array."
 
             if (localResult.length < 1) break;
