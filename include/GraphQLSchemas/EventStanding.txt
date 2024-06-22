@@ -18,6 +18,7 @@ query EventStandingsQuery($slug: String!, $numEntrants: Int) {
           name
           participants {
             user {
+              id
               slug
             }
           }
