@@ -1,9 +1,8 @@
-import { readFileSync } from 'fs';
-import { relurl } from './lib/dirname.js';
+import { Query } from './lib/query.js';
+import { readSchema } from './lib/lib.js';
 
-const standingsSchemaFilename = "./GraphQLSchemas/StandingsFromUser.txt";
-
-const standingsSchema = readFileSync(relurl(import.meta.url, standingsSchemaFilename), {encoding: "utf-8"});
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.txt");
+const query = new Query(schema, 3);
 
 const perPage = 3;
 
@@ -33,7 +32,7 @@ async function processStandingsPage(client, standingsList, id, page, after = nul
         console.log("==========SORT FAULT !!!!==========")
       }
       prevTimestamp = ev.startAt;
-
+ 
       if (until && ev.startAt > until) continue;
       if (after && ev.startAt < after) return false;
       if (ev.entrantSizeMin > 1) continue;

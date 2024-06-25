@@ -1,5 +1,5 @@
-query StandinsgQuery($id: ID!, $page: Int!) {
-	user(id: $id) {
+query StandinsgQuery($id: ID, $slug: String, $page: Int!) {
+	user(id: $id, slug: $slug) {
     events (query : {
       perPage: 3,
       page: $page,
