@@ -1,9 +1,9 @@
-query StandinsgQuery($id: ID, $slug: String, $page: Int!) {
+query StandinsgQuery($id: ID, $slug: String, $standingsPage: Int, $stadingsPerPage: Int, $eventsPage: Int, $eventsPerPage: Int) {
 	user(id: $id, slug: $slug) {
     events (query : {
-      perPage: 3,
-      page: $page,
-      sortBy: "startAt desc"
+      page: $eventsPage,
+      sortBy: "startAt desc",
+      perPage: $eventsPerPage
     }){
       nodes {
         tournament {
@@ -13,8 +13,8 @@ query StandinsgQuery($id: ID, $slug: String, $page: Int!) {
         id
         startAt
         standings (query : {
-          perPage: 48,
-          page: 1
+          perPage: $stadingsPerPage,
+          page: $standingsPage
         }){
           nodes {
             placement

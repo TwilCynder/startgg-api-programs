@@ -4,32 +4,25 @@ import { readSchema } from './lib/lib.js';
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.txt");
 const query = new Query(schema, 3);
 
-const perPage = 3;
+const PER_PAGE = 3;
 
-async function getStandingsPage(client, id, page){
-    console.log("Getting page : ", page, "from ID", id);
-    try {
-        return await client.request(standingsSchema, {
-            id: id,
-            page: page
-        });
-    } catch (e) {
-        console.log("/!\\ Request failed, retrying.", "Message : ", e);
-        return getStandingsPage(client, id, page);
-    }
-    
+async function getStandingsPage(client, slug, limiter = null, page, perPage = PER_PAGE, silentErrors = false){
+  let data = await query.execute(client, {slug, page, perPage}, limiter, silentErrors);
+  console.log("Fetched standings page", page, "for user slug", slug);
+  let result = deep_get(data, "user.events.nodes");
+  return result;
 }
 
 var prevTimestamp;
-
-async function processStandingsPage(client, standingsList, id, page, after = null, until = null){
-    let response = await getStandingsPage(client, id, page);
-    let events = response.user.events.nodes;
+/*
+async function processStandingsPage(client, slug, limiter, currentList, page, after = null, until = null, perPage = PER_PAGE){
+    let events = await getStandingsPage(client, slug, limiter, page, perPage, false);
+     if (!events) throw `No result for slug ${slug} page ${page} (${perPage} resutls per page)`;
 
     for (let ev of events){
 
       if (ev.startAt > prevTimestamp){
-        console.log("==========SORT FAULT !!!!==========")
+        console.warn("==========SORT FAULT !!!!==========");
       }
       prevTimestamp = ev.startAt;
  
@@ -37,7 +30,7 @@ async function processStandingsPage(client, standingsList, id, page, after = nul
       if (after && ev.startAt < after) return false;
       if (ev.entrantSizeMin > 1) continue;
 
-      if (standingsList[ev.id]) continue;
+      if (standingsList.list[ev.id]) continue;
 
       standingsList.list[ev.id] = ev.standings.nodes;
       standingsList.list[ev.id].tournamentName = ev.tournament.name;
@@ -47,16 +40,46 @@ async function processStandingsPage(client, standingsList, id, page, after = nul
     }
     return events.length >= perPage;
 }
+*/
 
-export async function processStandingsFromPlayer(client, id, events, delay, after = null, until = null){
-  prevTimestamp = Infinity;
-    let page = 1
+async function processStandingsPage(client, slug, limiter, currentList, page, after = null, until = null, perPage = PER_PAGE){
+  let events = await getStandingsPage(client, slug, limiter, page, false);
+   if (!events) throw `No result for slug ${slug} page ${page}`;
 
-    while (await processStandingsPage(client, events, id, page, after, until)){
-      page++    
-      if (delay)
-          await new Promise(resolve => setTimeout(resolve, delay));
+  for (let ev of events){
+
+    if (ev.startAt > prevTimestamp){
+      console.warn("==========SORT FAULT !!!!==========");
     }
+    prevTimestamp = ev.startAt;
+
+    if (until && ev.startAt > until) continue;
+    if (after && ev.startAt < after) return false;
+
+    currentList.push(ev);
+
+  }
+  return events.length > 0;
+}
+
+export async function getStandingsFromUser(client, slug, limiter, after = null, until = null){
+  if (!after && !until){ //we don't have to check each page, we can go for a simple paginated query
+    return query.executePaginated(client, {slug, standingsPerPage: 500, standingsPage: 1}, "user.events.nodes", limiter, null, null, "eventsPage");
+  } else {
+    prevTimestamp = Infinity;
+    let result = [];
+
+    let page = 1
+    while (await processStandingsPage(client, result, id, page, after, until)){
+      page++    
+    }
+
+    return result;
+  }
+}
+
+export async function getStandingsFromUsers(client, slugs, limiter, after = null, until = null){
+  let standings 
 }
 
 export async function processStandingsSync(client, users, after = null, until = null){
