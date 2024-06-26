@@ -89,22 +89,20 @@ export class Query {
      * @param {number} maxTries 
      * @returns 
      */
-    async executePaginated(client, params, collectionPathInQuery, limiter = null, delay = null, pageParamName = "page", silentErrors = false, maxTries = null){
+    async executePaginated(client, params, collectionPathInQuery, limiter = null, delay = null, perPage = undefined, pageParamName = "page", perPageParamName = "perPage", silentErrors = false, maxTries = null){
         let result = [];
 
         params = Object.assign({}, params);
         params[pageParamName] = 1;
+        params[perPageParamName] = perPage;
 
         while (true){
+            console.log("Querying page", params[pageParamName], `(${result.length} elements loaded)`);
             let data = await this.execute(client, params, limiter, silentErrors, maxTries);
-
-            console.log(data);
 
             if (!data) throw (this.#getLog("error", params) ?? "Request failed.") + "(in paginated execution, at page " + params[pageParamName] + ")";
 
             let localResult = deep_get(data, collectionPathInQuery);
-
-            console.log(localResult)
 
             if (!localResult) {
                 console.warn(`The given path ${collectionPathInQuery} does not point to anything.`);
