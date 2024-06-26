@@ -1,4 +1,4 @@
-query PlayerSets($id: ID!, $perPage: Int!, $page: Int!, $after: Timestamp) {
+query PlayerSets($id: ID!, $perPage: Int, $page: Int!, $after: Timestamp) {
     player (id: $id) {
         sets(perPage: $perPage, page: $page, filters : {
           updatedAfter: $after
