@@ -56,12 +56,15 @@ export function getEntrantsForEvents(client, slugs, limiter, silentErrors = fals
 
 export async function getUniqueUsersOverLeague(client, slugs, limiter, silentErrors = false){
 
-    let data = (await getEntrantsForEvents(client, slugs, limiter, silentErrors)).reduce((acc, event, index) => {
+    let data = (await getEntrantsForEvents(client, slugs, limiter, silentErrors)).reduce((acc, event) => {
         if (!event) return acc;
         for (let entrant of event.entrants){
             for (let participant of entrant.participants){
                 if (participant.user){
-                    acc[participant.user.id] = participant.user;
+                    if (!acc[participant.user.id]){
+                        participant.user.player = participant.player;
+                        acc[participant.user.id] = participant.user;
+                    }
                 } else if (!silentErrors){
                     console.warn("Entrant", entrant.id, `(${entrant.name})`, "at event", event.slug, "doesn't have a user account associated.");
                 }

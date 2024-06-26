@@ -45,6 +45,5 @@ export async function loadInput(inputFile){
 
 export async function loadInputFromStdin(){
     let text = await readFromStdin();
-    console.log("text", text);
     return JSON.parse(text);
 }
