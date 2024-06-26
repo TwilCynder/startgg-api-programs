@@ -6,17 +6,17 @@ import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { fResults, readLinesAsync } from "./include/lib/lib.js";
 import { getUniqueUsersOverLeague } from "./include/getEntrants.js";
 import { createClient } from "./include/lib/common.js";
+import { addInputParams } from "./include/lib/paramConfig.js";
 
 let {inputfile, stdinput, list, names, namesfile, outputfile, outputFormat} = new ArgumentsManager()
     //.addCustomParser(new EventListParser, "list")
     .addMultiParameter("names")
     .addOption(["-f", "--names-file"], {dest: "namesfile"})
-    .addOption(["-i", "--input-file"], {dest: "inputfile"})
-    .addSwitch(["-S", "--stdin-input"], {dest: "stdinput"})
     .addOption(["-o", "--output-file"], {dest: "outputfile"})
     .addOption("--format", {dest: "outputFormat", default: "txt"})
+    .apply(addInputParams)
+    .enableHelpParameter()  
     .parseProcessArguments();
-
 
 let [results] = await Promise.all([
     Promise.all(fResults(
@@ -47,7 +47,6 @@ let [results] = await Promise.all([
         }
     )),
     (async () => {
-        console.log(namesfile)
         if (namesfile){
             try {
                 let res = await readLinesAsync(namesfile);
@@ -57,7 +56,7 @@ let [results] = await Promise.all([
                 names = names.concat(res);
                 
             } catch (err) {
-                console.warn(`Could read names from file ${namesfile} : ${err}`)
+                console.warn(`Couldn't read names from file ${namesfile} : ${err}`)
             }
             
         }
