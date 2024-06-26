@@ -1,13 +1,13 @@
 import { Query } from './lib/query.js';
-import { readSchema } from './lib/lib.js';
+import { deep_get, readSchema } from './lib/lib.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.txt");
 const query = new Query(schema, 3);
 
 const PER_PAGE = 3;
 
-async function getStandingsPage(client, slug, limiter = null, page, perPage = PER_PAGE, silentErrors = false){
-  let data = await query.execute(client, {slug, page, perPage}, limiter, silentErrors);
+async function getStandingsPage(client, slug, limiter = null, page, silentErrors = false){
+  let data = await query.execute(client, {slug, eventsPage: page}, limiter, silentErrors);
   console.log("Fetched standings page", page, "for user slug", slug);
   let result = deep_get(data, "user.events.nodes");
   return result;
@@ -70,7 +70,7 @@ export async function getStandingsFromUser(client, slug, limiter, after = null, 
     let result = [];
 
     let page = 1
-    while (await processStandingsPage(client, result, id, page, after, until)){
+    while (await processStandingsPage(client, slug, limiter, result, page, after, until)){
       page++    
     }
 
@@ -79,19 +79,16 @@ export async function getStandingsFromUser(client, slug, limiter, after = null, 
 }
 
 export async function getStandingsFromUsers(client, slugs, limiter, after = null, until = null){
-  let standings 
-}
+  let results = await Promise.all(slugs.map( slug => getStandingsFromUser(client, slug, limiter, after, until).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
 
-export async function processStandingsSync(client, users, after = null, until = null){
-  let events = {size: 0, list: {}};
+  let dict = {};
+  for (let list of results){
+    if (!list) continue;
 
-  let count = 0;
-  for (let user of users){
-      console.log("Loading sets from user ", user.name, "with ID", user.id);
-      await processStandingsFromPlayer(client, user.id, events, 200, after, until);
-      count = events.size;
-      console.log("Current events count : ", count)
+    for (let event of list){
+      dict[event.id] = event;
+    }
   }
 
-  return events;
+  return Object.values(dict);
 }
