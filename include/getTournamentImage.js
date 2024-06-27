@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { Query } from "./lib/query.js"
 import { GraphQLClient } from "graphql-request";
 import { TimedQuerySemaphore } from "./lib/queryLimiter.js";
+import { deep_get } from './lib/lib.js';
 
 const schemaFilename = "./GraphQLSchemas/TournamentImage.txt";
 
@@ -23,10 +24,9 @@ const query = new Query(schema, 3);
 async function getTournamentImageExecute(client, params, limiter, silent = false){
     let res = await query.execute(client, params, limiter, silent);
 
-    if (!res.tournament) throw "Tournament not found.";
     if (!silent) console.log("Fecthed image" + (!params.type ? "s" : " " + params.type) + " " + "for " + (params.id ? ("ID " + params.id) : ("slug " + params.slug)));
 
-    return res.tournament.images;
+    return deep_get(res, "tournament.images");
 }
 
 /**
@@ -75,7 +75,8 @@ export function getTournamentImage(client, imgType, idOrSlug, limiter = null, si
  * @returns 
  */
 export async function getTournamentLogo(client, idOrSlug, limiter = null, silent = false){
-    return (await getTournamentImage(client, "profile", idOrSlug, limiter, silent))[0];
+    let res = await getTournamentImage(client, "profile", idOrSlug, limiter, silent);
+    return res ? res[0] : res;
 }   
 
 /**
@@ -85,6 +86,7 @@ export async function getTournamentLogo(client, idOrSlug, limiter = null, silent
  * @param {TimedQuerySemaphore} limiter 
  * @returns 
  */
-export async function getTournamentBanner(client, idOrSlug, limiter = null, silent = false){
-    return (await getTournamentImage(client, "banner", idOrSlug, limiter, silent))[0];
-}   
+export async function getTournamentBanner(client, idOrSlug, limiter = null, silent = false){    
+    let res = await getTournamentImage(client, "banner", idOrSlug, limiter, silent);
+    return res ? res[0] : res;
+}

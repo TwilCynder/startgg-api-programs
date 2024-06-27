@@ -7,8 +7,7 @@ import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import fs from 'fs';
 import { getTournamentImage, getTournamentLogo } from "./include/getTournamentImage.js";
 
-let [outputMode, slugs] = parseArguments(process.argv.slice(2), 
-    new OutputModeParser("log", "casseur2bracket"),
+let [slugs] = parseArguments(process.argv.slice(2), 
     new EventListParser()
 )
 
