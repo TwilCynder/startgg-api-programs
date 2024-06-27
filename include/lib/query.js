@@ -48,7 +48,7 @@ export class Query {
     async #execute_(client, params, tries, limiter = null, silentErrors = false, maxTries = null){
         maxTries = maxTries || this.#maxTries || 1
 
-        console.log(this.#getLog("query", params) || "Querying ..." + " Try " + (tries + 1));
+        console.log((this.#getLog("query", params) || "Querying ...") + " Try " + (tries + 1));
         try {
             let data = await ( limiter ? limiter.execute(client, this.#schema, params) : client.request(this.#schema, params));
             

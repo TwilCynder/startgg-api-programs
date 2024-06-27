@@ -4,10 +4,15 @@ import { deep_get, readSchema } from './lib/lib.js';
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.txt");
 const query = new Query(schema, 3);
 
-const PER_PAGE = 3;
+query.log = {
+  query: params => `Fetching standings from from events attended by user ${params.slug} (page ${params.eventsPage} of events, ${params.eventsPerPage} per page; page ${params.standingsPage} of standings, ${params.standingsPerPage} per page for each event) ...`,
+  error: params => `Request failed for user ${params.slug} ...`
+}
 
-async function getStandingsPage(client, slug, limiter = null, page, silentErrors = false){
-  let data = await query.execute(client, {slug, eventsPage: page}, limiter, silentErrors);
+const STANDINGS_PER_PAGE = 500;
+
+async function getStandingsPage(client, slug, limiter = null, page, standingsPage = 1, standingsPerPage = STANDINGS_PER_PAGE, silentErrors = false){
+  let data = await query.execute(client, {slug, eventsPage: page, standingsPage, standingsPerPage}, limiter, silentErrors);
   console.log("Fetched standings page", page, "for user slug", slug);
   let result = deep_get(data, "user.events.nodes");
   return result;
@@ -42,8 +47,8 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
 }
 */
 
-async function processStandingsPage(client, slug, limiter, currentList, page, after = null, until = null, perPage = PER_PAGE){
-  let events = await getStandingsPage(client, slug, limiter, page, false);
+async function processStandingsPage(client, slug, limiter, currentList, page, after = null, until = null){
+  let events = await getStandingsPage(client, slug, limiter, page);
    if (!events) throw `No result for slug ${slug} page ${page}`;
 
   for (let ev of events){
@@ -59,15 +64,20 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
     currentList.push(ev);
 
   }
+
+  console.log("Got page", page, "result :", events.length)
+
   return events.length > 0;
 }
 
 export async function getStandingsFromUser(client, slug, limiter, after = null, until = null){
   if (!after && !until){ //we don't have to check each page, we can go for a simple paginated query
-    return query.executePaginated(client, {slug, standingsPerPage: 500, standingsPage: 1}, "user.events.nodes", limiter, null, null, "eventsPage");
+    return query.executePaginated(client, {slug, standingsPerPage: STANDINGS_PER_PAGE, standingsPage: 1}, "user.events.nodes", limiter, null, null, "eventsPage");
   } else {
     prevTimestamp = Infinity;
     let result = [];
+
+    console.log("doing the thing")
 
     let page = 1
     while (await processStandingsPage(client, slug, limiter, result, page, after, until)){
@@ -90,5 +100,7 @@ export async function getStandingsFromUsers(client, slugs, limiter, after = null
     }
   }
 
-  return Object.values(dict);
+  let list = Object.values(dict);
+
+  return list.sort((a, b) => a.startAt < b.startAt);
 }

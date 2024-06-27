@@ -4,6 +4,11 @@ import { readSchema } from './lib/lib.js';
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrantsCount.txt");
 const query = new Query(schema, 3);
 
+query.log = {
+    query: params => `Fetching event info for event ${params.slug} ...`,
+    error: params => `Request failed for event ${params.slug} ...`
+}
+
 export async function getEventInfo(client, slug, limiter = null){
     let res = await query.execute(client, {slug}, limiter);
 

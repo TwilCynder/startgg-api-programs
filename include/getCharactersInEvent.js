@@ -1,12 +1,13 @@
-import { StartGGDelayQueryLimiter } from './lib/queryLimiter.js';
+import { Query } from './lib/query.js';
+import { readSchema } from './lib/lib.js';
 import { getSetsInEvent, getSetsInEvents, reduceSetsInEvents } from './getSetsInEvents.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacter.txt");
 const query = new Query(schema, 3);
 
 query.log = {
-    query: params => `Fetching sets from event ${params.slug}, page ${params.page}`,
-    error: params => `Request failed for event ${params.slug}, page ${params.page}`
+    query: params => `Fetching sets from event ${params.slug}, page ${params.page} (${params.perPage} entries per page) ...`,
+    error: params => `Request failed for event ${params.slug}, page ${params.page} (${params.perPage} entries per page) ...`
 }
 
 export async function getSetsCharsInEvent(client, slug, limiter){

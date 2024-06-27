@@ -4,6 +4,11 @@ import { readSchema } from './lib/lib.js';
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/UserSets.txt");
 const query = new Query(schema, 3);
 
+query.log = {
+    query: params => `Fetching entrants from user ${params.slug} ...`,
+    error: params => `Request failed for user ${params.slug} ...`
+}
+
 export function getUserSets(client, slug, after = undefined, limiter = null){
     return query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter);
 }

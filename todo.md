@@ -1,5 +1,5 @@
+- Moderniser le truc de events for videogames
 - Infos + approfondies sur qui joue les persos
-- Improve error management consistency
 - Factorize a lot of code
   - Apply query to list of events (Promise.all, catch avec la même log qui se répètent)
 - readme

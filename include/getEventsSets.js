@@ -5,6 +5,11 @@ import { readSchema } from './lib/lib.js';
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSets.txt");
 const query = new Query(schema, 3);
 
+query.log = {
+    query: params => `Fetching sets from event ${params.slug} ...`,
+    error: params => `Request failed for event ${params.slug} ...`
+}
+
 export function getEventSetsBasic(client, slug, limiter){
     return getSetsInEvent(client, query, slug, limiter);
 }
