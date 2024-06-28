@@ -23,5 +23,5 @@ export function getEventsSetsBasicSeparated(client, slugs, limiter){
 }
 
 export async function getEventsSetsBasicHashmap(client, slugs, limiter){
-    return getSetsInEventsHashmap(client, quert, slugs, limiter);
+    return getSetsInEventsHashmap(client, query, slugs, limiter);
 }
