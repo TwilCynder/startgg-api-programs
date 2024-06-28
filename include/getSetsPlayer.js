@@ -9,10 +9,11 @@ query.log = {
     error: params => `Request failed for player ${params.id} ...`
 }
 
-export function getPlayerSets(client, id, after = undefined, limiter = null){
-    return query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter);
+export async function getPlayerSets(client, id, limiter, after, until){
+    let sets = await query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter);
+    return sets ? sets.filter(set => !until || set.completedAt < until) : sets;
 }
 
-export function getPlayersSets(client, ids, after, limiter){
-    return Promise.all(slugs.map(slug => getPlayerSets(client, slug, after, limiter).catch((err) => console.log("Slug", slug, "kaput : ", err))));
+export function getUsersSets(client, IDs, limiter, after, until){
+    return Promise.all(IDs.map(id => getPlayerSets(client, id, limiter, after, until).catch((err) => console.log("ID", id, "kaput : ", err))));
 }

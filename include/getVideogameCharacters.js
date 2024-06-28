@@ -1,10 +1,7 @@
-import {readFileSync} from 'fs';
-import { relurl } from './lib/dirname.js';
 import { Query } from "./lib/query.js";
+import { deep_get, readSchema } from './lib/lib.js';
 
-const schemaFilename = "./GraphQLSchemas/VideogameCharacters.txt";
-
-let schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
+let schema = readSchema(import.meta.url, "./GraphQLSchemas/VideogameCharacters.txt");
 
 let query = new Query(schema, 2)
 query.log = {
@@ -12,8 +9,8 @@ query.log = {
     error: (params) => "Couldn't fetch characters for videogame " + params.slug
 }
 
-export async function getCharacters(client, slug){
+export async function getVideogameCharacters(client, slug){
     let result = await query.execute(client, {slug});
-    return result;
+    console.log("Fetched characters for videogame", slug);
+    return deep_get(result, "videogame.characters");
 }
-

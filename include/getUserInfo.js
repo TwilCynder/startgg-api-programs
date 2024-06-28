@@ -4,6 +4,11 @@ import { readSchema } from './lib/lib.js';
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/UserInfo.txt");
 const query = new Query(schema, 3);
 
+query.log = {
+  query: params => `Fetching info for user ${params.slug} ...`,
+  error: params => `Request failed for user ${params.slug} ...`
+}
+
 export async function getUserInfo(client, slug, limiter = null){
   let data = await query.execute(client, {slug}, limiter, silentErrors);
   console.log("Fetched info for user slug", slug);

@@ -2,7 +2,7 @@ query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp
     user(slug: $slug, id: $id){
         player {
             sets(perPage: $perPage, page: $page, filters : {
-            updatedAfter: $after
+                updatedAfter: $after
             }) {
                 nodes {
                     completedAt
