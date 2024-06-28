@@ -1,5 +1,17 @@
 import fs from 'fs';
 
+function output_(filename, printdata, resultString){
+    if (filename){
+        fs.mkdir("out", ()=>{})
+        filename = "./out/" + filename;
+        let file = fs.createWriteStream(filename, {encoding: "utf-8"});
+        file.write(resultString);
+    } 
+    if (printdata) {
+        console.log(resultString);
+    }
+}
+
 /**
  * @template T
  * @param {"json" | "csv" | "prettyjson"} format 
@@ -16,13 +28,9 @@ export function output(format, filename, printdata, data, CSVtransform){
         JSON.stringify(data, null, format == "prettyjson" ? 4 : undefined);
 
 
-    if (filename){
-        fs.mkdir("out", ()=>{})
-        filename = "./out/" + filename;
-        let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-        file.write(resultString);
-    } 
-    if (printdata) {
-        console.log(resultString);
-    }
+    output_(filename, printdata, resultString);
+}
+
+export function outputJSON(data, filename, printdata){
+    output_(filename, printdata, JSON.stringify(data));
 }

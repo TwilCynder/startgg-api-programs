@@ -1,22 +1,15 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser"
 
+
 /**
- * Added dests : outputFormat, outputfile, logdata
+ * Added dests : outputfile, printdata, silent
  * @param {ArgumentsManager} argumentsManager 
  */
-export function addOutputParams(argumentsManager){
+export function addOutputParamsBasic(argumentsManager){
     argumentsManager
-        .addOption("--format", {
-            dest: "outputFormat",
-            description: "The output format. Either json (default) or csv"
-        })
         .addOption(["-o", "--output_file"], {
             dest: "outputfile",
             description: "A file to save the output to. If not specified, the output will be sent to the std output."
-        })
-        .addSwitch(["-l", "--log-data"], {
-            dest: "logdata",
-            description: "Use to log the processed data (in a nice and pretty format) to the std output. True by default if neither -o or -p are specified."
         })
         .addSwitch(["-p", "--print-output"], {
             dest: "printdata",
@@ -25,7 +18,23 @@ export function addOutputParams(argumentsManager){
         .addSwitch(["-s", "--silent"], {
             description: "Do not log anything besides the output. True by default if printing the output to stdout"
         })
-        
+}
+
+/**
+ * Added dests : outputFormat, outputfile, logdata, printdata, silent
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addOutputParams(argumentsManager){
+    addOutputParamsBasic(argumentsManager);
+    argumentsManager
+        .addSwitch(["-l", "--log-data"], {
+            dest: "logdata",
+            description: "Use to log the processed data (in a nice and pretty format) to the std output. True by default if neither -o or -p are specified."
+        })
+        .addOption("--format", {
+            dest: "outputFormat",
+            description: "The output format. Either json (default) or csv"
+        })
 }
 
 /**
@@ -39,6 +48,15 @@ export function addInputParams(argumentsManager){
 }
 
 /**
+ * @param {boolean} printdata 
+ * @param {string} outputfile 
+ * @param {boolean} silent 
+ */
+export function isSilent(printdata, silent){
+    return silent || printdata;
+}
+
+/**
  * Returns two values, indicating if we should log data, and if the program should be silent
  * @param {boolean} logdata 
  * @param {boolean} printdata 
@@ -49,6 +67,6 @@ export function addInputParams(argumentsManager){
 export function doWeLog(logdata, printdata, outputfile, silent){
     return [
         logdata || (!printdata && !outputfile && !silent),
-        silent || printdata
+        isSilent(printdata, silent)
     ]
 }
