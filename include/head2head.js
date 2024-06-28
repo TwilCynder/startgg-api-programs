@@ -1,22 +1,27 @@
 import { getSetsFromPlayer } from "./getSetsPlayer.js";
+import { User } from "./user.js";
 
 export class Head2Head extends Array {
+    /**
+     * @param {User} p1 
+     * @param {User} p2 
+     */
     constructor(p1, p2){
         super()
-        this[0] = {player : p1, score: 0};
-        this[1] = {player : p2, score: 0};
+        this[0] = {user : p1, score: 0};
+        this[1] = {user : p2, score: 0};
     }
 
-    addResult(player){
-        this[player].score++;
+    addResult(user){
+        this[user].score++;
     }
 
     toString(){
-        return "" + this[0].player.name + " " + this[0].score + " - " + this[1].score + " " + this[1].player.name;
+        return "" + this[0].user.name + " " + this[0].score + " - " + this[1].score + " " + this[1].user.name;
     }
 
     getScore(){
-        return "" + this[0].player.score + " - " + this[1].player.score;
+        return "" + this[0].score + " - " + this[1].score;
     }
 }
 
@@ -31,11 +36,11 @@ export function getHead2HeadFromSets(p1Sets, p1, p2){
             //console.log("[Ignoring non-1v1 set]");
             return;
         }
-        setP1 = setP1[0].player;
+        setP1 = setP1[0].user;
     
         let p1PositionInSet = (p1.id == setP1.id) ? 0 : 1;
         try {
-            let otherPlayer = set.slots[1 - p1PositionInSet].entrant.participants[0].player;
+            let otherPlayer = set.slots[1 - p1PositionInSet].entrant.participants[0].user;
     
             if (otherPlayer.id == p2.id){
                 //match found

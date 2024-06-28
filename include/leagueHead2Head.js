@@ -1,32 +1,16 @@
-import { getSetsFromPlayer } from "./getSetsPlayer.js";
+import { getUsersSets } from "./getSetsUser.js";
 import { getHead2HeadFromSets } from "./head2head.js"
 
-async function getSetsFromPlayers(client, players, after){
-    let setsArray = []
-    await Promise.all(players.slice(0, -1).map( (player) => getSetsFromPlayer(client, player.id, 20000, after)))
-        .then(values => setsArray = values);
-    return setsArray;
+function getSetsFromUsers(client, slugs, limiter, after, until){
+    return getUsersSets(client, slugs.slice(0, -1), limiter, after, until);
 }
 
-async function getSetsFromPlayersSync(client, players, after, until){
-    let setsArray = [];
-    let count = 0;
-    for (let player of players){
-        console.log("Loading sets from player ", player.name, "with ID", player.id);
-        let sets = await getSetsFromPlayer(client, player.id, 400, after, until);
-        count += sets.length
-        setsArray.push(sets)
-        console.log("Current sets count : ", count)
-    }
-    return setsArray
-}
-
-export function leagueHeadHeadToHeadFromSets(setsArray, players){
+export function leagueHeadHeadToHeadFromSets(setsArray, users){
     let res = []
-    for (let i = 0; i < players.length; i++){
+    for (let i = 0; i < users.length; i++){
         let line = []
-        for (let j = i + 1; j < players.length; j++){
-            let h2h = getHead2HeadFromSets(setsArray[i], players[i], players[j]);
+        for (let j = i + 1; j < users.length; j++){
+            let h2h = getHead2HeadFromSets(setsArray[i], users[i], users[j]);
             line.push(h2h);
         }
         res.push(line);
@@ -34,8 +18,8 @@ export function leagueHeadHeadToHeadFromSets(setsArray, players){
     return res;
 }
 
-export async function leagueHeadToHead(client, players, after = null, until = null){
-    let setsArray = await getSetsFromPlayersSync(client, players, after, until);
+export async function leagueHeadToHead(client, users, limiter, after = null, until = null){
+    let setsArray = await getSetsFromUsers(client, users, limiter, after, until);
 
-    return leagueHeadHeadToHeadFromSets(setsArray, players);
+    return leagueHeadHeadToHeadFromSets(setsArray, users);
 }

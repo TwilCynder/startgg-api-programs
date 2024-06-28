@@ -1,7 +1,8 @@
 import { client } from "./include/lib/client.js";
-import { Player } from "./include/player.js";
+import { User } from "./include/user.js";
 import * as fs from 'fs'
 import { leagueHeadToHead } from "./include/leagueHead2Head.js";
+import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
 if (process.argv.length < 3 ){
     console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " IDsListFilename [timestamp]");
@@ -20,7 +21,10 @@ if (process.argv.length > 4){
     end = parseInt(process.argv[4]);
 }
 
-var players = await Player.createPlayers(client, IDs);
+var limiter = new StartGGDelayQueryLimiter;
+
+//var players = await Player.createPlayers(client, IDs);
+var users = await User.createUsers(client, slugs, limiter);
 
 let result = "\\\\\\";
 for (let player of players){
