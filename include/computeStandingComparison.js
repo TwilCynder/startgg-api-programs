@@ -1,4 +1,5 @@
 import { processStandingsSync } from "./getStandingsFromUser.js";
+import { User } from "./user.js";
 
 export class StandingComparison {
     constructor(){
@@ -10,6 +11,9 @@ export class StandingComparison {
 }
 
 export class StandingComparisonMatrix {
+    /**
+     * @param {User[]} users 
+     */
     constructor(users){
         for (let i = 0; i < users.length; i++){
             let line = {}

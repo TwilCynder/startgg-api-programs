@@ -1,6 +1,15 @@
 import { getUserInfo } from './getUserInfo.js'
 
 export class User {
+
+    /** @type {number} */
+    id;
+    /** @type {string} */
+    name;
+
+    /**
+     * @param {string} slug 
+     */
     constructor(slug){
         this.slug = slug;
     }
@@ -17,7 +26,7 @@ export class User {
 
         return this;
     }
- 
+
     static createUser(client, slug, limiter = null){
         return (new User(slug).load(client, limiter));
     }

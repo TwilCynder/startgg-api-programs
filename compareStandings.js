@@ -16,7 +16,7 @@ let {slugs, outputFormat, outputfile, logdata, printdata, silent} = new Argument
 
 let [logData_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
-var IDs = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', '').split('\n');
+var userSlugs = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', '').split('\n');
 
 let users = await User.createUsers(client, IDs);
 
