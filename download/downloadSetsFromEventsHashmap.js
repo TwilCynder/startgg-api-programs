@@ -1,25 +1,34 @@
-///TODO : remplacer les download*.js par un système de caching intelligent  
-
-import { getEventsSetsBasicHashmap } from "../include/getEventsSets.js";
+import { getEventsSetsBasic, getEventsSetsBasicHashmap } from "../include/getEventsSets.js";
 
 import { EventListParser } from "../include/lib/computeEventList.js";
-import { SingleOptionParser, parseArguments } from "@twilcynder/arguments-parser"; 
+import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 
-import fs from 'fs';
+import { muteStdout, unmuteStdout } from "../include/lib/lib.js";
+import { addOutputParamsBasic, isSilent } from "../include/lib/paramConfig.js";
+import { outputJSON } from "../include/lib/util.js";
 
-let [output, slugs] = parseArguments(process.argv.slice(2), 
-    new SingleOptionParser("-o"),
-    new EventListParser()
-)
+let {events, outputfile, printdata, silent} = new ArgumentsManager()
+    .addCustomParser(new EventListParser, "events")
+    .apply(addOutputParamsBasic)
+    .enableHelpParameter()
+    .parseProcessArguments();
+
+printdata = printdata || !outputfile;
+let silent_ = isSilent(printdata, silent)
+
+if (silent_) muteStdout();
+
+console.log(events);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await getEventsSetsBasicHashmap(client, slugs, limiter);
-
+let data = await getEventsSetsBasicHashmap(client, events, limiter);
 limiter.stop();
 
-let filename = "./out/" + output;
-let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-file.write(JSON.stringify(data));
+if (silent_){
+    unmuteStdout();
+}
+
+outputJSON(data, outputfile, printdata);

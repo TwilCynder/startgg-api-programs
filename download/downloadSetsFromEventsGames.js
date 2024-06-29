@@ -1,28 +1,38 @@
-import { getSetsInEvents } from "../include/getSetsInEvents.js";
+import { Query } from "../include/lib/query.js";
+import { readSchema } from "../include/lib/lib.js";
 
 import { EventListParser } from "../include/lib/computeEventList.js";
-import { SingleOptionParser, parseArguments } from "@twilcynder/arguments-parser"; 
+import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
+
+import { getSetsInEvents } from "../include/getSetsInEvents.js"
 
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 
-import fs from 'fs';
-import { Query } from "../include/lib/query.js";
-import { readSchema } from "../include/lib/lib.js";
+import { muteStdout, unmuteStdout } from "../include/lib/lib.js";
+import { addOutputParamsBasic, isSilent } from "../include/lib/paramConfig.js";
+import { outputJSON } from "../include/lib/util.js";
 
-let [output, slugs] = parseArguments(process.argv.slice(2), 
-    new SingleOptionParser("-o"),
-    new EventListParser()
-)
+let {events, outputfile, printdata, silent} = new ArgumentsManager()
+    .addCustomParser(new EventListParser, "events")
+    .apply(addOutputParamsBasic)
+    .enableHelpParameter()
+    .parseProcessArguments();
+
+printdata = printdata || !outputfile;
+let silent_ = isSilent(printdata, silent)
+
+if (silent_) muteStdout();
+
+console.log(events);
 
 let query = new Query(readSchema(import.meta.url, "../include/GraphQLSchemas/EventSetsGames.txt"))
 let limiter = new StartGGDelayQueryLimiter();
-let data = await getSetsInEvents(client, query, slugs, limiter);
-
+let data = await getSetsInEvents(client, query, events, limiter);
 limiter.stop();
 
-console.log(data);
+if (silent_){
+    unmuteStdout();
+}
 
-let filename = "./out/" + output;
-let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-file.write(JSON.stringify(data));
+outputJSON(data, outputfile, printdata);
