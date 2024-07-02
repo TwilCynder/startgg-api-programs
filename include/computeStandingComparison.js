@@ -105,11 +105,3 @@ export function computeStandingComparisonFromStandings(users, standingsList){
 
     return matrix;
 }
-
-export async function computeStandingComparison(client, users, after = null, until = null){
-    let standingsList = await processStandingsSync(client, users, after, until);
-
-    let matrix = computeStandingComparisonFromStandings(users, standingsList);
-
-    return matrix;
-}
