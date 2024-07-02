@@ -36,3 +36,27 @@ export class EventListParser extends Parser {
         }
     }   
 }
+
+export class SwitchableEventListParser extends Parser {
+    #active = false;
+
+    constructor(onSwitch = "-e", offSwitch = "-E"){
+        super();
+        this.onSwitch = onSwitch;
+        this.offSwitch = offSwitch;
+    }
+
+    parse(args, i){
+        if (this.#active){
+            if (args[i] == this.offSwitch){
+                this.#active = false;
+                return true;
+            }
+
+            return super.parse(args, i);
+        } else if (args[i] == this.onSwitch){
+            this.#active = true;
+            return true;
+        }
+    }
+}
