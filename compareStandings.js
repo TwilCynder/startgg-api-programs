@@ -4,21 +4,65 @@ import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { EventListParser, SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { fResults, readJSONAsync, readLines } from "./include/lib/lib.js";
+import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
+import { getEventsResults } from "./include/getEventResults.js";
+import { loadInputFromStdin } from "./include/lib/loadInput.js";
 
-let {slugs, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
-    .addParameter("IDsFilename", {}, false)
+let {events, slugsFilename, startDate, endDate, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+    .addParameter("slugsFilename", {}, false)
     .addParameter("startDate", {type: "number"}, true)
     .addParameter("endDate", {type: "number"}, true)
+    .addCustomParser(new SwitchableEventListParser, "events")
     .apply(addOutputParams)
+    .apply(addInputParams)
     .enableHelpParameter()
     .setMissingArgumentBehavior("Missing argument", 1, false)
     .parseProcessArguments();
 
 let [logData_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
-var userSlugs = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', '').split('\n');
+let userSlugs;
+try {
+    userSlugs = readLines(slugsFilename).filter(line => !!line);
+} catch (err){
+    console.error("Could not read user slugs from file", slugsFilename, ":", err);
+    process.exit(1);
+}
 
-let users = await User.createUsers(client, IDs);
+let limiter = new StartGGDelayQueryLimiter;
+
+//let users = await User.createUsers(client, userSlugs, limiter);
+
+
+let [users, results] = await Promise.all([
+    User.createUsers(client, userSlugs, limiter),
+    Promise.all([
+        inputfile ? readJSONAsync(inputfile).catch(err => {
+            console.warn(`Could not open file ${inputfile} : ${err}`)
+            return [];
+        }) : null,
+        stdinput ? loadInputFromStdin() : null,
+
+        (async ()=>{
+            if (startDate || endDate){
+                if (events.length > 0){
+                    console.warn("Both a start date/end date and a list of events have been specified. This program can only use one of these methods of fetching events ; the events list will be ignored.");
+                }
+
+                return await getStandingsFromUsers(client, userSlugs, limiter, startDate, endDate);
+            } else {
+                return await getEventsResults(client, events, undefined, limiter);
+            }
+        })()
+    ]).then(results => results.reduce((previous, current) => current ? previous.concat(current) : previous, []))
+])
+
+console.log(users, results);
+process.exit(0);
+
 
 let result = "\\\\\\";
 for (let user of users){
@@ -49,35 +93,3 @@ fs.mkdir('out', () => {});
 fs.writeFileSync('./out/standingComparison.txt', result, (err) => {
     console.error(err);
 })
-
-/**
-
-be651aa3
-0bdcfabf
-28d107e9
-afd90ad9
-69187974
-f64edcac
-80d8449b
-efc3f2d5
-54bc8a80
-3c5165ea
-af7e1ed1
-41b91bed
-f98c58d2
-fe8e3b95
-878f503c
-85a54a4a
-c7d642b4
-c8c65ad0
-7167d698
-f8aad09b
-a1bca050
-1a2903e2
-de10d801
-4bcc337b
-c6129424
-b08a54a6
-b7190d43
-
- */
