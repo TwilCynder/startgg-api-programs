@@ -24,7 +24,7 @@ export function readLinesAsync(filename){
 }
 
 export async function readJSONAsync(filename){
-    return fs.readFile(filename)
+    return fs.promises.readFile(filename)
         .then(buf => JSON.parse(buf))
 }
 
