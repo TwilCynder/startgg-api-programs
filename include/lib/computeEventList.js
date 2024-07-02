@@ -1,6 +1,10 @@
 
 import { Parser, parseArguments, argsLeft } from "@twilcynder/arguments-parser";
 
+/**
+ * @param {string[]} argList 
+ * @returns 
+ */
 export function computeEventList(argList){
     let [list] = parseArguments(argList, new EventListParser());
     return list;
@@ -37,13 +41,20 @@ export class EventListParser extends Parser {
     }   
 }
 
-export class SwitchableEventListParser extends Parser {
+export class SwitchableEventListParser extends EventListParser {
     #active = false;
 
-    constructor(onSwitch = "-e", offSwitch = "-E"){
+    /**
+     * 
+     * @param {string} onSwitch 
+     * @param {string} offSwitch 
+     * @param {boolean} defaultState 
+     */
+    constructor(onSwitch = "-e", offSwitch = "-E", defaultState){
         super();
         this.onSwitch = onSwitch;
         this.offSwitch = offSwitch;
+        this.#active = defaultState;
     }
 
     parse(args, i){
