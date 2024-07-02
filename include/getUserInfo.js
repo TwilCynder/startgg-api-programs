@@ -9,7 +9,7 @@ query.log = {
   error: params => `Request failed for user ${params.slug} ...`
 }
 
-export async function getUserInfo(client, slug, limiter = null){
+export async function getUserInfo(client, slug, limiter = null, silentErrors = false){
   let data = await query.execute(client, {slug}, limiter, silentErrors);
   console.log("Fetched info for user slug", slug);
   if (!data.user) return null;
@@ -17,6 +17,6 @@ export async function getUserInfo(client, slug, limiter = null){
 
 }
 
-export function getUsersInfo(client, slugs, limiter = null){
-  return Promise.all(slugs.map((slug) => getUserInfo(client, slug, limiter).catch((err) => console.log("User slug", slug, "kaput : ", err))));
+export function getUsersInfo(client, slugs, limiter = null, silentErrors = false){
+  return Promise.all(slugs.map((slug) => getUserInfo(client, slug, limiter, silentErrors).catch((err) => console.log("User slug", slug, "kaput : ", err))));
 }
