@@ -1,4 +1,3 @@
-import { processStandingsSync } from "./getStandingsFromUser.js";
 import { User } from "./user.js";
 
 export class StandingComparison {
@@ -66,12 +65,12 @@ export function getSCFromIndex(matrix, users, i1, i2){
 }
 
 function processEvent(ev, matrix){
-    console.log("Event :", ev.id, ev.tournamentName);
+    console.log("Event :", ev.id, ev.tournament.name);
 
     let seen = []; //players IN A HIGHER TIER
     let currentTier = [];
     let prevPlacement = 0;
-    for (let standing of ev){
+    for (let standing of ev.standings.nodes){
         if (standing.placement != prevPlacement){ //new standing tier
             seen = seen.concat(currentTier);
             currentTier = [];
@@ -96,10 +95,12 @@ function processEvent(ev, matrix){
     }
 }
 
-export function computeStandingComparisonFromStandings(users, standingsList){
+export function computeStandingComparisonFromStandings(users, events){
     let matrix = new StandingComparisonMatrix(users);
 
-    for (let ev of Object.values(standingsList.list)){
+    console.log(events);
+
+    for (let ev of events){
         processEvent(ev, matrix);
     }
 

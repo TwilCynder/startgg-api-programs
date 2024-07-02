@@ -85,10 +85,8 @@ if (outputFormat.includes("json")){
 }
 
 if (outputfile){
-    let filename = "./out/" + outputfile;
-    let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-
-    file.write(resultString);
+    let filename = outputfile;
+    await fs.writeFile(filename, resultString);
 } else {
     console.log(resultString);
-}
+}   
