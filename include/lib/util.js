@@ -21,10 +21,9 @@ function output_(filename, printdata, resultString){
 export function output(format, filename, printdata, data, CSVtransform){
     if (!filename && !printdata) return;
 
-    let resultString = (format == "csv") ?
+    let resultString = (!format || !format.includes("json")) ?
         (CSVtransform(data) ?? "") :
         JSON.stringify(data, null, format == "prettyjson" ? 4 : undefined);
-
 
     output_(filename, printdata, resultString);
 }

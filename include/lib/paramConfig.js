@@ -20,21 +20,36 @@ export function addOutputParamsBasic(argumentsManager){
         })
 }
 
+function addLogParameter(argumentsManager){
+    argumentsManager.addSwitch(["-l", "--log-data"], {
+        dest: "logdata",
+        description: "Use to log the processed data (in a nice and pretty format) to the std output. True by default if neither -o or -p are specified."
+    })
+}
+
+function addFormatParameter(argumentsManager){
+    argumentsManager.addOption("--format", {
+        dest: "outputFormat",
+        description: "The output format. Either json (default) or csv"
+    })
+}
+
+export function addOutputParamsCustom(log, format){
+    return argumentsManager => {
+        addOutputParamsBasic(argumentsManager);
+        if (log) addLogParameter(argumentsManager);
+        if (format) addFormatParameter(argumentsManager);
+    }
+}
+
 /**
  * Added dests : outputFormat, outputfile, logdata, printdata, silent
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParams(argumentsManager){
     addOutputParamsBasic(argumentsManager);
-    argumentsManager
-        .addSwitch(["-l", "--log-data"], {
-            dest: "logdata",
-            description: "Use to log the processed data (in a nice and pretty format) to the std output. True by default if neither -o or -p are specified."
-        })
-        .addOption("--format", {
-            dest: "outputFormat",
-            description: "The output format. Either json (default) or csv"
-        })
+    addLogParameter(argumentsManager);
+    addFormatParameter(argumentsManager);
 }
 
 /**
