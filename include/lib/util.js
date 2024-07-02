@@ -2,8 +2,6 @@ import fs from 'fs';
 
 function output_(filename, printdata, resultString){
     if (filename){
-        fs.mkdir("out", ()=>{})
-        filename = "./out/" + filename;
         let file = fs.createWriteStream(filename, {encoding: "utf-8"});
         file.write(resultString);
     } 
