@@ -23,8 +23,6 @@ let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
 
-console.log(events);
-
 let limiter = new StartGGDelayQueryLimiter();
 let data = await getEventsResults(client, events, undefined, limiter);
 limiter.stop();
