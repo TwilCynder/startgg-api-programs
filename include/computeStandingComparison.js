@@ -65,6 +65,11 @@ export function getSCFromIndex(matrix, users, i1, i2){
 }
 
 function processEvent(ev, matrix){
+    if (!ev){
+        console.warn("---- Null event found ! ----");
+        return;
+    }
+
     console.log("Event :", ev.id, ev.tournament.name);
 
     let seen = []; //players IN A HIGHER TIER

@@ -16,6 +16,12 @@ export class EventListParser extends Parser {
         this._state = [];
     }
 
+    /**
+     * 
+     * @param {string[]} args 
+     * @param {number} i 
+     * @returns 
+     */
     parse(args, i){
         let arg = args[i];
         switch (arg){
@@ -31,7 +37,7 @@ export class EventListParser extends Parser {
                     let min = parseInt(args[i + 2]);
                     let max = parseInt(args[i + 3]);
                     for (let i = min; i <= max; i++){
-                        this._state.push(template.replace("%", i));
+                        this._state.push(template.replace(/%/g, i));
                     }
                     return 3;
                 }
