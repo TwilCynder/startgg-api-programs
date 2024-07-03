@@ -43,6 +43,7 @@ export class EventListParser extends Parser {
                 }
             default:
                 this._state.push(arg);
+                return true;
         }
     }   
 }
