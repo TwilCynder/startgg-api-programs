@@ -86,7 +86,7 @@ output(outputFormat, outputfile, printdata, matrix, (matrix) => {
                 result += '\t' + comp.left + "-" + comp.draws + "-" + comp.right;
             } else if (i > j){  
                 let comp = SC.getSCFromIndex(matrix, users, j, i);
-                result += '\t' + comp.right + "-" + comp.draws + "-" + comp.right;
+                result += '\t' + comp.right + "-" + comp.draws + "-" + comp.left;
             }
         }
     }
