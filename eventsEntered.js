@@ -6,7 +6,7 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output } from "./include/lib/util.js";
 
-let {userSlugs, filename, start_date, end_date, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
@@ -22,6 +22,9 @@ let {userSlugs, filename, start_date, end_date, outputFormat, outputfile, logdat
         type: "number",
         description: "Only count tournaments before this UNIX date"
     })
+    .addMultiOption(["-E", "--exclude_expression"], 
+        {description: "A list of regular expressions that will remove events they match with"}
+    )
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -30,14 +33,16 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
 
-try {
-    let fileSlugs = readLines(filename).filter(line => !!line);
-    if (fileSlugs){
-        userSlugs = userSlugs.concat(fileSlugs);
+if (filename){
+    try {
+        let fileSlugs = readLines(filename).filter(line => !!line);
+        if (fileSlugs){
+            userSlugs = userSlugs.concat(fileSlugs);
+        }
+    } catch (err){
+        console.error("Could not read user slugs from file", filename, ":", err);
+        process.exit(1);
     }
-} catch (err){
-    console.error("Could not read user slugs from file", filename, ":", err);
-    process.exit(1);
 }
 
 console.log(end_date, start_date);
@@ -45,6 +50,18 @@ console.log(end_date, start_date);
 let limiter = new StartGGDelayQueryLimiter;
 let data = await getEventsFromUsers(client, userSlugs, limiter, start_date, end_date)
 limiter.stop();
+
+if (exclude_expression){
+    let exclude_regex = exclude_expression.map(exp => new RegExp(exp));
+
+    data = data.filter( event => {
+        for (let exp of exclude_regex){
+            console.log(event.slug, exp.test(event.slug));
+        }
+        return true;
+    })
+}
+
 
 if (silent_) unmuteStdout();
 
