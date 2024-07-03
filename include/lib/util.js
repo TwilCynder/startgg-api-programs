@@ -11,6 +11,15 @@ function output_(filename, printdata, resultString){
 }
 
 /**
+ * 
+ * @param {any} data 
+ * @param {boolean} pretty 
+ */
+function toJSON(data, pretty){
+    return JSON.stringify(data, null, pretty ? 4 : undefined);
+}
+
+/**
  * @template T
  * @param {"json" | "csv" | "prettyjson"} format 
  * @param {string} filename 
@@ -23,11 +32,12 @@ export function output(format, filename, printdata, data, CSVtransform){
 
     let resultString = (!format || !format.includes("json")) ?
         (CSVtransform(data) ?? "") :
-        JSON.stringify(data, null, format == "prettyjson" ? 4 : undefined);
+        toJSON(data, format == "prettyjson");
+        
 
     output_(filename, printdata, resultString);
 }
 
-export function outputJSON(data, filename, printdata){
-    output_(filename, printdata, JSON.stringify(data));
+export function outputJSON(data, filename, printdata, prettyJSON){
+    output_(filename, printdata, toJSON(data, prettyJSON));
 }
