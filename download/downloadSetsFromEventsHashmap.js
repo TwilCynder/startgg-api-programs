@@ -10,9 +10,10 @@ import { muteStdout, unmuteStdout } from "../include/lib/lib.js";
 import { addOutputParamsBasic, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 
-let {events, outputfile, printdata, silent} = new ArgumentsManager()
+let {events, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "events")
     .apply(addOutputParamsBasic)
+    .addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson"})
     .enableHelpParameter()
     .parseProcessArguments();
 
@@ -31,4 +32,4 @@ if (silent_){
     unmuteStdout();
 }
 
-outputJSON(data, outputfile, printdata);
+outputJSON(data, outputfile, printdata, prettyjson);
