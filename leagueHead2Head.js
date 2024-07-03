@@ -1,57 +1,82 @@
 import { client } from "./include/lib/client.js";
-import { User } from "./include/user.js";
-import * as fs from 'fs'
-import { leagueHeadToHead } from "./include/leagueHead2Head.js";
+import { User } from "./include/user.js"; 
+import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
+import { addInputParams, addOutputParamsCustom, isSilent } from "./include/lib/paramConfig.js";
+import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/lib.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { loadInputFromStdin } from "./include/lib/loadInput.js";
+import { output } from "./include/lib/util.js";
+import { getUsersSets } from "./include/getSetsUser.js";
+import { getEventsSetsBasic } from "./include/getEventsSets.js";
+import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
 
-if (process.argv.length < 3 ){
-    console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " IDsListFilename [timestamp]");
-    process.exit()
+let {events, slugsFilename, startDate, endDate, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+    .addParameter("slugsFilename", {}, false)
+    .addCustomParser(new SwitchableEventListParser, "events")
+    .apply(addOutputParamsCustom(false, true))
+    .apply(addInputParams)
+    .enableHelpParameter()
+    .setMissingArgumentBehavior("Missing argument", 1, false)
+    .parseProcessArguments();
+
+printdata = printdata || !outputfile;
+let silent_ = isSilent(printdata, silent);
+
+if (silent_) muteStdout();
+
+let userSlugs;
+try {
+    userSlugs = readLines(slugsFilename).filter(line => !!line);
+} catch (err){
+    console.error("Could not read user slugs from file", slugsFilename, ":", err);
+    process.exit(1);
 }
 
-var IDs = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', '').split('\n');
+let limiter = new StartGGDelayQueryLimiter;
 
-var begin = null;
-if (process.argv.length > 3){
-    begin = parseInt(process.argv[3]);
-}
+let [users, sets] = await Promise.all([
+    User.createUsers(client, userSlugs, limiter),
+    Promise.all([
+        inputfile ? readJSONAsync(inputfile).catch(err => {
+            console.warn(`Could not open file ${inputfile} : ${err}`)
+            return [];
+        }) : null,
 
-var end = null;
-if (process.argv.length > 4){
-    end = parseInt(process.argv[4]);
-}
+        stdinput ? loadInputFromStdin() : null,
 
-var limiter = new StartGGDelayQueryLimiter;
+        getEventsSetsBasic(client, events, limiter)
+    ]).then(results => results.reduce((previous, current) => current ? previous.concat(current) : previous, []))
+])
 
-//var players = await Player.createPlayers(client, IDs);
-var users = await User.createUsers(client, slugs, limiter);
+limiter.stop();
 
-let result = "\\\\\\";
-for (let player of players){
-    result += '\t' + player.name;
-}
+console.log(sets);
 
-let res = await leagueHeadToHead(client, players, begin, end)
+let matrix = leagueHeadHeadToHeadFromSetsArray(sets, users);
 
-for (let i = 0; i < res.length ; i++){
-    result+= '\n' + players[i].name
-    for (let j = 0; j < res.length; j++){
-        console.log(i, j)
-        if (i == j){
-            result += '\tXXXX'
-        } else if (i < j){
-            let h2h = res[i][j - i - 1]
-            result += '\t' + h2h[0].score + " - " + h2h[1].score
-        } else if (i > j){
-            let h2h = res[j][i - j - 1]
-            result += '\t' + h2h[1].score + " - " + h2h[0].score
+if (silent_) unmuteStdout();
+
+output(outputFormat, outputfile, printdata, matrix, (matrix) => {
+    let result = "\\\\\\";
+    for (let user of users){
+        result += '\t' + user.name;
+    }
+    
+    for (let i = 0; i < matrix.length ; i++){
+        result+= '\n' + users[i].name
+        for (let j = 0; j < matrix.length; j++){
+            if (i == j){
+                result += '\tXXXX'
+            } else if (i < j){
+                let h2h = matrix[i][j - i - 1]
+                result += '\t' + h2h[0].score + " - " + h2h[1].score
+            } else if (i > j){
+                let h2h = matrix[j][i - j - 1]
+                result += '\t' + h2h[1].score + " - " + h2h[0].score
+            }
         }
     }
-}
 
-console.log(result);
-
-fs.mkdir('out', () => {});
-fs.writeFileSync('./out/leagueHead2Head.txt', result, (err) => {
-    console.error(err);
+    return result;
 })

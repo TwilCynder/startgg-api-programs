@@ -1,4 +1,3 @@
-import { getSetsFromPlayer } from "./getSetsPlayer.js";
 import { User } from "./user.js";
 
 export class Head2Head extends Array {
@@ -25,7 +24,14 @@ export class Head2Head extends Array {
     }
 }
 
-export function getHead2HeadFromSets(p1Sets, p1, p2){
+/**
+ * Assumes all the sets feature at least one of the players
+ * @param {{}[]} p1Sets 
+ * @param {User} p1 
+ * @param {User} p2 
+ * @returns 
+ */
+export function getHead2HeadFromConfirmedSet(p1Sets, p1, p2){
     let result = new Head2Head(p1, p2);
 
     p1Sets.forEach(set => {
@@ -37,7 +43,7 @@ export function getHead2HeadFromSets(p1Sets, p1, p2){
             return;
         }
         setP1 = setP1[0].user;
-    
+
         let p1PositionInSet = (p1.id == setP1.id) ? 0 : 1;
         try {
             let otherPlayer = set.slots[1 - p1PositionInSet].entrant.participants[0].user;
@@ -55,8 +61,4 @@ export function getHead2HeadFromSets(p1Sets, p1, p2){
     });
 
     return result
-}
-
-export async function getHead2Head(client, p1, p2){
-    return getHead2HeadFromSets(await getSetsFromPlayer(client, p1.id), p1, p2);
 }

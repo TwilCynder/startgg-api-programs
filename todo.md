@@ -1,4 +1,5 @@
 - Moderniser le truc de events for videogames
+- Faire la version de leaguehead2head qui prend des dates
 - Infos + approfondies sur qui joue les persos
 - Factorize a lot of code
   - Apply query to list of events (Promise.all, catch avec la même log qui se répètent)
