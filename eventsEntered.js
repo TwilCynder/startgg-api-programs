@@ -56,7 +56,9 @@ if (exclude_expression){
 
     data = data.filter( event => {
         for (let exp of exclude_regex){
-            console.log(event.slug, exp.test(event.slug));
+            if (exp.test(event.slug)){
+                return false;
+            }
         }
         return true;
     })
