@@ -1,4 +1,6 @@
+import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
+import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
 export class User {
 
@@ -31,11 +33,15 @@ export class User {
         return (new User(slug).load(client, limiter));
     }
 
+    /**
+     * 
+     * @param {GraphQLClient} client 
+     * @param {string[]} slugs 
+     * @param {TimedQuerySemaphore} limiter 
+     * @returns 
+     */
     static async createUsers(client, slugs, limiter = null){
-        let users = []
-        await Promise.all(slugs.map( (slug) => this.createUser(client, slug, limiter)))
-            .then(values => users = values);
-        return users;
+        return await Promise.all(slugs.map( (slug) => this.createUser(client, slug, limiter)))
     }
 
     static async loadUsers(client, users, limiter = null){

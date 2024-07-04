@@ -1,15 +1,17 @@
 import { Query } from './lib/query.js';
 import { deep_get, readSchema } from './lib/lib.js';
+import { GraphQLClient } from 'graphql-request';
+import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.txt");
 const query = new Query(schema, 3);
 
 query.log = {
-  query: params => `Fetching standings from from events attended by user ${params.slug} (page ${params.eventsPage} of events, ${params.eventsPerPage} per page; page ${params.standingsPage} of standings, ${params.standingsPerPage} per page for each event) ...`,
+  query: params => `Fetching standings from events attended by user ${params.slug} (page ${params.eventsPage} of events, ${params.eventsPerPage} per page; page ${params.standingsPage} of standings, ${params.standingsPerPage} per page for each event) ...`,
   error: params => `Request failed for user ${params.slug} ...`
 }
 
-const STANDINGS_PER_PAGE = 500;
+const STANDINGS_PER_PAGE = 96;
 
 async function getStandingsPage(client, slug, limiter = null, page, standingsPage = 1, standingsPerPage = STANDINGS_PER_PAGE, silentErrors = false){
   let data = await query.execute(client, {slug, eventsPage: page, standingsPage, standingsPerPage}, limiter, silentErrors);
@@ -18,7 +20,6 @@ async function getStandingsPage(client, slug, limiter = null, page, standingsPag
   return result;
 }
 
-var prevTimestamp;
 /*
 async function processStandingsPage(client, slug, limiter, currentList, page, after = null, until = null, perPage = PER_PAGE){
     let events = await getStandingsPage(client, slug, limiter, page, perPage, false);
@@ -53,11 +54,6 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
 
   for (let ev of events){
 
-    if (ev.startAt > prevTimestamp){
-      console.warn("==========SORT FAULT !!!!==========");
-    }
-    prevTimestamp = ev.startAt;
-
     if (until && ev.startAt > until) continue;
     if (after && ev.startAt < after) return false;
 
@@ -69,15 +65,20 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
 
   return events.length > 0;
 }
-
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {string} slug 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {number} after 
+ * @param {number} until 
+ * @returns {Promise<{}>}
+ */
 export async function getStandingsFromUser(client, slug, limiter, after = null, until = null){
   if (!after && !until){ //we don't have to check each page, we can go for a simple paginated query
     return query.executePaginated(client, {slug, standingsPerPage: STANDINGS_PER_PAGE, standingsPage: 1}, "user.events.nodes", limiter, null, null, "eventsPage");
   } else {
-    prevTimestamp = Infinity;
     let result = [];
-
-    console.log("doing the thing")
 
     let page = 1
     while (await processStandingsPage(client, slug, limiter, result, page, after, until)){
@@ -88,7 +89,17 @@ export async function getStandingsFromUser(client, slug, limiter, after = null, 
   }
 }
 
-export async function getStandingsFromUsers(client, slugs, limiter, after = null, until = null){
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {string[]} slugs 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {number} after 
+ * @param {number} until 
+ * @param {string[]} eventsBlacklist slugs of events to ignore
+ * @returns {Promise<{}[]>}
+ */
+export async function getStandingsFromUsers(client, slugs, limiter, after = null, until = null, eventsBlacklist){
   let results = await Promise.all(slugs.map( slug => getStandingsFromUser(client, slug, limiter, after, until).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
 
   let dict = {};
@@ -96,7 +107,13 @@ export async function getStandingsFromUsers(client, slugs, limiter, after = null
     if (!list) continue;
 
     for (let event of list){
-      dict[event.id] = event;
+      dict[event.slug] = event;
+    }
+  }
+
+  if (eventsBlacklist){
+    for (let event of eventsBlacklist){
+      delete dict[event];
     }
   }
 
