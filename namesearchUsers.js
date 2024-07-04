@@ -64,12 +64,13 @@ let [results] = await Promise.all([
 
 let users = results.reduce((acc, current) => current ? acc.concat(current) : acc, []);
 
-let result = names.map( name => {
+let result = names.map( (name, i) => {
     for (let user of users){
         if (name == user.player.gamerTag){
             return {slug: user.slug, name};
         }
     }
+    console.warn("Could not find a slug for player", name, i);
     return {slug: null, name: name}
 })
 
