@@ -1,31 +1,38 @@
-import { getEventResults, getEventsResults } from "./include/getEventResults.js";
+import { getEventsResults } from "./include/getEventResults.js";
 import {client} from "./include/lib/client.js";
-import { splitNewline, splitWhitespace } from "./include/lib/lib.js"
+import { muteStdout, readLines, splitWhitespace, unmuteStdout } from "./include/lib/lib.js"
 import { extractSlugs } from "./include/lib/tournamentUtil.js"
-import { OutputModeParser, SingleOptionParser, parseArguments } from "@twilcynder/arguments-parser";
+import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import { mkdir, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { output } from "./include/lib/util.js";
 
-if (process.argv.length < 3 ){
-    console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " EventSlug");
-    process.exit()
-}
+let {replacementsFile, eventsSlugs, outputFormat, outputfile, logdata, printdata, silent, eventName} = new ArgumentsManager()
+    .apply(addOutputParams)
+    .addOption(["-r", "--replacementsFile"])
+    .addSwitch("--eventName", {
+        description: "Include each event's name in the result (aside from the tournament's name)"
+    })
+    .addCustomParser(new EventListParser, "eventsSlugs")
+    .enableHelpParameter()
 
-let [replacementsFile, outputMode, list] = parseArguments(process.argv.slice(2), 
-    new SingleOptionParser("-r"),
-    new OutputModeParser("stdout"), 
-    new EventListParser(),
-);
+    .parseProcessArguments()
+
+let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+
+if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
-let events = await getEventsResults(client, extractSlugs(list), undefined, limiter);
+let events = await getEventsResults(client, extractSlugs(eventsSlugs), undefined, limiter);
 limiter.stop()
+
+events = events.filter(ev => !!ev).sort((a, b) => a.startAt - b.startAt);
 
 let namesReplacements = {}
 if (replacementsFile){
     try {
-        namesReplacements = splitNewline(readFileSync(replacementsFile, {encoding: "utf-8"}).toString()).forEach(line => {
+        readLines(replacementsFile).forEach(line => {
             let [name, replacement] = splitWhitespace(line);
             if (replacement){
                 namesReplacements[name] = replacement;
@@ -51,7 +58,7 @@ function generateLine(event){
         .replace('Y', date.getFullYear())
         .replace('m', date.getMonth()+1)
         .replace('d', date.getDate());
-    let result = `${dateString}\t${event.tournament.name}\tTLS\t${event.standings.nodes.length}`;
+    let result = `${dateString}\t${event.tournament.name}\t${eventName ? event.name + "\t" : ""}TLS\t${event.standings.nodes.length}`;
 
     for (const s of event.standings.nodes){
         let name = s.entrant.name;
@@ -63,13 +70,19 @@ function generateLine(event){
     return result;
 }
 
-let result = "";
+if (silent_) unmuteStdout();
 
-for (let event of events){
-    if (event){
-        result += generateLine(event) + "\n";
+printdata = printdata || logdata_;
+
+output(outputFormat, outputfile, printdata, events, (events) => {
+    let resultString = "";
+    for (let event of events){
+        if (!event){
+            console.warn("Null event")
+            continue;
+        }
+        //console.log(event.tournament.name, `(${event.slug}) on`, new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
+        resultString += generateLine(event) + '\n';
     }
-}
-
-console.log(result);
-writeFileSync('out/eventResults.txt', result);
+    return resultString;
+});
