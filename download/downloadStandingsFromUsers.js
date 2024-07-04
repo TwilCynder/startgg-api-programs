@@ -37,15 +37,18 @@ let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
 
-try {
-    let fileSlugs = readLines(filename).filter(line => !!line);
-    if (fileSlugs){
-        userSlugs = userSlugs.concat(fileSlugs);
+if (filename){
+    try {
+        let fileSlugs = readLines(filename).filter(line => !!line);
+        if (fileSlugs){
+            userSlugs = userSlugs.concat(fileSlugs);
+        }
+    } catch (err){
+        console.error("Could not read user slugs from file", filename, ":", err);
+        process.exit(1);
     }
-} catch (err){
-    console.error("Could not read user slugs from file", filename, ":", err);
-    process.exit(1);
 }
+
 
 let limiter = new StartGGDelayQueryLimiter;
 
