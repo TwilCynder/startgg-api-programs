@@ -60,9 +60,8 @@ export function getEntrantsForEvents(client, slugs, limiter, silentErrors = fals
 }
 
 export async function getUniqueUsersOverLeague(client, slugs, limiter, silentErrors = false){
-
     let data = (await getEntrantsForEvents(client, slugs, limiter, silentErrors)).reduce((acc, event) => {
-        if (!event) return acc;
+        if (!event || !event.entrants) return acc;
         for (let entrant of event.entrants){
             for (let participant of entrant.participants){
                 if (participant.user){

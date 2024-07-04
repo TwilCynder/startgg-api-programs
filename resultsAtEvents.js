@@ -1,19 +1,21 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { deep_get, muteStdout, readLines, unmuteStdout } from "./include/lib/lib.js";
+import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { deep_get, muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/lib.js";
 import { client } from "./include/lib/client.js";
-import { StartGGClockQueryLimiter, StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output } from "./include/lib/util.js";
 import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
+import { loadInputFromStdin } from "./include/lib/loadInput.js";
 
 //========== CONFIGURING PARAMETERS ==============
 
-let {userSlugs, filename, start_date, end_date, events, exclude_expression, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, events, exclude_expression, minimum_in, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments.")
     .apply(addOutputParams)
+    .apply(addInputParams)
     .addCustomParser(new SwitchableEventListParser, "events")
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
@@ -32,6 +34,10 @@ let {userSlugs, filename, start_date, end_date, events, exclude_expression, outp
     .addMultiOption(["-R", "--exclude_expression"], 
         {description: "A list of regular expressions that will remove events they match with"}
     )
+    .addOption(["-m", "--minimum_in"], {
+        type: "number",
+        description: "Minimum amount of users for an event to be included in the output"
+    })
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -54,23 +60,31 @@ if (filename){
     }
 }
 
-console.log(end_date, start_date);
-
-let limiter = new StartGGClockQueryLimiter;
+let limiter = new StartGGDelayQueryLimiter;
 
 let [users, data] = await Promise.all([
     User.createUsers(client, userSlugs, limiter),
-    (async()=>{
+    Promise.all([
+        inputfile ? readJSONAsync(inputfile).catch(err => {
+            console.warn(`Could not open file ${inputfile} : ${err}`)
+            return [];
+        }) : null,
+
+        stdinput ? loadInputFromStdin() : null,
+
+        (async()=>{
         
-        if (start_date || end_date){
-            if (events){
-                console.log("The arguments specify both a time range and an event list. The event list will be treated as a blacklist.")
+            if (start_date || end_date){
+                if (events){
+                    console.log("The arguments specify both a time range and an event list. The event list will be treated as a blacklist.")
+                }
+                return await getStandingsFromUsers(client, userSlugs, limiter, start_date, end_date, events);
+            } else {
+                return await getEventsResults(client, events, undefined, limiter);
             }
-            return await getStandingsFromUsers(client, userSlugs, limiter, start_date, end_date, events);
-        } else {
-            return await getEventsResults(client, events, undefined, limiter);
-        }
-    })()
+        })()
+    ]).then(results => results.reduce((previous, current) => current ? previous.concat(current) : previous, []))
+
 ])
 
 limiter.stop();
@@ -78,9 +92,7 @@ limiter.stop();
 //========== PROCESSING DATA ==============
 
 if (exclude_expression){
-    console.log(exclude_expression)
     let exclude_regex = exclude_expression.map(exp => new RegExp(exp));
-    console.log(exclude_regex);
     data = data.filter( event => {
         for (let exp of exclude_regex){
             if (exp.test(event.slug)){
@@ -93,23 +105,26 @@ if (exclude_expression){
 
 for (let event of data){
     let standings = event.standings.nodes;
-    event.nodes.standings = [];
-
-    console.log(event)
+    event.numEntrants = standings.length;
+    event.standings.nodes = [];
 
     for (let standing of standings){
         let user = deep_get(standing, "entrant.participants.0.user");
         if (!user){
-            console.log("No user for standing", standing);
+            console.log("No user for standing", standing.entrant.participants[0].player.gamerTag, standing);
             continue;
         }
 
         for (let u of users){
             if (user.id == u.id){
-                event.standings.push(standing);
+                event.standings.nodes.push(standing);
             }
         }
     }
+}
+
+if (minimum_in){
+    data = data.filter(event => event.standings.nodes.length >= minimum_in);
 }
 
 if (silent_) unmuteStdout();
@@ -122,11 +137,11 @@ function generateLine(event){
         .replace('Y', date.getFullYear())
         .replace('m', date.getMonth()+1)
         .replace('d', date.getDate());
-    let result = `${dateString}\t${event.tournament.name}`;
+    let result = `${dateString}\t${event.tournament.name}\t${event.numEntrants}`;
 
     for (const s of event.standings.nodes){
-        let name = s.entrant.player.gamerTag;
-        result += '\t' + `${standing.placement} : ${name}`;
+        let name = s.entrant.participants[0].player.gamerTag;
+        result += '\t' + `${s.placement} : ${name}`;
     }
 
     return result;
@@ -134,7 +149,7 @@ function generateLine(event){
 
 if (logdata_){
     for (let event of data){
-        console.log(event.tournament.name, `(${event.slug}) on`, new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
+        //console.log(event.tournament.name, `(${event.slug}) on`, new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
         console.log(generateLine(event));
     }
 }
@@ -142,7 +157,8 @@ if (logdata_){
 output(outputFormat, outputfile, printdata, data, (data) => {
     let resultString = "";
     for (let event of data){
-        resultString += event.slug + '\t' + event.tournament.name + '\t' + event.numEntrants + '\t' + event.startAt + '\n';
+        //console.log(event.tournament.name, `(${event.slug}) on`, new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
+        resultString += generateLine(event) + '\n';
     }
     return resultString;
 });
