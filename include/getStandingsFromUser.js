@@ -14,7 +14,7 @@ query.log = {
 const STANDINGS_PER_PAGE = 96;
 
 async function getStandingsPage(client, slug, limiter = null, page, standingsPage = 1, standingsPerPage = STANDINGS_PER_PAGE, silentErrors = false){
-  let data = await query.execute(client, {slug, eventsPage: page, standingsPage, standingsPerPage}, limiter, silentErrors);
+  let data = await query.execute(client, {slug, eventsPage: page, eventsPerPage: 5, standingsPage, standingsPerPage}, limiter, silentErrors);
   console.log("Fetched standings page", page, "for user slug", slug);
   let result = deep_get(data, "user.events.nodes");
   return result;

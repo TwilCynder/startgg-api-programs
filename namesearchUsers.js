@@ -1,5 +1,4 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import {EventListParser} from "./include/lib/computeEventList.js"
 import fs from "fs/promises"
 import { loadInputFromStdin } from "./include/lib/loadInput.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
