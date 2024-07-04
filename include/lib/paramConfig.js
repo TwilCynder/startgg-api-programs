@@ -30,6 +30,7 @@ function addLogParameter(argumentsManager){
 function addFormatParameter(argumentsManager){
     argumentsManager.addOption("--format", {
         dest: "outputFormat",
+        default: "json",
         description: "The output format. Either json (default) or csv"
     })
 }
