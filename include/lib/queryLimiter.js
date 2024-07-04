@@ -113,7 +113,7 @@ export class ClockQueryLimiter extends TimedQuerySemaphore {
 
 export class StartGGClockQueryLimiter extends ClockQueryLimiter {
     constructor(){
-        super(70);
+        super(60);
     }
 }
 
