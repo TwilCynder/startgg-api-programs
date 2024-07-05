@@ -12,7 +12,7 @@ import { loadInputFromStdin } from "./include/lib/loadInput.js";
 
 //========== CONFIGURING PARAMETERS ==============
 
-let {userSlugs, filename, start_date, end_date, events, exclude_expression, minimum_in, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, events, exclude_expression, minimum_in, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, eventName} = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments.")
     .apply(addOutputParams)
     .apply(addInputParams)
@@ -37,6 +37,9 @@ let {userSlugs, filename, start_date, end_date, events, exclude_expression, mini
     .addOption(["-m", "--minimum_in"], {
         type: "number",
         description: "Minimum amount of users for an event to be included in the output"
+    })
+    .addSwitch("--eventName", {
+        description: "Include each event's name in the result (aside from the tournament's name)"
     })
     .enableHelpParameter()
 
@@ -127,6 +130,8 @@ if (minimum_in){
     data = data.filter(event => event.standings.nodes.length >= minimum_in);
 }
 
+data = data.sort((a, b) => a.startAt - b.startAt);
+
 if (silent_) unmuteStdout();
 
 //========== OUTPUT ==============
@@ -137,7 +142,7 @@ function generateLine(event){
         .replace('Y', date.getFullYear())
         .replace('m', date.getMonth()+1)
         .replace('d', date.getDate());
-    let result = `${dateString}\t${event.tournament.name}\t${event.numEntrants}`;
+    let result = `${dateString}\t${event.tournament.name}\t${eventName ? event.name + "\t" : ""}${event.numEntrants}`;
 
     for (const s of event.standings.nodes){
         let name = s.entrant.participants[0].player.gamerTag;
@@ -147,12 +152,7 @@ function generateLine(event){
     return result;
 }
 
-if (logdata_){
-    for (let event of data){
-        //console.log(event.tournament.name, `(${event.slug}) on`, new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
-        console.log(generateLine(event));
-    }
-}
+printdata = printdata || logdata_;
 
 output(outputFormat, outputfile, printdata, data, (data) => {
     let resultString = "";

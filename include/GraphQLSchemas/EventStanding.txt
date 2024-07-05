@@ -1,9 +1,11 @@
 query EventStandingsQuery($slug: String!, $numEntrants: Int) {
 	event(slug: $slug) {
+    name
     tournament {
       name
       id
     }
+    name
     id
     startAt
     numEntrants

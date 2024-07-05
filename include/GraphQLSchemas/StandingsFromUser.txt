@@ -7,6 +7,7 @@ query StandinsgQuery($id: ID, $slug: String, $standingsPage: Int, $standingsPerP
     }){
       nodes {
         slug
+        name
         tournament {
           name
         }
