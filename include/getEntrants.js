@@ -1,5 +1,6 @@
 import { Query } from './lib/query.js';
 import { readSchema } from './lib/lib.js';
+import { GraphQLClient } from 'graphql-request';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrants.txt");
 const query = new Query(schema, 3);
@@ -59,8 +60,13 @@ export function getEntrantsForEvents(client, slugs, limiter, silentErrors = fals
     })));
 }
 
-export async function getUniqueUsersOverLeague(client, slugs, limiter, silentErrors = false){
-    let data = (await getEntrantsForEvents(client, slugs, limiter, silentErrors)).reduce((acc, event) => {
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {{}[]} events 
+ */
+export function processUniqueEntrantsLeague(events, silentErrors){
+    let data = events.reduce((acc, event) => {
         if (!event || !event.entrants) return acc;
         for (let entrant of event.entrants){
             for (let participant of entrant.participants){
@@ -75,7 +81,13 @@ export async function getUniqueUsersOverLeague(client, slugs, limiter, silentErr
             }
         }
         return acc;
-    }, {})
+    }, {});
 
     return Object.values(data);
+}
+
+export async function getUniqueUsersOverLeague(client, slugs, limiter, silentErrors = false){
+    let data = (await getEntrantsForEvents(client, slugs, limiter, silentErrors))
+
+    return processUniqueEntrantsLeague(data, silentErrors);
 }
