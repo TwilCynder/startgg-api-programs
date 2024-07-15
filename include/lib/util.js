@@ -1,4 +1,6 @@
 import fs from 'fs';
+import { loadInputFromStdin } from './loadInput.js';
+import { readJSONAsync } from './lib.js';
 
 function output_(filename, printdata, resultString){
     if (filename){
@@ -40,4 +42,32 @@ export function output(format, filename, printdata, data, CSVtransform){
 
 export function outputJSON(data, filename, printdata, prettyJSON){
     output_(filename, printdata, toJSON(data, prettyJSON));
+}
+
+/**
+ * @param {string} inputfile 
+ * @param {boolean} stdinput 
+ * @param {() => Promise<any>} APIFetcher 
+ */
+export function readMultimodalInputWrapper(inputfile, stdinput, APIFetcher){
+    return readMultimodalInput(inputfile, stdinput, APIFetcher());
+}
+
+/**
+ * @param {string} inputfile 
+ * @param {boolean} stdinput 
+ * @param {Promise<any>} APIPromise 
+ * @returns 
+ */
+export function readMultimodalInput(inputfile, stdinput, APIPromise){
+    return Promise.all([
+        inputfile ? readJSONAsync(inputfile).catch(err => {
+            console.warn(`Could not open file ${inputfile} : ${err}`)
+            return [];
+        }) : null,
+    
+        stdinput ? loadInputFromStdin() : null,
+    
+        APIPromise
+    ]).then(results => results.reduce((previous, current) => current ? previous.concat(current) : previous, []))
 }

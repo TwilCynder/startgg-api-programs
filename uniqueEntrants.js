@@ -3,13 +3,13 @@ import { EventListParser } from "./include/lib/computeEventList.js";
 import { getUniqueUsersOverLeague } from "./include/getEntrants.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import fs from "fs"
-import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { unmuteStdout, muteStdout } from "./include/lib/lib.js";
-import { output } from "./include/lib/util.js";
+import { output, readMultimodalInput } from "./include/lib/util.js";
 
-let {list, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {list, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "list")
+    .apply(addInputParams)
     .apply(addOutputParams)
     .enableHelpParameter()
     .parseProcessArguments();
@@ -19,10 +19,12 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
-let users = await getUniqueUsersOverLeague(client, list, limiter);
+let users = await readMultimodalInput(inputfile, stdinput, getUniqueUsersOverLeague(client, list, limiter))
 limiter.stop();
 
 if (silent_) unmuteStdout();
+
+console.log(users)
 
 if (logdata_){
     for (let user of users){
