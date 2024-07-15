@@ -46,6 +46,27 @@ export class EventListParser extends Parser {
                 return true;
         }
     }   
+
+    getUsageDescription(){
+        return [
+            "<slug>",
+            "-t <slug template> <min> <max (inclusive)>",
+        ]
+    }
+
+    getUsageText(){
+        return [
+            "<slug>...",
+            "(-t <slug template> <min> <max>)...",
+        ]
+    }
+
+    getDefaultDescription(){
+        return [
+            "Event slug",
+            "Generates an event slug for each number between min and max (inclusive), by replacing any occurence of \"%\" in the slug template",
+        ]
+    }
 }
 
 export class SwitchableEventListParser extends EventListParser {
@@ -77,4 +98,26 @@ export class SwitchableEventListParser extends EventListParser {
             return true;
         }
     }
+
+    getUsageDescription(){
+        return [
+            "-e",
+            "-E"
+        ].concat(super.getUsageDescription());
+    }
+
+    getUsageText(){
+        return [
+            "[-e]",
+            "[-E]"
+        ].concat(super.getUsageText());
+    }
+
+    getDefaultDescription(){
+        return [
+            "Enables parsing arguments as slugs. If this hasn't been enabled, arguments will never be parsed as slugs.",
+            "Disables parsing arguments as slugs. If this is disabled, arguments will never be parsed as slugs."
+        ].concat(super.getDefaultDescription());
+    }
+
 }
