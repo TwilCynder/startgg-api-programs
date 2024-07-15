@@ -1,25 +1,30 @@
 import fs from "fs";
 import { client } from "./include/lib/client.js";
 import { getAttendanceOverLeague } from "./include/getAttendance.js";
-import { computeEventList } from "./include/lib/computeEventList.js";
+import { computeEventList, EventListParser } from "./include/lib/computeEventList.js";
+import { ArgumentsManager } from "@twilcynder/arguments-parser";
+import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { output } from "./include/lib/util.js";
+import { format } from "path";
 
-if (process.argv.length < 3 ){
-    console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " [-m min_attendance] {-f listFilename | -s template min max | slugs ...} ");
-    process.exit();
-}
+let {events, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+    .addCustomParser(new EventListParser, "events")
+    .apply(addOutputParams)
+    .enableHelpParameter()
+    .parseProcessArguments();
 
+let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
-let list = computeEventList(process.argv.slice(2))
-if (!list) {
-    console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " [-m min_attendance] {-f listFilename | -s template min max | slugs ...} ");
-    process.exit();
-}
+if (silent_) muteStdout();
 
-let attendance = await getAttendanceOverLeague(client, list);
+let limiter = new StartGGDelayQueryLimiter();
+let attendance = await getAttendanceOverLeague(client, events, limiter);
+limiter.stop();
+
 let entrantsList = []
 
-for (let id in attendance) {
-    let entrant = attendance[id]
+for (let entrant of Object.values(attendance)) {
     entrantsList.push({name: entrant.name, attendance: entrant.count});
 }
 entrantsList.sort((a, b) => a.attendance - b.attendance);
@@ -34,19 +39,26 @@ for (let e of entrantsList){
         t = e.attendance;
     }
     count++;
-    console.log(e.name, e.attendance);
 }
 pools[t] = count;
 
-fs.mkdir('out', () => {});
-let file = fs.createWriteStream("out/attendance.txt", {encoding: "utf-8"});
-
-let cumulative = 0;
-for (let i = list.length; i > 0; i--){
-    if (!pools[i]) continue;
-    cumulative += pools[i];
-    console.log(i, "tournaments :", pools[i], '\t', "total :", cumulative);
-    file.write(i + '\t' + cumulative + '\t' + pools[i] + '\n');
+if (logdata_){
+    for (let e of entrantsList){
+        console.log(e.name, e.attendance);
+    }
+    console.log("-----------------");
+    let cumulative = 0;
+    for (let i = events.length; i > 0; i--){
+        if (!pools[i]) continue;
+        cumulative += pools[i];
+        console.log(i, "tournaments :", pools[i], '\t', "total :", cumulative);
+    }
 }
 
-console.log(entrantsList.length)
+output(format, outputfile, printdata, {attendance: entrantsList, pools}, (data) => {
+    let resultString = ""
+
+    for (let e of entrantsList){
+        resultString += e.name + '\t' + e.attendance + '\n';
+    }
+});
