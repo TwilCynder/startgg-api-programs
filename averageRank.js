@@ -1,25 +1,28 @@
 import * as fs from 'fs';
+import { readLines } from './include/lib/lib.js';
+import { ArgumentsManager } from '@twilcynder/arguments-parser';
 
-var print = console.log;
+let {rankingsFilename, rankingSize} = new ArgumentsManager()
+    .addParameter("rankingsFilename")
+    .addParameter("rankingSize", {type: "number"}, true)
+    .enableHelpParameter()
 
-if (process.argv.length < 3 ){
-    console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " rankingsFilename");
-    process.exit()
-}
+    .parseProcessArguments();
 
-var lines = fs.readFileSync(process.argv[2]).toString('utf-8').replaceAll('\r', '').split('\n');
+var lines = readLines(process.argv[2]);
 
 let players = {}
 
-let rank = 30;
+let rank = rankingSize;
 for (let line of lines){
+    line = line.trim();
 
-    if (line.length < 1 || line.startsWith(" ")){
+    if (line.length < 1 || line.startsWith(" ") || line.startsWith("#")){
         rank = 30;
         continue;
     }
 
-    line = line.toLowerCase().trim();
+    line = line.toLowerCase();
 
     let currentScore = (players[line] ? players[line] : 0);
     players[line] = currentScore + rank;
@@ -39,5 +42,5 @@ items.sort(function(first, second) {
 
 console.log("---------------")
 for (let i = 0; i < items.length; i++){
-    console.log(i, items[i][0], ":", items[i][1])
+    console.log(i + 1, items[i][0], ":", ((30 - items[i][1] / 10) + 1).toFixed(1))
 }
