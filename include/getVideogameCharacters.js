@@ -9,8 +9,8 @@ query.log = {
     error: (params) => "Couldn't fetch characters for videogame " + params.slug
 }
 
-export async function getVideogameCharacters(client, slug){
-    let result = await query.execute(client, {slug});
+export async function getVideogameCharacters(client, slug, limiter){
+    let result = await query.execute(client, {slug}, limiter);
     console.log("Fetched characters for videogame", slug);
     return deep_get(result, "videogame.characters");
 }

@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs, { writeFileSync } from 'fs';
 import { readJSONAsync } from './lib/lib.js';
-import { getCharacters } from './getVideogameCharacters.js';
+import { getCharacters, getVideogameCharacters } from './getVideogameCharacters.js';
 
 function convertCharsList(list){
     let chars = {}
@@ -10,24 +10,23 @@ function convertCharsList(list){
     return chars;
 }
 
-export async function loadCharacterInfo(filename, client, slug, writeIfNeeded){
-    try {
-        fs.accessSync(filename);
-        return convertCharsList(await readJSONAsync(filename));
-    } catch (e) {
-        if (client && slug) {
-            let charsList = await getCharacters(client, slug);
-            if (!charsList.videogame) throw "Slug didn't return any videogame";
-            charsList = charsList.videogame.characters;
+export async function loadCharacterInfo(filename, client, limiter, slug, writeIfNeeded){
 
-            if (writeIfNeeded){
-                let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-                file.write(JSON.stringify(charsList));
-            }
+    if (filename){
+        if (fs.existsSync(filename)){
+            return convertCharsList(await readJSONAsync(filename));
+        }
+    }
 
-            return convertCharsList(charsList);
+    if (client && slug) {
+        let charsList = await getVideogameCharacters(client, slug, limiter);
+        if (!charsList.videogame) throw "Slug didn't return any videogame";
+        charsList = charsList.videogame.characters;
+
+        if (writeIfNeeded){
+            writeFileSync(filename, JSON.stringify(charsList));
         }
 
-        throw e;
+        return convertCharsList(charsList);
     }
 }
