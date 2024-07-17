@@ -92,9 +92,10 @@ export class Query {
     async executePaginated(client, params, collectionPathInQuery, limiter = null, delay = null, perPage = undefined, pageParamName = "page", perPageParamName = "perPage", silentErrors = false, maxTries = null){
         let result = [];
 
+
         params = Object.assign({}, params);
         params[pageParamName] = 1;
-        params[perPageParamName] = perPage;
+        params[perPageParamName] = perPage ?? params[perPageParamName];
 
         while (true){
             console.log("Querying page", params[pageParamName], `(${result.length} elements loaded)`);
