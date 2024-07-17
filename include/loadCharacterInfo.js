@@ -1,6 +1,6 @@
 import fs, { writeFileSync } from 'fs';
 import { readJSONAsync } from './lib/lib.js';
-import { getCharacters, getVideogameCharacters } from './getVideogameCharacters.js';
+import { getVideogameCharacters } from './getVideogameCharacters.js';
 
 function convertCharsList(list){
     let chars = {}
@@ -20,10 +20,9 @@ export async function loadCharacterInfo(filename, client, limiter, slug, writeIf
 
     if (client && slug) {
         let charsList = await getVideogameCharacters(client, slug, limiter);
-        if (!charsList.videogame) throw "Slug didn't return any videogame";
-        charsList = charsList.videogame.characters;
+        if (!charsList) throw "Slug didn't return any videogame";
 
-        if (writeIfNeeded){
+        if (writeIfNeeded && filename){
             writeFileSync(filename, JSON.stringify(charsList));
         }
 

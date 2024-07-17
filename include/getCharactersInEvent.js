@@ -18,10 +18,12 @@ export async function getSetsCharsInEvents(client, slugs, limiter){
     return await getSetsInEvents(client, query, slugs, limiter);
 }
 
+
 function updateCharsCount(chars, sets){
     for (let set of sets){
         if (!set.games) continue;
         for (let game of set.games){
+            if (!game.selections) continue;
             for (let selection of game.selections){
                 let char = selection.selectionValue;
 
@@ -33,10 +35,12 @@ function updateCharsCount(chars, sets){
     return chars;
 }
 
-export async function getCharsInEvent(client, slug, limiter){
-    let sets = await getSetsCharsInEvent(client, slug, limiter);
-
+export function getCharsInSets(sets){
     return updateCharsCount({}, sets);
+}
+
+export async function getCharsInEvent(client, slug, limiter){
+    return getCharsInSets(await getSetsCharsInEvent(client, slug, limiter));
 }
 
 export async function getCharsInEvents(client, slugs, limiter = null){
