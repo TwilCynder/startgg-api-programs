@@ -38,14 +38,14 @@ export async function getSetsInEventsHashmap(client, query, slugs, limiter, noLi
 }
 
 /**
- * 
+ * @template T
  * @param {GraphQLClient} client 
  * @param {Query} query 
  * @param {Array<string>} slugs 
  * @param {(accumulator: T, currentValue: any) => T} callback 
  * @param {T} initValue 
  * @param {ClockQueryLimiter} limiter 
- * @returns {T}
+ * @returns {Promise<T>}
  */
 export async function reduceSetsInEvents(client, query, slugs, callback, initValue, limiter, noLimit = false){
     limiter = limiter || (noLimit ? null : new StartGGDelayQueryLimiter);

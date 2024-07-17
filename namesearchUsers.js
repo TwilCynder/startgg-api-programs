@@ -6,9 +6,10 @@ import { fResults, readLinesAsync } from "./include/lib/lib.js";
 import { getUniqueUsersOverLeague } from "./include/getEntrants.js";
 import { createClient } from "./include/lib/common.js";
 import { addInputParams } from "./include/lib/paramConfig.js";
+import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
 
 let {inputfile, stdinput, list, names, namesfile, outputfile, outputFormat} = new ArgumentsManager()
-    //.addCustomParser(new EventListParser, "list")
+    .addCustomParser(new SwitchableEventListParser, "list")
     .addMultiParameter("names")
     .addOption(["-f", "--names-file"], {dest: "namesfile"})
     .addOption(["-o", "--output-file"], {dest: "outputfile"})

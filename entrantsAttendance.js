@@ -1,12 +1,11 @@
 import fs from "fs";
 import { client } from "./include/lib/client.js";
 import { getAttendanceOverLeague } from "./include/getAttendance.js";
-import { computeEventList, EventListParser } from "./include/lib/computeEventList.js";
+import { EventListParser } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output } from "./include/lib/util.js";
-import { format } from "path";
 
 let {events, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "events")
@@ -55,7 +54,7 @@ if (logdata_){
     }
 }
 
-output(format, outputfile, printdata, {attendance: entrantsList, pools}, (data) => {
+output(outputFormat, outputfile, printdata, {attendance: entrantsList, pools}, (data) => {
     let resultString = ""
 
     for (let e of entrantsList){
