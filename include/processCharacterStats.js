@@ -1,4 +1,4 @@
-import { deep_get } from "./lib/lib";
+import { deep_get } from "./lib/lib.js";
 
 function updateCharsGamesCount(chars, set){
     for (let game of set.games){
@@ -40,9 +40,11 @@ function updateCharsGamesCountPlayers(chars, set){
     for (let game of set.games){
         if (!game.selections) continue;
         //for (let selection of game.selections){
-		for (let i = 0; i < game.slots.length; i++){
+		for (let i = 0; i < set.slots.length; i++){
 			let slot = set.slots[i];
 			let selection = game.selections[i];
+
+            if (!selection) continue;
 
             let char = selection.selectionValue;
 
@@ -53,7 +55,7 @@ function updateCharsGamesCountPlayers(chars, set){
             }
 			charObj.games++;
 
-			let participants = deep_get(slot, "entrant.particiapnts");
+			let participants = deep_get(slot, "entrant.participants");
 			if (!participants || !participants[0]) continue;
 			for (let participant of participants){
 				let player = participant.player;
@@ -86,7 +88,7 @@ export function getUpdateFunction(sets, players){
 		(players ? updateCharsGamesCountPlayers : updateCharsGamesCount)
 }
 
-function processSets(chars, sets, updateFunction = updateCharsGamesCount){
+export function processSets(chars, sets, updateFunction = updateCharsGamesCount){
     for (let set of sets){
         if (!set.games) continue;
         updateFunction(chars, set);
