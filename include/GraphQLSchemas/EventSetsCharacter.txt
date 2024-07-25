@@ -3,10 +3,11 @@ query EventStandingsQuery($slug: String!, $page: Int, $perPage: Int) {
         sets  (page: $page, perPage: $perPage)  {
             nodes {
                 games {
+                    winnerId
                     selections {
                         selectionValue
                     }
-                } 
+                }
             }
         }
     }
