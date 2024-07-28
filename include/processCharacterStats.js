@@ -1,10 +1,12 @@
 import { deep_get } from "./lib/lib.js";
 
 function updateCharsGamesCount(chars, set){
+    if (!set.games) return chars;
     for (let game of set.games){
         if (!game.selections) continue;
         for (let selection of game.selections){
             let char = selection.selectionValue;
+            if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
 
             if (!chars[char]) chars[char] = 0;
             chars[char]++;
@@ -14,11 +16,13 @@ function updateCharsGamesCount(chars, set){
 }
 
 function updateCharsGamesSetsCount(chars, set){
+    if (!set.games) return chars;
     let seenChars = [];
     for (let game of set.games){
         if (!game.selections) continue;
         for (let selection of game.selections){
             let char = selection.selectionValue;
+            if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
 
             let charObj = chars[char];
             if (!charObj){
@@ -37,6 +41,7 @@ function updateCharsGamesSetsCount(chars, set){
 }
 
 function updateCharsGamesCountPlayers(chars, set){
+    if (!set.games) return chars;
     for (let game of set.games){
         if (!game.selections) continue;
         //for (let selection of game.selections){
@@ -47,6 +52,8 @@ function updateCharsGamesCountPlayers(chars, set){
             if (!selection) continue;
 
             let char = selection.selectionValue;
+
+            if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
 
             let charObj = chars[char];
             if (!charObj){
@@ -74,7 +81,56 @@ function updateCharsGamesCountPlayers(chars, set){
 }
 
 function updateCharsGamesSetsCountPlayers(chars, set){
+    if (!set.games) return chars;
+    let seenCharsSet = [];
+    for (let slotIndex = 0; slotIndex < set.slots.length; slotIndex++){
+        let slot = set.slots[slotIndex];
 
+        let participants = deep_get(slot, "entrant.participants");
+        if (!participants || !participants[0]) continue;
+        let participant = participants[0];
+
+        let seenCharsPlayer = [];
+
+        for (let game of set.games){
+            if (!game.selections) continue;
+            let selection = game.selections[slotIndex];
+
+            if (!selection) continue;
+
+            let char = selection.selectionValue;
+
+            if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
+
+            let charObj = chars[char];
+            if (!charObj){
+                charObj = {games: 0, sets: 0, players: {}};
+                chars[char] = charObj;
+            }
+            charObj.games++;
+
+            if (!seenCharsSet.includes(char)){
+                seenCharsSet.push(char);
+                charObj.sets++;
+            }
+
+            let player = participant.player;
+            if (!player) continue;
+            let playerObj = charObj.players[player.id];
+            if (!playerObj){
+                playerObj = {id: player.id, name: player.gamerTag, games: 0, sets: 0};
+                charObj.players[player.id] = playerObj;
+            }
+            playerObj.games++;
+
+            if (!seenCharsPlayer.includes(char)){
+                seenCharsPlayer.push(char);
+                playerObj.sets++;
+            }
+        }
+    }
+
+    return chars;
 }
 
 /**

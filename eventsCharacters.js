@@ -65,6 +65,7 @@ try {
     const finalizeCharDataBase = (charID) => ({name: charNames[charID], games: charStats[charID]})
     const finalizeCharDataSets = (charID) => ({name: charNames[charID], games: charStats[charID].games, sets: charStats[charID].sets})
     const finalizeCharDataPlayers = (charID) => ({name: charNames[charID], games: charStats[charID].games, players: Object.values(charStats[charID].players).filter(player => !minGamesPlayer || player.games >= minGamesPlayer).sort((a, b) => b.games - a.games)})
+    const finalizeCharDataPlayersSets = finalizeCharDataPlayers;
 
     const logDataBase = (char) => {console.log(char.name, ":", char.games)};
     const logDataSets = (char) => {console.log(char.name, ":", char.games, "in", char.sets, char.sets)};
@@ -74,15 +75,23 @@ try {
             console.log(" -", player.name, ":", player.games);
         }
     }
+    const logDataPlayersSets = (char) => {
+        console.log(char.name, ":", char.games)
+        for (let player of char.players){
+            console.log(" -", player.name, ":", player.games, "games ;", player.sets, "sets");
+        }
+    }
 
     const CSVTransformBase = (prev, current) => prev + current.name + "\t" + current.games + '\n';
     const CSVTransformSets = (prev, current) => prev + current.name + "\t" + current.games + "\t" + current.games + '\n';
     const CSVTransformPlayers = (prev, current) => (prev + current.name + "\t" + current.games + "\t" + current.players.map(player => player.name + "\t" + player.games).join("\t") + '\n');
+    const CSVTransformPlayersSets = (prev, current) => (prev + current.name + "\t" + current.games + "\t" + current.players.map(player => player.name + "\t" + player.games + "\t" + player.sets).join("\t") + '\n');
+
 
     let [finalize, logResult, CSVTransform] =
         processPlayers ?
             (processSets ?
-                undefined :
+                [finalizeCharDataPlayersSets, logDataPlayersSets, CSVTransformPlayersSets] :
                 [finalizeCharDataPlayers, logDataPlayers, CSVTransformPlayers]) :
 
             (processSets ?
