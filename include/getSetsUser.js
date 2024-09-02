@@ -1,5 +1,5 @@
 import { Query } from './lib/query.js';
-import { readSchema } from './lib/lib.js';
+import { readSchema } from './lib/util.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/UserSets.txt");
 const query = new Query(schema, 3);

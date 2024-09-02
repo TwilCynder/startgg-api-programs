@@ -8,8 +8,8 @@ import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
 import { getPlayerName } from "./include/getPlayerName.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/lib.js";
-import { loadInputFromStdin } from "./include/lib/loadInput.js";
+import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/jsUtil.js";
+import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
 
 let {slugs, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent} = new ArgumentsManager()

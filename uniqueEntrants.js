@@ -4,7 +4,7 @@ import { getEntrantsForEvents, getUniqueUsersOverLeague, processUniqueEntrantsLe
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { unmuteStdout, muteStdout } from "./include/lib/lib.js";
+import { unmuteStdout, muteStdout } from "./include/lib/jsUtil.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 
 let {list, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()

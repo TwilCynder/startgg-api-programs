@@ -1,6 +1,6 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { muteStdout, readLines, unmuteStdout } from "./include/lib/lib.js";
+import { muteStdout, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { getEventsFromUsers } from "./include/getEventsFromUser.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";

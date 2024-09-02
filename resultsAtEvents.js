@@ -1,6 +1,6 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { deep_get, muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/lib.js";
+import { deep_get, muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output } from "./include/lib/util.js";
@@ -8,7 +8,7 @@ import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
-import { loadInputFromStdin } from "./include/lib/loadInput.js";
+import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 
 //========== CONFIGURING PARAMETERS ==============
 

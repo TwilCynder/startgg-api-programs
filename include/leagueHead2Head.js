@@ -1,5 +1,5 @@
 import { Head2Head, getHead2HeadFromConfirmedSet } from "./head2head.js"
-import { deep_get } from "./lib/lib.js";
+import { deep_get } from "./lib/jsUtil.js";
 import { User } from "./user.js";
 
 /**

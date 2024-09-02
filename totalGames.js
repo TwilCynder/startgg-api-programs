@@ -3,7 +3,7 @@ import { EventListParser } from './include/lib/computeEventList.js'
 import { client } from './include/lib/client.js';
 import fs from 'fs';
 import { getEventsSetsBasic } from './include/getEventsSets.js';
-import { deep_get } from './include/lib/lib.js';
+import { deep_get } from './include/lib/jsUtil.js';
 
 try {
     let [outputMode, list] = parseArguments(process.argv.slice(2), new OutputModeParser("log"), new EventListParser());

@@ -1,10 +1,6 @@
 import { relurl } from "./dirname.js";
 import fs from 'fs';
 
-export function readSchema(source, filename){
-    return fs.readFileSync(relurl(source, filename), {encoding: "utf-8"});
-}
-
 /**
  * Reads all lines of a file into an array
  * @param {string} filename 
@@ -53,20 +49,6 @@ export function deep_get(obj, path, def = null){
     };
     return obj;
 };
-
-export function outputString(s, outputMode){
-    if (outputMode.file){
-        let filename = "./out/" + outputMode.file;
-        let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-    
-        file.write(s);
-    }
-    
-    if (outputMode.stdout){
-        console.log(s);
-    }
-
-}
 
 /**
  * 
@@ -134,4 +116,13 @@ export function muteStdout(){
 
 export function unmuteStdout(){
     process.stdout.write = write;
+}
+
+/**
+ * 
+ * @param {any} data 
+ * @param {boolean} pretty 
+ */
+export function toJSON(data, pretty){
+    return JSON.stringify(data, null, pretty ? 4 : undefined);
 }

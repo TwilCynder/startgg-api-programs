@@ -1,6 +1,6 @@
 import { getEventsResults } from "./include/getEventResults.js";
 import {client} from "./include/lib/client.js";
-import { muteStdout, readLines, splitWhitespace, unmuteStdout } from "./include/lib/lib.js"
+import { muteStdout, readLines, splitWhitespace, unmuteStdout } from "./include/lib/jsUtil.js"
 import { extractSlugs } from "./include/lib/tournamentUtil.js"
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";

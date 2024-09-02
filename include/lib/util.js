@@ -1,6 +1,12 @@
+//TODO : séparer proprement ce fichier de lib.js
+
 import fs from 'fs';
-import { loadInputFromStdin } from './loadInput.js';
-import { readJSONAsync } from './lib.js';
+import { loadInputFromStdin } from './loadInputStdin.js';
+import { readJSONAsync, toJSON } from './jsUtil.js';
+
+export function readSchema(source, filename){
+    return fs.readFileSync(relurl(source, filename), {encoding: "utf-8"});
+}
 
 function output_(filename, printdata, resultString){
     if (filename){
@@ -10,15 +16,6 @@ function output_(filename, printdata, resultString){
     if (printdata) {
         console.log(resultString);
     }
-}
-
-/**
- * 
- * @param {any} data 
- * @param {boolean} pretty 
- */
-function toJSON(data, pretty){
-    return JSON.stringify(data, null, pretty ? 4 : undefined);
 }
 
 /**

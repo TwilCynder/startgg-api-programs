@@ -6,7 +6,7 @@ import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
 import fs from 'fs';
 import { Query } from "./include/lib/query.js";
-import { readSchema } from "./include/lib/lib.js";
+import { readSchema } from "./include/lib/util.js";
 import { getSetsInEvent } from "./include/getSetsInEvents.js";
 
 let [outputMode, inputFile, slugs] = parseArguments(process.argv.slice(2), 

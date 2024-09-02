@@ -1,5 +1,5 @@
 import fs, { writeFileSync } from 'fs';
-import { readJSONAsync } from './lib/lib.js';
+import { readJSONAsync } from './lib/jsUtil.js';
 import { getVideogameCharacters } from './getVideogameCharacters.js';
 
 function convertCharsList(list){

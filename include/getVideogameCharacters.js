@@ -1,5 +1,6 @@
 import { Query } from "./lib/query.js";
-import { deep_get, readSchema } from './lib/lib.js';
+import { readSchema } from './lib/util.js';
+import { deep_get } from './lib/jsUtil.js';
 
 let schema = readSchema(import.meta.url, "./GraphQLSchemas/VideogameCharacters.txt");
 

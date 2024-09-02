@@ -6,7 +6,7 @@ import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramCon
 import { output, readMultimodalInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from './include/lib/queryLimiter.js';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
-import { muteStdout, unmuteStdout } from './include/lib/lib.js';
+import { muteStdout, unmuteStdout } from './include/lib/jsUtil.js';
 
 try {
     let {events, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()

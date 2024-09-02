@@ -1,4 +1,4 @@
-import { deep_get } from "./lib/lib.js";
+import { deep_get } from "./lib/jsUtil.js";
 
 function updateCharsGamesCount(chars, set){
     if (!set.games) return chars;

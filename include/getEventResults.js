@@ -1,5 +1,5 @@
 import { Query } from './lib/query.js';
-import { readSchema } from './lib/lib.js';
+import { readSchema } from './lib/util.js';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 

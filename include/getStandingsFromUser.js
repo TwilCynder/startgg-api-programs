@@ -1,5 +1,6 @@
 import { Query } from './lib/query.js';
-import { deep_get, readSchema } from './lib/lib.js';
+import { readSchema } from './lib/util.js';
+import { deep_get } from './lib/jsUtil.js';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 

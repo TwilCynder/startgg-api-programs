@@ -1,15 +1,10 @@
-import { Query } from "../include/lib/query.js";
-import { readSchema } from "../include/lib/lib.js";
-
 import { EventListParser } from "../include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-
-import { getSetsInEvents } from "../include/getSetsInEvents.js"
 
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 
-import { muteStdout, unmuteStdout } from "../include/lib/lib.js";
+import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
 import { addOutputParamsBasic, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 import { getSetsCharsInEvents } from "../include/getCharactersInEvent.js";

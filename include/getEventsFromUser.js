@@ -1,5 +1,6 @@
 import { Query } from './lib/query.js';
-import { deep_get, readSchema } from './lib/lib.js';
+import { readSchema } from './lib/util.js';
+import { deep_get } from './lib/jsUtil.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventsFromUser.txt");
 const query = new Query(schema, 3);

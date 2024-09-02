@@ -1,5 +1,5 @@
 import { Query } from './lib/query.js';
-import { readSchema } from './lib/lib.js';
+import { readSchema } from './lib/util.js';
 import { GraphQLClient } from 'graphql-request';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrants.txt");

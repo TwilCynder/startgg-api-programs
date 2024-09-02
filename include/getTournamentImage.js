@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { Query } from "./lib/query.js"
 import { GraphQLClient } from "graphql-request";
 import { TimedQuerySemaphore } from "./lib/queryLimiter.js";
-import { deep_get } from './lib/lib.js';
+import { deep_get } from './lib/jsUtil.js';
 
 const schemaFilename = "./GraphQLSchemas/TournamentImage.txt";
 
