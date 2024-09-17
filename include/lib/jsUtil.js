@@ -1,4 +1,3 @@
-import { relurl } from "./dirname.js";
 import fs from 'fs';
 
 /**

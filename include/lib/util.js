@@ -3,6 +3,7 @@
 import fs from 'fs';
 import { loadInputFromStdin } from './loadInputStdin.js';
 import { readJSONAsync, toJSON } from './jsUtil.js';
+import { relurl } from "./dirname.js"
 
 export function readSchema(source, filename){
     return fs.readFileSync(relurl(source, filename), {encoding: "utf-8"});

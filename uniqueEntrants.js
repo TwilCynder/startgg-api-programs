@@ -1,6 +1,6 @@
 import { ArgumentsManager, parseArguments } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";
-import { getEntrantsForEvents, getUniqueUsersOverLeague, processUniqueEntrantsLeague } from "./include/getEntrants.js";
+import { getEntrantsForEvents, processUniqueEntrantsLeague } from "./include/getEntrants.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
