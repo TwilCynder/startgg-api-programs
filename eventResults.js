@@ -24,8 +24,10 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
-let events = await getEventsResults(client, extractSlugs(eventsSlugs), undefined, limiter);
+let events = await getEventsResults(client, extractSlugs(eventsSlugs), undefined);
 limiter.stop()
+
+console.log(events.length);
 
 events = events.filter(ev => !!ev).sort((a, b) => a.startAt - b.startAt);
 

@@ -1,0 +1,27 @@
+query EventStandingsQuery($slug: String!) {
+  event(slug: $slug) {
+    id
+    entrants(query: {perPage: 192}) {
+      nodes {
+        id
+        name
+        participants {
+          player {
+            id
+            gamerTag
+          }
+          user {
+            id
+            slug
+            genderPronoun
+            location {
+                city
+                state
+                counry
+            }
+          }
+        }
+      }
+    }
+  }
+}
