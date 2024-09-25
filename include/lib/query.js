@@ -83,21 +83,27 @@ export class Query {
      * @param {{[varName: string]: value}} params 
      * @param {string} collectionPathInQuery JSON path to the paginated collection that must aggregated in the query (JSON path : property names separated by dots)
      * @param {TimedQuerySemaphore} limiter 
-     * @param {number} delay Adds a delay between calls (does not interact with the limiter)
-     * @param {string} pageParamName Name of the query parameter that must be updated with a page index for each query
+     * @param {{pageParamName?: string, perPageParamName?: string, perPage?: number, delay?: number, maxElements: number}} config 
      * @param {boolean} silentErrors 
      * @param {number} maxTries 
      * @returns 
      */
-    async executePaginated(client, params, collectionPathInQuery, limiter = null, delay = null, perPage = undefined, pageParamName = "page", perPageParamName = "perPage", silentErrors = false, maxTries = null){
+    async executePaginated(client, params, collectionPathInQuery, limiter = null, config = {}, silentErrors = false, maxTries = null){
         let result = [];
-
+        //delay = null, perPage = undefined, pageParamName = "page", perPageParamName = "perPage", silentErrors = false, maxTries = null
+        const pageParamName = config.pageParamName ?? "page";
+        const perPageParamName = config.perPageParamName ?? "perPage";
+        const perPage = config.perPage ?? params[perPageParamName];
+        const delay = config.delay;
+        const maxElements = config.maxElements;
 
         params = Object.assign({}, params);
         params[pageParamName] = 1;
-        params[perPageParamName] = perPage ?? params[perPageParamName];
+        params[perPageParamName] = perPage;
 
         while (true){
+            if (result.length >= maxElements) break;
+
             console.log("Querying page", params[pageParamName], `(${result.length} elements loaded)`);
             let data = await this.execute(client, params, limiter, silentErrors, maxTries);
 
@@ -121,6 +127,6 @@ export class Query {
                 await new Promise(r => setTimeout(r, delay));
         }
 
-        return result;
+        return maxElements ? result.slice(0, maxElements) : result;
     }
 }
