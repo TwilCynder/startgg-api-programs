@@ -11,7 +11,7 @@ import { ClockQueryLimiter, StartGGClockQueryLimiter, StartGGDelayQueryLimiter }
  * @returns {Promise<object[]>}
  */
 export async function getSetsInEvent(client, query, slug, limiter){
-    let sets = await query.executePaginated(client, {slug, perPage: 50}, "event.sets.nodes", limiter);
+    let sets = await query.executePaginated(client, {slug}, "event.sets.nodes", limiter, {perPage: 50});
     return sets; 
 }
 

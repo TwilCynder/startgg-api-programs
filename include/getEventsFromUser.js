@@ -65,7 +65,7 @@ async function processPage(client, slug, limiter, currentList, page, after = nul
 
 export async function getEventsFromUser(client, slug, limiter, after = null, until = null){
   if (!after && !until){ //we don't have to check each page, we can go for a simple paginated query
-    return query.executePaginated(client, {slug}, "user.events.nodes", limiter, null, null, "eventsPage");
+    return query.executePaginated(client, {slug}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
   } else {
     let result = [];
 
