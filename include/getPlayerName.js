@@ -11,7 +11,7 @@ import { deep_get } from './lib/jsUtil.js';
  * @returns {Promise<string?>}
  */
 export async function getPlayerName(client, slug, limiter = null, silent = false){
-    let userInfo = getUserInfo(client, slug, limiter);
+    let userInfo = await getUserInfo(client, slug, limiter);
     return deep_get(userInfo, "player.gamerTag");
 }
 
