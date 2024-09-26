@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
-import { getUserInfo } from './getUserInfo';
-import { deep_get } from './lib/lib';
+import { getUserInfo } from './getUserInfo.js';
+import { deep_get } from './lib/jsUtil.js';
 
 /**
  * Returns the player name ("gamertag") associated with a user slug
