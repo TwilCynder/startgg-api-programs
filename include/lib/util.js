@@ -1,5 +1,3 @@
-//TODO : séparer proprement ce fichier de lib.js
-
 import fs from 'fs';
 import { loadInputFromStdin } from './loadInputStdin.js';
 import { readJSONAsync, toJSON } from './jsUtil.js';

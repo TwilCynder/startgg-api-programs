@@ -1,0 +1,39 @@
+query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp) {
+    user(slug: $slug, id: $id){
+        genderPronoun
+        location {
+            city
+            country
+            state
+        }
+        player {
+            sets(perPage: $perPage, page: $page, filters : {
+                updatedAfter: $after
+            }) {
+                nodes {
+                    completedAt
+                    slots {
+                        entrant {
+                            participants {
+                                user {
+                                    id
+                                } 
+                                player {
+                                    id
+                                }
+                            } 
+                        }
+                        standing {
+                            placement
+                        }
+                    }
+                    games {
+                        selections {
+                            character
+                        }
+                    }         
+                }
+            }
+        }
+    }
+}
