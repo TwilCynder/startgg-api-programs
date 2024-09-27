@@ -15,6 +15,7 @@ function updateCharsGamesCount(chars, set){
     return chars;
 }
 
+
 function updateCharsGamesSetsCount(chars, set){
     if (!set.games) return chars;
     let seenChars = [];
