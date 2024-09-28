@@ -9,11 +9,27 @@ query.log = {
     error: params => `Request failed for user ${params.slug} ...`
 }
 
-export async function getUserSetsChars(client, slug, limiter, after, until){
-    let sets = await query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter);
-    return sets ? sets.filter(set => !until || set.completedAt < until) : sets;
+function runQueryWithSlug(client, slug, limiter, max, after){
+    return query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter, {maxElements: max});
 }
 
-export function getUsersSetsChars(client, slugs, limiter, after, until){
-    return Promise.all(slugs.map(slug => getUserSetsChars(client, slug, limiter, after, until).catch((err) => console.log("Slug", slug, "kaput : ", err))));
+function runQueryWithID(client, id, limiter, max, after){
+    return query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter, {maxElements: max});
+}
+
+function getRunF(slugOrID){
+    return slugOrID > 0 ? runQueryWithID : runQueryWithSlug;
+}
+
+async function getUserSetsChars_(client, runF = runQueryWithSlug, slugOrID, limiter, max, after, until){
+    let sets = await runF(client, slugOrID, limiter, max, after);
+    return sets && until ? sets.filter(set => !until || set.completedAt < until) : sets;
+}
+
+export function getUserSetsChars(client, slugOrID, limiter, max, after, until){
+    return getUserSetsChars_(client, getRunF(slugOrID), slugOrID, limiter, max, after, until);
+}
+
+export function getUsersSetsChars(client, slugsOrIDs, limiter, max, after, until){
+    return Promise.all(slugsOrIDs.map(slugOrID => getUserSetsChars(client, slugOrID, max, limiter, after, until).catch((err) => console.log("Slug", slug, "kaput : ", err))));
 }

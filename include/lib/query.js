@@ -83,7 +83,7 @@ export class Query {
      * @param {{[varName: string]: value}} params 
      * @param {string} collectionPathInQuery JSON path to the paginated collection that must aggregated in the query (JSON path : property names separated by dots)
      * @param {TimedQuerySemaphore} limiter 
-     * @param {{pageParamName?: string, perPageParamName?: string, perPage?: number, delay?: number, maxElements: number}} config 
+     * @param {{pageParamName?: string, perPageParamName?: string, perPage?: number, delay?: number, maxElements?: number}} config 
      * @param {boolean} silentErrors 
      * @param {number} maxTries 
      * @returns 
