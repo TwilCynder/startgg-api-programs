@@ -23,15 +23,7 @@ export async function readJSONAsync(filename){
         .then(buf => JSON.parse(buf))
 }
 
-/**
- * 
- * @param {{}} obj 
- * @param {string} path 
- * @param {*} def 
- * @returns 
- */
-export function deep_get(obj, path, def = null){
-    //https://stackoverflow.com/a/8817473
+function processObjectPath(path){
     path = path=path.split('.');
     for (let i = 0; i < path.length; i++){
         if (/^\d/.test(path[i])){
@@ -41,6 +33,19 @@ export function deep_get(obj, path, def = null){
             }
         }
     }
+    return path;
+}
+
+/**
+ * 
+ * @param {{}} obj 
+ * @param {string} path 
+ * @param {*} def 
+ * @returns 
+ */
+export function deep_get(obj, path, def = null){
+    //https://stackoverflow.com/a/8817473
+    path = processObjectPath(path);
 
     for (var i=0, len=path.length; i<len; i++){
         obj = obj[path[i]];
@@ -48,6 +53,20 @@ export function deep_get(obj, path, def = null){
     };
     return obj;
 };
+
+export function deep_set(obj, path, value){
+    path = processObjectPath(path);
+
+    let finalName = path.pop();
+    for (let elt of path){
+        obj = obj[elt];
+        if (!(obj instanceof Object)){
+            return false;
+        }
+    }
+    obj[finalName] = value;
+    return true;
+}
 
 /**
  * 
