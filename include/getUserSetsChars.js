@@ -1,5 +1,7 @@
+import { GraphQLClient } from 'graphql-request';
 import { Query } from './lib/query.js';
 import { readSchema } from './lib/util.js';
+import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/UserSetsChars.txt");
 const query = new Query(schema, 3);
@@ -9,27 +11,51 @@ query.log = {
     error: params => `Request failed for user ${params.slug} ...`
 }
 
-function runQueryWithSlug(client, slug, limiter, max, after){
-    return query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter, {maxElements: max});
+async function runQueryWithSlug(client, slug, limiter, max, after, includeWholeQuery){
+    return {slug, sets: await query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 35, includeWholeQuery})};
 }
 
-function runQueryWithID(client, id, limiter, max, after){
-    return query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter, {maxElements: max});
+async function runQueryWithID(client, id, limiter, max, after, includeWholeQuery){
+    return {id, sets: await query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 35, includeWholeQuery})};
 }
 
 function getRunF(slugOrID){
     return slugOrID > 0 ? runQueryWithID : runQueryWithSlug;
 }
 
-async function getUserSetsChars_(client, runF = runQueryWithSlug, slugOrID, limiter, max, after, until){
-    let sets = await runF(client, slugOrID, limiter, max, after);
-    return sets && until ? sets.filter(set => !until || set.completedAt < until) : sets;
+/**
+ * @param {GraphQLClient} client 
+ * @param {typeof runQueryWithSlug} runF 
+ * @param {string | number} slugOrID 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {{max?: number, after?: number, until?:number, includeWholeQuery?: boolean}} config 
+ * @returns 
+ */
+async function getUserSetsChars_(client, runF = runQueryWithSlug, slugOrID, limiter, config = {}){
+    let result = await runF(client, slugOrID, limiter, config.max, config.after, config.includeWholeQuery);
+    
+    const until = config.until;
+    return result && until ? result.sets.filter(set => !until || set.completedAt < until) : result;
 }
 
-export function getUserSetsChars(client, slugOrID, limiter, max, after, until){
-    return getUserSetsChars_(client, getRunF(slugOrID), slugOrID, limiter, max, after, until);
+/**
+ * @param {GraphQLClient} client 
+ * @param {string | number} slugOrID 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {{max?: number, after?: number, until?:number, includeWholeQuery?: boolean}} config 
+ * @returns 
+ */
+export function getUserSetsChars(client, slugOrID, limiter, config){
+    return getUserSetsChars_(client, getRunF(slugOrID), slugOrID, limiter, config);
 }
 
-export function getUsersSetsChars(client, slugsOrIDs, limiter, max, after, until){
-    return Promise.all(slugsOrIDs.map(slugOrID => getUserSetsChars(client, slugOrID, max, limiter, after, until).catch((err) => console.log("Slug", slug, "kaput : ", err))));
+/**
+ * @param {GraphQLClient} client 
+ * @param {(string|number)[]} slugsOrIDs 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {{max?: number, after?: number, until?:number, includeWholeQuery?: boolean}} config 
+ * @returns 
+ */
+export function getUsersSetsChars(client, slugsOrIDs, limiter, config){
+    return Promise.all(slugsOrIDs.map(slugOrID => getUserSetsChars(client, slugOrID, limiter, config).catch((err) => console.log("Slug", slug, "kaput : ", err))));
 }
