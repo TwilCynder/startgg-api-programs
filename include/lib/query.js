@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
-import { deep_get } from './jsUtil.js';
+import { deep_get, deep_set } from './jsUtil.js';
 import { TimedQuerySemaphore } from './queryLimiter.js'
 
 export class Query {
@@ -83,7 +83,7 @@ export class Query {
      * @param {{[varName: string]: value}} params 
      * @param {string} collectionPathInQuery JSON path to the paginated collection that must aggregated in the query (JSON path : property names separated by dots)
      * @param {TimedQuerySemaphore} limiter 
-     * @param {{pageParamName?: string, perPageParamName?: string, perPage?: number, delay?: number, maxElements?: number}} config 
+     * @param {{pageParamName?: string, perPageParamName?: string, perPage?: number, delay?: number, maxElements?: number, includeWholeQuery: boolean}} config 
      * @param {boolean} silentErrors 
      * @param {number} maxTries 
      * @returns 
@@ -95,17 +95,18 @@ export class Query {
         const perPageParamName = config.perPageParamName ?? "perPage";
         const perPage = config.perPage ?? params[perPageParamName];
         const delay = config.delay;
-        const maxElements = config.maxElements;
+        const maxElements = config.maxElements ?? undefined; //eliminating null
 
         params = Object.assign({}, params);
         params[pageParamName] = 1;
         params[perPageParamName] = perPage;
 
+        let data;
         while (true){
             if (result.length >= maxElements) break;
 
             console.log("Querying page", params[pageParamName], `(${result.length} elements loaded)`);
-            let data = await this.execute(client, params, limiter, silentErrors, maxTries);
+            data = await this.execute(client, params, limiter, silentErrors, maxTries);
 
             if (!data) throw (this.#getLog("error", params) ?? "Request failed.") + "(in paginated execution, at page " + params[pageParamName] + ")";
 
@@ -127,6 +128,13 @@ export class Query {
                 await new Promise(r => setTimeout(r, delay));
         }
 
-        return maxElements ? result.slice(0, maxElements) : result;
+        if (maxElements) result = result.slice(0, maxElements);
+
+        if (config.includeWholeQuery){
+            deep_set(data, collectionPathInQuery, result);
+            result = data;
+        }
+
+        return result;
     }
 }
