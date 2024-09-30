@@ -11,6 +11,9 @@ query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp
                 updatedAfter: $after
             }) {
                 nodes {
+                    event {
+                        slug
+                    }
                     completedAt
                     slots {
                         entrant {
@@ -29,7 +32,9 @@ query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp
                     }
                     games {
                         selections {
-                            character
+                            character {
+                                id
+                            }
                         }
                     }         
                 }
