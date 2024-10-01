@@ -33,9 +33,7 @@ function updateCharsGamesCountFiltered(chars, set, filter){
         if (!game.selections) continue;
         let selection = game.selections[I];
         if (!selection) continue;
-        console.log("Selection found", I);
         let char = selection.selectionValue;
-        console.log(char)
         if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
 
         if (!chars[char]) chars[char] = 0;
