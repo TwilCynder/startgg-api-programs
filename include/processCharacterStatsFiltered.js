@@ -8,9 +8,9 @@ export class PlayerUserFilter {
 
     apply(participant){
         return participant && 
-            this.userID ? (participant.user && participant.user.id == this.userID) : 
-            this.playerID ? (participant.player && participant.player.id == this.playerID) : 
-            true
+            (this.userID ? (participant.user && participant.user.id == this.userID) : 
+             this.playerID ? (participant.player && participant.player.id == this.playerID) : 
+             true)
     }
 
     static apply(filter, participant){
@@ -23,8 +23,9 @@ function updateCharsGamesCountFiltered(chars, set, filter){
     let entrantID = null;
     for (let i = 0; i < set.slots.length; i++){
         let slot = set.slots[i];
-        let participant = slot.entrant.participants[0];
+        let participant = deep_get(slot, "entrant.participants.0");
         if (PlayerUserFilter.apply(filter, participant)){
+            console.log(participant, slot);
             entrantID = slot.entrant.id;
         }
     }
@@ -50,7 +51,7 @@ function updateCharsGamesSetsCountFiltered(chars, set, filter){
     let entrantID = null;
     for (let i = 0; i < set.slots.length; i++){
         let slot = set.slots[i];
-        let participant = slot.entrant.participants[0];
+        let participant = deep_get(slot, "entrant.participant.0");
         if (PlayerUserFilter.apply(filter, participant)){
             entrantID = slot.entrant.id;
         }

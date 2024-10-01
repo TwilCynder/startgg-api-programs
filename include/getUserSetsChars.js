@@ -39,7 +39,7 @@ async function getUserSetsChars_(client, runF = runQueryWithSlug, slugOrID, limi
     let result = await runF(client, slugOrID, limiter, config.max, config.after, config.includeWholeQuery);
     if (config.includeWholeQuery){
         let [sets, data] = result.data;
-        data.user.sets = sets;
+        data.sets = sets;
         data.user.player.sets = undefined;
         result.data = data;
     }

@@ -33,7 +33,7 @@ let characters = gamefile ? await readJSONAsync(gamefile) : await getVideogameCh
 
 if (max){
     users.forEach(user => {
-        user.data.user.sets = user.data.user.sets.slice(0, max);
+        user.data.sets = user.data.sets.slice(0, max);
     })
 }
 
@@ -42,7 +42,7 @@ if (characters){
 }
 
 let result = users.map(user => {
-    let mains = processMain(user.data.user.sets, new PlayerUserFilter(user.data.user.id), number, characters);
+    let mains = processMain(user.data.sets, new PlayerUserFilter(user.data.user.id), number, characters);
     mains.forEach(charData => charData.name = characters[charData.id] ?? "Unknown ");
     return {slug: user.slug, name: user.data.user.player.gamerTag, mains};
 })
