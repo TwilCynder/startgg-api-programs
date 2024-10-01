@@ -20,25 +20,26 @@ export class PlayerUserFilter {
 
 function updateCharsGamesCountFiltered(chars, set, filter){
     if (!set.games) return chars;
-    let I = null;
+    let entrantID = null;
     for (let i = 0; i < set.slots.length; i++){
         let slot = set.slots[i];
         let participant = slot.entrant.participants[0];
         if (PlayerUserFilter.apply(filter, participant)){
-            I = i;
+            entrantID = slot.entrant.id;
         }
     }
-    if (I == null) return chars;
+    if (!entrantID) return chars;
     for (let game of set.games){
         if (!game.selections) continue;
-        let selection = game.selections[I];
-        if (!selection) continue;
-        let char = selection.selectionValue;
-        if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
-
-        if (!chars[char]) chars[char] = 0;
-        chars[char]++;
+        for (let selection of game.selections){
+            if (selection.entrant.id == entrantID){
+                let char = selection.selectionValue;
+                if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
         
+                if (!chars[char]) chars[char] = 0;
+                chars[char]++;
+            }
+        }   
     }
     return chars;
 }
@@ -46,34 +47,36 @@ function updateCharsGamesCountFiltered(chars, set, filter){
 function updateCharsGamesSetsCountFiltered(chars, set, filter){
     if (!set.games) return chars;
     let seenChars = [];
-    let I = null;
+    let entrantID = null;
     for (let i = 0; i < set.slots.length; i++){
         let slot = set.slots[i];
         let participant = slot.entrant.participants[0];
         if (PlayerUserFilter.apply(filter, participant)){
-            I = i;
+            entrantID = slot.entrant.id;
         }
     }
-    if (I == null) return chars;
+    if (!entrantID) return chars;
     for (let game of set.games){
+
         if (!game.selections) continue;
-        let selection = game.selections[I];
-        if (!selection) continue;
-        let char = selection.selectionValue;
-        if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
-
-        let charObj = chars[char];
-        if (!charObj){
-            charObj = {games: 0, sets: 0};
-            chars[char] = charObj;
-        }
-
-        if (!seenChars.includes(char)){
-            seenChars.push(char);
-            charObj.sets++;
-        }
-        charObj.games++;
+        for (let selection of game.selections){
+            if (selection.entrant.id == entrantID){
+                let char = selection.selectionValue;
+                if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
         
+                let charObj = chars[char];
+                if (!charObj){
+                    charObj = {games: 0, sets: 0};
+                    chars[char] = charObj;
+                }
+        
+                if (!seenChars.includes(char)){
+                    seenChars.push(char);
+                    charObj.sets++;
+                }
+                charObj.games++;
+            }
+        }   
     }
     return chars;
 }

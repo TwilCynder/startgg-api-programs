@@ -19,6 +19,7 @@ query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp
                     completedAt
                     slots {
                         entrant {
+                            id
                             participants {
                                 user {
                                     id
@@ -34,6 +35,9 @@ query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp
                     }
                     games {
                         selections {
+                            entrant {
+                                id
+                            }
                             selectionValue
                         }
                     }         
