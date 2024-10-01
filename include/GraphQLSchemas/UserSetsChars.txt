@@ -9,6 +9,7 @@ query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp
             state
         }
         player {
+            gamerTag
             sets(perPage: $perPage, page: $page, filters : {
                 updatedAfter: $after
             }) {

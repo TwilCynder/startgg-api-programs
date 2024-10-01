@@ -40,7 +40,7 @@ async function getUserSetsChars_(client, runF = runQueryWithSlug, slugOrID, limi
     if (config.includeWholeQuery){
         let [sets, data] = result.data;
         data.user.sets = sets;
-        data.user.player = undefined;
+        data.user.player.sets = undefined;
         result.data = data;
     }
 
