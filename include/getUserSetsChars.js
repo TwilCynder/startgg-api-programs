@@ -11,12 +11,16 @@ query.log = {
     error: params => `Request failed for user ${params.slug} ...`
 }
 
+function getIWQMode(iwq){
+    return iwq ? Query.IWQModes.OUT : Query.IWQModes.DONT;
+}
+
 async function runQueryWithSlug(client, slug, limiter, max, after, includeWholeQuery){
-    return {slug, sets: await query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 35, includeWholeQuery})};
+    return {slug, data: await query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 35, includeWholeQuery: getIWQMode(includeWholeQuery)})};
 }
 
 async function runQueryWithID(client, id, limiter, max, after, includeWholeQuery){
-    return {id, sets: await query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 35, includeWholeQuery})};
+    return {id, data: await query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 35, includeWholeQuery: getIWQMode(includeWholeQuery)})};
 }
 
 function getRunF(slugOrID){
@@ -33,7 +37,13 @@ function getRunF(slugOrID){
  */
 async function getUserSetsChars_(client, runF = runQueryWithSlug, slugOrID, limiter, config = {}){
     let result = await runF(client, slugOrID, limiter, config.max, config.after, config.includeWholeQuery);
-    
+    if (config.includeWholeQuery){
+        let [sets, data] = result.data;
+        data.user.sets = sets;
+        data.user.player = undefined;
+        result.data = data;
+    }
+
     const until = config.until;
     return result && until ? result.sets.filter(set => !until || set.completedAt < until) : result;
 }
@@ -57,5 +67,5 @@ export function getUserSetsChars(client, slugOrID, limiter, config){
  * @returns 
  */
 export function getUsersSetsChars(client, slugsOrIDs, limiter, config){
-    return Promise.all(slugsOrIDs.map(slugOrID => getUserSetsChars(client, slugOrID, limiter, config).catch((err) => console.log("Slug", slug, "kaput : ", err))));
+    return Promise.all(slugsOrIDs.map(slugOrID => getUserSetsChars(client, slugOrID, limiter, config).catch((err) => console.error("Slug / ID", slugOrID, "kaput : ", err))));
 }

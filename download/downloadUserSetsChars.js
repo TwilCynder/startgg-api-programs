@@ -8,6 +8,7 @@ import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
 import { addOutputParamsBasic, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 import { getUsersSetsChars } from "../include/getUserSetsChars.js";
+import { Query } from "../include/lib/query.js";
 
 let {slugs, setscount, includeWholeQuery, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .addMultiParameter("slugs")
