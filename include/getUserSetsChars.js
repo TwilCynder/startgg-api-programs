@@ -7,8 +7,8 @@ const schema = readSchema(import.meta.url, "./GraphQLSchemas/UserSetsChars.txt")
 const query = new Query(schema, 3);
 
 query.log = {
-    query: params => `Fetching sets from user ${params.slug} ...`,
-    error: params => `Request failed for user ${params.slug} ...`
+    query: params => `Fetching sets from user ${params.id ? params.id : params.slug} ...`,
+    error: params => `Request failed for user ${params.id ? params.id : params.slug} ...`
 }
 
 function getIWQMode(iwq){
@@ -16,11 +16,11 @@ function getIWQMode(iwq){
 }
 
 async function runQueryWithSlug(client, slug, limiter, max, after, includeWholeQuery){
-    return {slug, data: await query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 35, includeWholeQuery: getIWQMode(includeWholeQuery)})};
+    return {slug, data: await query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 30, includeWholeQuery: getIWQMode(includeWholeQuery)})};
 }
 
 async function runQueryWithID(client, id, limiter, max, after, includeWholeQuery){
-    return {id, data: await query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 35, includeWholeQuery: getIWQMode(includeWholeQuery)})};
+    return {id, data: await query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 30, includeWholeQuery: getIWQMode(includeWholeQuery)})};
 }
 
 function getRunF(slugOrID){
@@ -45,7 +45,7 @@ async function getUserSetsChars_(client, runF = runQueryWithSlug, slugOrID, limi
     }
 
     const until = config.until;
-    return result && until ? result.sets.filter(set => !until || set.completedAt < until) : result;
+    return (result && until) ? result.sets.filter(set => !until || set.completedAt < until) : result;
 }
 
 /**

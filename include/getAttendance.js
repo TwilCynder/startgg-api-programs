@@ -17,7 +17,6 @@ export function getSortedAttendanceFromEvents(events, usersOnly){
     let list = Object.entries(attendance).map(([id, data]) => {
         return Object.assign({id}, data);
     })
-    console.log(list);
     list.sort( (a, b) => b.count - a.count);
 
     return list;

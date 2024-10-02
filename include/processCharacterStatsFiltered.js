@@ -25,7 +25,6 @@ function updateCharsGamesCountFiltered(chars, set, filter){
         let slot = set.slots[i];
         let participant = deep_get(slot, "entrant.participants.0");
         if (PlayerUserFilter.apply(filter, participant)){
-            console.log(participant, slot);
             entrantID = slot.entrant.id;
         }
     }

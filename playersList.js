@@ -32,11 +32,19 @@ if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
 let entrants = await readMultimodalInput(inputfile, stdinput, 
-    (extended && !mains) ? getEntrantsExtendedForEvents(client, list) : getEntrantsBasicForEvents(client, list)
+    (extended && !mains) ? getEntrantsExtendedForEvents(client, list, limiter) : getEntrantsBasicForEvents(client, list, limiter)
 );
 limiter.stop();
 
 extended ||= mains;
+
+entrants = entrants.filter(event => {
+    if (!event.entrants){
+        console.warn("No event found for slug", event.slug);
+        return false;
+    }
+    return true;
+})
 
 let users = minimum ? 
     getSortedAttendanceFromEvents(entrants, true).filter(entrant => entrant.count >= minimum).map(entrant => entrant.user) :
@@ -48,24 +56,19 @@ if (mains){
         console.error("Main characters info was requested, but neither a game slug (-g) or a game characters filename (-G) were specified. Exiting.");
         process.exit(1)
     }
-    characters = gamefile ? await readJSONAsync(gamefile) : await getVideogameCharacters(client, game, null);
+    characters = gamefile ? await readJSONAsync(gamefile) : await getVideogameCharacters(client, game, limiter);
     if (characters){
         characters = characters.reduce((prev, {id, name}) => {prev[id] = name ; return prev}, {});
     } else {
         console.error("Characters couldn't be loaded.");
         process.exit(2);
     }
-}
 
-
-
-if (mains){
     await Promise.all(users.map(async user => {
-        console.warn(user.id);
-        let data = await getUserSetsChars(client, user.id, null, {max: 70, includeWholeQuery: true});
+        let data = await getUserSetsChars(client, user.id, limiter, {max: 60, includeWholeQuery: true});
         user.genderPronoun = data.data.user.genderPronoun;
         user.location = data.data.user.location;
-        user.mains = processMain(data.data.sets, new PlayerUserFilter(user.id), mains);
+        user.mains = processMain(data.data.sets, new PlayerUserFilter(user.id), mains, characters);
     }))
 }
 
@@ -98,7 +101,7 @@ output(outputFormat, outputfile, printdata, users, (users) => {
             (user.location ? dash(user.location.city) + "\t" + dash(user.location.state) : "\t") + "\t";
         if (mains){
             for (let i = 0; i < mains; i++){
-                console.log(user.mains[i]);
+                //console.log(user.mains[i]);
                 
                 resultString += (user.mains[i] ? characters[user.mains[i].id] : "--") + "\t";
             }
