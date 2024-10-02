@@ -16,6 +16,8 @@ let {list, extended, mains, inputfile, stdinput, outputFormat, outputfile, logda
     .addCustomParser(new EventListParser, "list")
     .apply(addInputParams)
     .apply(addOutputParams)
+    .addSwitch(["-e", "--extended"], {description: "Fetch pronouns and location info for each user"})
+    .addOption(["-m", "--mains"], {description: "Fetch main characters info for each user (how many characters)", type: "number"})
     .enableHelpParameter()
     .parseProcessArguments();
  
@@ -25,13 +27,22 @@ if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
 let entrants = await readMultimodalInput(inputfile, stdinput, 
-    getEntrantsBasicForEvents(client, list)
+    (extended && !mains) ? getEntrantsExtendedForEvents(client, list) : getEntrantsBasicForEvents(client, list)
 );
 limiter.stop();
 
 extended ||= mains;
 
 let users = processUniqueEntrantsLeague(entrants);
+
+if (mains){
+    await Promise.all(users.map(async user => {
+        let data = await getUserSetsChars(client, user.id, null, {max: 70, includeWholeQuery: true});
+        user.genderPronoun = data.data.user.genderPronoun;
+        user.location = data.data.user.location;
+        user.mains = processMain(data.data.sets, new PlayerUserFilter(user.id), mains);
+    }))
+}
 
 if (silent_) unmuteStdout();
 
