@@ -29,11 +29,10 @@ export function getAttendanceFromEvents(events){
 export function getSortedAttendanceFromEvents(events){
     let attendance = getAttendanceFromEvents(events);
 
-    let list = [];
-    for (let id in attendance){
-        list.push({id, name: attendance[id].name, count: attendance[id].count});
-    }
-
+    list = Object.entries(attendance).map(([id, data]) => {
+        Object.assign({id}, data);
+    })
+    console.log(list);
     list.sort( (a, b) => b.count - a.count);
 
     return list;

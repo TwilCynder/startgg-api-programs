@@ -26,7 +26,7 @@ limiter.stop();
 let entrantsList = []
 
 for (let entrant of Object.values(attendance)) {
-    entrantsList.push({name: entrant.name, attendance: entrant.count});
+    entrantsList.push({name: entrant.player.gamerTag, attendance: entrant.count});
 }
 entrantsList.sort((a, b) => a.attendance - b.attendance);
 
