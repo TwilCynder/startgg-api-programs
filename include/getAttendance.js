@@ -1,6 +1,7 @@
-import { getEntrants } from "./getEntrants.js";
+import { getEntrantsBasic } from "./getEntrantsBasic.js"
 import { updateEntrantsAttendance } from './entrantAttendanceUtilities.js';
 
+/*
 export function Mutex() {
     var self = this; // still unsure about how "this" is captured
     var mtx = new Promise(t => t()); // fulfilled promise ≡ unlocked mutex
@@ -12,31 +13,21 @@ export function Mutex() {
     }
     this.unlock = () => {};
 }
+    */
 
-export async function updateEntrantsAttendanceFromSlug(client, current, slug, mutex = null, limiter = null){
-    let entrants = await getEntrants(client, slug, limiter, false);
-    if (!entrants){
-        console.warn("Slug", slug, "returned nothing");
-        return;
-    }
-    if (mutex) await mutex.lock();
-    updateEntrantsAttendance(current, entrants, slug);
-    if (mutex) mutex.unlock();
+/**
+ * @param {{}[]} events 
+ */
+export function getAttendanceFromEvents(events){
+    let attendance = {}
+    events.map(eventEntrants => {
+        updateEntrantsAttendance(attendance, eventEntrants.entrants ? eventEntrants.entrants : eventEntrants);
+    })
+    return attendance;
 }
 
-export async function getAttendanceOverLeague(client, eventSlugs, limiter){
-    let attendance = {};
-    let mutex = new Mutex();
-
-    await Promise.all(eventSlugs.map( (slug) => {
-        return updateEntrantsAttendanceFromSlug(client, attendance, slug, mutex, limiter);
-    }))
-
-    return attendance
-}
-
-export async function getSortedAttendanceOverLeague(client, eventSlugs, limiter){
-    let attendance = await getAttendanceOverLeague(client, eventSlugs, limiter);
+export function getSortedAttendanceFromEvents(events){
+    let attendance = getAttendanceFromEvents(events);
 
     let list = [];
     for (let id in attendance){
@@ -47,3 +38,16 @@ export async function getSortedAttendanceOverLeague(client, eventSlugs, limiter)
 
     return list;
 }
+
+/*
+export async function updateEntrantsAttendanceFromSlug(client, current, slug, mutex = null, limiter = null){
+    let entrants = await getEntrants(client, slug, limiter, false);
+    if (!entrants){
+        console.warn("Slug", slug, "returned nothing");
+        return;
+    }
+    if (mutex) await mutex.lock();
+    updateEntrantsAttendance(current, entrants, slug);
+    if (mutex) mutex.unlock();
+}
+    */

@@ -1,11 +1,12 @@
 import fs from "fs";
 import { client } from "./include/lib/client.js";
-import { getAttendanceOverLeague } from "./include/getAttendance.js";
+import { getAttendanceFromEvents } from "./include/getAttendance.js";
 import { EventListParser } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output } from "./include/lib/util.js";
+import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 
 let {events, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "events")
@@ -18,7 +19,8 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
-let attendance = await getAttendanceOverLeague(client, events, limiter);
+let eventResults = await getEntrantsBasicForEvents(client, events, limiter).then(res => res.filter(event => !!event.entrants));
+let attendance = getAttendanceFromEvents(eventResults);
 limiter.stop();
 
 let entrantsList = []

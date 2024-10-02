@@ -1,3 +1,6 @@
+//TO REDO
+
+/*
 import fs from "fs";
 import { client } from "./include/lib/client.js";
 import { EventListParser, computeEventList } from "./include/lib/computeEventList.js";
@@ -74,3 +77,4 @@ switch (outputMode.stdout){
 } catch (e) {
     console.error("SHIT WENT WRONG", e)
 }
+    */
