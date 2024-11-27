@@ -19,7 +19,7 @@ export async function getSetsInEvents(client, query, slugs, limiter, noLimit = f
     limiter = limiter || (noLimit ? null : new StartGGClockQueryLimiter);
 
     return Promise.all(slugs.map( (slug) => getSetsInEvent(client, query, slug, limiter).catch((err) => console.log("Slug", slug, "kaput : ", err))))
-        .then( (arr) => arr.reduce( (accumulator, currentArray) => (currentArray ? accumulator.concat(currentArray) : accumulator) , []));
+        .then( (arr) => arr.reduce( (accumulator, currentArray, i) => (currentArray ? accumulator.concat(currentArray) : (console.warn(`Slug ${slugs[i]} returned nothing`), accumulator)) , []));
 }
 
 export async function getSetsInEventsHashmap(client, query, slugs, limiter, noLimit = false){
