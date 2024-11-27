@@ -1,27 +1,34 @@
 import fs from "fs";
 import { client } from "./include/lib/client.js";
 import { EventListParser } from "./include/lib/computeEventList.js";
-import { OutputModeParser, parseArguments } from "@twilcynder/arguments-parser";
+import { ArgumentsManager, OutputModeParser, parseArguments } from "@twilcynder/arguments-parser";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { getEventsResults} from "./include/getEventResults.js"
 import { getDateString } from "./include/dateString.js";
+import { outputText, readMultimodalInput } from './include/lib/util.js'
+import { addInputParams, addOutputParams, addOutputParamsBasic, isSilent } from "./include/lib/paramConfig.js";
+import { extractSlugs } from "./include/lib/tournamentUtil.js";
+import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
 
-let [outputMode, slugs] = parseArguments(process.argv.slice(2), 
-    new OutputModeParser("log", "wikiList"),
-    new EventListParser()
-)
+let {slugs, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+    .apply(addOutputParamsBasic)
+    .apply(addInputParams)
+    .addCustomParser(new EventListParser, "slugs")
+    .enableHelpParameter()
+
+    .parseProcessArguments()
+
+printdata = printdata || !outputfile;
+let silent_ = isSilent(printdata, silent)
+if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
 
-let data = await getEventsResults(client, slugs, 2, limiter);
+let data = await readMultimodalInput(inputfile, stdinput, getEventsResults(client, extractSlugs(slugs), 2, limiter));
 limiter.stop();
-
-console.log(data)
 
 data = data.filter((ev) => !!ev);
 data = data.sort((a, b) => a.startAt - b.startAt);
-
-console.log(data)
 
 let result = ""
 for (let ev of data){
@@ -43,7 +50,8 @@ for (let ev of data){
     result += "\n";
 }
 
-outputString(result, outputMode);
+if (silent_) unmuteStdout();
+outputText(result, outputfile, printdata);
 
 /*
 |-

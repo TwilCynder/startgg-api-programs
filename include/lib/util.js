@@ -40,6 +40,10 @@ export function outputJSON(data, filename, printdata, prettyJSON){
     output_(filename, printdata, toJSON(data, prettyJSON));
 }
 
+export function outputText(text, filename, printdata){
+    output_(filename, printdata, text);
+}
+
 /**
  * @param {string} inputfile 
  * @param {boolean} stdinput 
