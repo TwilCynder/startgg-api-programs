@@ -9,7 +9,7 @@ import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
 import { addOutputParamsBasic, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
-import { getEntrantsCountOverLeague } from "../include/getEntrantsCount.js";
+import { getEntrantsCount } from "../include/getEntrantsCount.js";
 
 let {events, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "events")
@@ -24,7 +24,7 @@ let silent_ = isSilent(printdata, silent)
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await g
+let data = await Promise.all(events.map(event => getEntrantsCount(client, event, limiter, false)))
 limiter.stop();
 
 if (silent_){
