@@ -1,6 +1,8 @@
+- Mieux séparer les fichiers util (jsUtil/fileUtil/startggUtil/scriptsUtil/tournamentUtil ?)
+- Utiliser @twilcynder/startgg-helper
 - Moderniser le truc de events for videogames
 - Faire la version de leaguehead2head qui prend des dates
 - Infos + approfondies sur qui joue les persos
-- Factorize a lot of code
-  - Apply query to list of events (Promise.all, catch avec la même log qui se répètent)
-- readme
+- Harmonizer le comportement si un event/user n'est pas trouvé 
+  - A priori suitre getEntrantsCount.js
+- readme (en cours)

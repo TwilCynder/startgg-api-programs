@@ -16,11 +16,11 @@ export function computeEventList(argList){
  * @param {ArgumentsManager} am 
  */
 export function addFileEventListParser(am){
-    am.addMultiOption("--events-filename", {dest: "eventsFilename", description: "A file to find a list of event slugs in"})
+    am.addMultiOption("--events-filename", {dest: "eventsFilenames", description: "A file to find a list of event slugs in"})
 }
 
 /**
- * Added dests : eventsFilename
+ * Added dests : eventSlugs, eventsFilenames
  * @param {ArgumentsManager} am 
  */
 export function addEventParsers(am){
