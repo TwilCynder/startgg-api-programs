@@ -18,6 +18,17 @@ export function readLinesAsync(filename){
         .then(buf => buf.toString('utf-8').replace(/\r/g, '').split('\n'));
 }
 
+/**
+ * @param {any[]} currentList 
+ * @param {string[]} filenames 
+ */
+export function readLinesInFiles(filenames){
+    return Promise.all(filenames.map(filename => {
+        return readLinesAsync(filename).catch("Coundl't read provided filename " + filename)
+            .then(lines => lines.filter(line => !!line))
+    })).then(lists => lists.flat())
+}
+
 export async function readJSONAsync(filename){
     return fs.promises.readFile(filename)
         .then(buf => JSON.parse(buf))
