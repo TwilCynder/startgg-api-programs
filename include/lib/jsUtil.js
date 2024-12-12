@@ -89,7 +89,7 @@ export function splitNewline(text){
 }
 
 export function splitWhitespace(text){
-    return text.replace(/\s+/g, " ").split(" ");
+    return text.split(/\s+/g).filter(s=>s);
 }
 
 /**

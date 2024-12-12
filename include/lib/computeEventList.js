@@ -1,6 +1,6 @@
 
 import { Parser, parseArguments, argsLeft, ArgumentsManager } from "@twilcynder/arguments-parser";
-import { readLines, readLinesAsync, readLinesInFiles } from "./jsUtil.js";
+import { readLines, readLinesAsync, readLinesInFiles, splitWhitespace } from "./jsUtil.js";
 
 /**
  * @param {string[]} argList 
@@ -29,8 +29,31 @@ export function addEventParsers(am){
 }
 
 export async function readEventLists(currentList, filenames){
-    let events = await readLinesInFiles(filenames);
+    let events = (await readLinesInFiles(filenames))
+        .filter(ev => !!ev)
+        .map(ev => {
+            if (ev.includes("%")){
+                let [template, min, max] = splitWhitespace(ev);
+                return expandTemplate(template, min, max);
+            } else {
+                return ev;
+            }
+        })
     return currentList.concat(events);
+}
+
+/**
+ * @param {string} template 
+ * @param {number} min 
+ * @param {number} max 
+ * @returns 
+ */
+export function expandTemplate(template, min, max){
+    let res = []
+    for (let i = min; i <= max; i++){
+        res.push(template.replace(/%/g, i));
+    }
+    return res;
 }
 
 export class EventListParser extends Parser {
