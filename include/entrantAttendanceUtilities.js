@@ -16,7 +16,14 @@ export function updateEntrantsAttendance(current, entrantList, usersOnly){
     if (!entrantList) return;
     for (let e of entrantList){
         for (let p of e.participants){
-            if (usersOnly && !p.user) continue;
+            if (!p.user){
+                if (usersOnly){
+                    continue;
+                } else {
+                    console.warn("Entrant", e.id, `(${e.name})`, "doesn't have a user account associated.");
+                    p.user = {};
+                }
+            }
             updateEntrantAttendance(current, p.player, p.user);
         }
     }

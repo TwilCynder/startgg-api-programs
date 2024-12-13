@@ -1,5 +1,6 @@
 
-import { Parser, parseArguments, argsLeft } from "@twilcynder/arguments-parser";
+import { Parser, parseArguments, argsLeft, ArgumentsManager } from "@twilcynder/arguments-parser";
+import { readLines, readLinesAsync, readLinesInFiles, splitWhitespace } from "./jsUtil.js";
 
 /**
  * @param {string[]} argList 
@@ -8,6 +9,51 @@ import { Parser, parseArguments, argsLeft } from "@twilcynder/arguments-parser";
 export function computeEventList(argList){
     let [list] = parseArguments(argList, new EventListParser());
     return list;
+}
+
+/**
+ * Added dests : eventsFilename
+ * @param {ArgumentsManager} am 
+ */
+export function addFileEventListParser(am){
+    am.addMultiOption("--events-filename", {dest: "eventsFilenames", description: "A file to find a list of event slugs in"})
+}
+
+/**
+ * Added dests : eventSlugs, eventsFilenames
+ * @param {ArgumentsManager} am 
+ */
+export function addEventParsers(am){
+    am.addCustomParser(new EventListParser, "eventSlugs")
+    addFileEventListParser(am);
+}
+
+export async function readEventLists(currentList, filenames){
+    let events = (await readLinesInFiles(filenames))
+        .filter(ev => !!ev)
+        .map(ev => {
+            if (ev.includes("%")){
+                let [template, min, max] = splitWhitespace(ev);
+                return expandTemplate(template, min, max);
+            } else {
+                return ev;
+            }
+        })
+    return currentList.concat(events);
+}
+
+/**
+ * @param {string} template 
+ * @param {number} min 
+ * @param {number} max 
+ * @returns 
+ */
+export function expandTemplate(template, min, max){
+    let res = []
+    for (let i = min; i <= max; i++){
+        res.push(template.replace(/%/g, i));
+    }
+    return res;
 }
 
 export class EventListParser extends Parser {
@@ -25,13 +71,10 @@ export class EventListParser extends Parser {
     parse(args, i){
         let arg = args[i];
         switch (arg){
-            case "-f":
-                console.log("-f is not suported yet sorryyyyy");
-                return false
             case "-t":
                 {
                     if (!argsLeft(args, i, 3)){
-                        throw "Argument -s usage : -s template min max"
+                        throw "Argument -s usage : -s <template> <min> <max>"
                     }
                     let template = args[i + 1];
                     let min = parseInt(args[i + 2]);

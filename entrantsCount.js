@@ -1,15 +1,18 @@
 import fs from "fs";
 import { client } from "./include/lib/client.js";
 import { getEntrantsCountOverLeague } from "./include/getEntrantsCount.js";
-import { computeEventList, EventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
+import { extractSlugs } from "./include/lib/tournamentUtil.js";
 
-let {list, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, silent} = new ArgumentsManager()
     .addSwitch(["-s", "--silent"])
-    .addCustomParser(new EventListParser, "list")
+    .apply(addEventParsers)
     .enableHelpParameter()
     .parseProcessArguments();
 
-let count = await getEntrantsCountOverLeague(client, list);
+eventSlugs = await readEventLists(eventSlugs, eventsFilenames);
+
+let count = await getEntrantsCountOverLeague(client, extractSlugs(eventSlugs));
 
 console.log(count);

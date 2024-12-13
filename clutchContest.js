@@ -12,10 +12,13 @@ import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/jsUtil.js
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
 
-let {slugs, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent} = new ArgumentsManager()
+let {slugs, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, names, number, min_sets} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "slugs")
     .apply(addInputParams)
     .apply(addOutputParams)
+    .addSwitch(["-a", "--names"], {description: "Fetch players names (to use in human-readable instead of ID). True by default"})
+    .addOption(["-n", "--number"], {description: "How many players to display in human-readbale result", type: "number"})
+    .addOption(["-m", "--min_sets"], {description: "Minimum number of sets to be included in the results", type: "number", default: 10})
     .parseProcessArguments();
 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
@@ -39,8 +42,6 @@ let data = await Promise.all([
 data = data.reduce( (prev, curr) => {
     return curr ? prev.concat(curr) : prev;
 }, []);
-
-console.log(data.length);
 
 /*
 if (inputfile){
@@ -76,8 +77,8 @@ for (let set of data){
 
     let clutch = Math.abs(score1 - score2) == 1
 
-    addSet(set.slots[0].entrant.participants[0].player.user, clutch);
-    addSet(set.slots[1].entrant.participants[0].player.user, clutch);
+    addSet(set.slots[0].entrant.participants[0].user, clutch);
+    addSet(set.slots[1].entrant.participants[0].user, clutch);
 }
 
 /**
@@ -87,19 +88,26 @@ let playerList = Object.entries(players).map(([id, player]) => {
     player.average = player.clutchs / player.sets;
     player.slug = id;
     return player;
-}).filter(player => player.sets > 10).sort((a, b) => a.average - b.average).slice(-10);
+}).filter(player => player.sets > min_sets).sort((a, b) => a.average - b.average).slice(-number);
 
-await Promise.all(playerList.map(player =>
-    getPlayerName(client, player.slug, limiter).then(name => {
-        player.name = name;
-    })
-))
+if (names){
+    await Promise.all(playerList.map(player =>
+        getPlayerName(client, player.slug, limiter).then(name => {
+            player.name = name;
+        })
+    ))
+} else {
+    playerList.forEach(player => player.name = player.slug)
+}
+
+limiter.stop();
+
 
 if (silent_) unmuteStdout();
 
 if (logdata_){
     for (let player of playerList){
-        console.log(player.name, player.average, player.clutchs, player.sets);
+        console.log(player.name, player.average.toFixed(2), player.clutchs, player.sets);
     }
 }
 

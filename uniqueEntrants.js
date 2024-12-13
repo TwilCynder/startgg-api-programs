@@ -7,15 +7,12 @@ import { unmuteStdout, muteStdout } from "./include/lib/jsUtil.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
-import { getEntrantsExtendedForEvents } from "./include/getEntrantsExtended.js";
-import { getUserSetsChars } from "./include/getUserSetsChars.js";
-import { processMain } from "./include/getMain.js";
-import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 
-let {list, extended, mains, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {list, count, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "list")
     .apply(addInputParams)
     .apply(addOutputParams)
+    .addSwitch(["-c", "--count"], {description: "Output the number of unique entrants"})
     .enableHelpParameter()
     .parseProcessArguments();
  
@@ -29,20 +26,22 @@ let entrants = await readMultimodalInput(inputfile, stdinput,
 );
 limiter.stop();
 
-extended ||= mains;
-
 let users = processUniqueEntrantsLeague(entrants);
 
 if (silent_) unmuteStdout();
 
 if (logdata_){
-    for (let user of users){
-        console.log(user);
-        console.log(user.id, user.player.gamerTag);
+    if (count){
+        console.log(users.length)
+    } else {
+        for (let user of users){
+            console.log(user);
+            console.log(user.id, user.player.gamerTag);
+        }
     }
 }
 
-output(outputFormat, outputfile, printdata, users, (users) => {
+output(outputFormat, outputfile, printdata, count ? users.length : users, (users) => {
     let resultString = "";
     for (let user of users){
         resultString += user.player.gamerTag + "\n";
