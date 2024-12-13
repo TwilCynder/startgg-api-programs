@@ -62,4 +62,6 @@ output(outputFormat, outputfile, printdata, {attendance: entrantsList, pools}, (
     for (let e of entrantsList){
         resultString += e.name + '\t' + e.attendance + '\n';
     }
+
+    return resultString;
 });

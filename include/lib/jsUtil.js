@@ -6,7 +6,7 @@ import fs from 'fs';
  * @returns {string[]}
  */
 export function readLines(filename){
-    return fs.readFileSync(filename).toString('utf-8').replaceAll('\r', '').split('\n');
+    return fs.readFileSync(filename).toString('utf-8').replaceAll(/\r/g, '').split('\n');
 }
 
 /**

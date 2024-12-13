@@ -34,7 +34,6 @@ let limiter = new StartGGDelayQueryLimiter;
 let entrants = await readMultimodalInput(inputfile, stdinput, 
     (extended && !mains) ? getEntrantsExtendedForEvents(client, list, limiter) : getEntrantsBasicForEvents(client, list, limiter)
 );
-limiter.stop();
 
 extended ||= mains;
 
@@ -71,6 +70,8 @@ if (mains){
         user.mains = processMain(data.data.sets, new PlayerUserFilter(user.id), mains, characters);
     }))
 }
+
+limiter.stop();
 
 if (silent_) unmuteStdout();
 
