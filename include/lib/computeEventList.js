@@ -44,7 +44,7 @@ export async function readEventLists(currentList, filenames){
         })
         .flat()
         .map(ev => {
-            return extractSlug(ev)
+            return extractSlug(ev.trim())
         })
     return currentList.concat(events);
 }
