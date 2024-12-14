@@ -12,7 +12,6 @@ let {eventSlugs, eventsFilenames, silent} = new ArgumentsManager()
     .parseProcessArguments();
 
 eventSlugs = await readEventLists(eventSlugs, eventsFilenames);
-
-let count = await getEntrantsCountOverLeague(client, extractSlugs(eventSlugs));
+let count = await getEntrantsCountOverLeague(client, eventSlugs);
 
 console.log(count);

@@ -1,6 +1,7 @@
 
 import { Parser, parseArguments, argsLeft, ArgumentsManager } from "@twilcynder/arguments-parser";
 import { readLines, readLinesAsync, readLinesInFiles, splitWhitespace } from "./jsUtil.js";
+import { extractSlug } from "./tournamentUtil.js";
 
 /**
  * @param {string[]} argList 
@@ -16,7 +17,7 @@ export function computeEventList(argList){
  * @param {ArgumentsManager} am 
  */
 export function addFileEventListParser(am){
-    am.addMultiOption("--events-filename", {dest: "eventsFilenames", description: "A file to find a list of event slugs in"})
+    am.addMultiOption("--events-file", {dest: "eventsFilenames", description: "A file to find a list of event slugs in"})
 }
 
 /**
@@ -33,11 +34,17 @@ export async function readEventLists(currentList, filenames){
         .filter(ev => !!ev)
         .map(ev => {
             if (ev.includes("%")){
-                let [template, min, max] = splitWhitespace(ev);
+                let [template, min_, max_] = splitWhitespace(ev);
+                let min = parseInt(min_);
+                let max = parseInt(max_);
                 return expandTemplate(template, min, max);
             } else {
                 return ev;
             }
+        })
+        .flat()
+        .map(ev => {
+            return extractSlug(ev)
         })
     return currentList.concat(events);
 }

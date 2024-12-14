@@ -15,7 +15,7 @@ export async function getEntrantsCount(client, slug, limiter, silentErrors = fal
         console.warn("Couldn't fetch entrants for slug", slug);
         return null
     };
-    console.log("Fetched entrants count for slug", slug);
+    console.log("Fetched entrants count for slug", slug, data.event.numEntrants);
     return data.event.numEntrants;
 }
 
@@ -23,7 +23,6 @@ export async function getEntrantsCountOverLeague(client, eventSlugs, limiter = n
     let cs = await Promise.all(eventSlugs.map( async (slug) => await getEntrantsCount(client, slug, limiter, false)))
 
     let count = cs.reduce(((prev, current) => {
-        console.log(prev, current)
         return prev + current;
     }), 0);
 
