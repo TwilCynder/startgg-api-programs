@@ -30,9 +30,11 @@ export async function getEntrants_(client, slug, tries, limiter = null, silentEr
  */
 export async function getEntrants(query, client, slug, limiter, silentErrors = false){
     let data = await query.execute(client, {slug}, limiter, silentErrors);
+    if (!data.event) {
+        console.warn("Couldn't fetch entrants for slug", slug);
+        return null
+    };
     console.log("Fetched entrants for slug", slug);
-    if (!data.event) return null;
-
     return data.event.entrants.nodes;
     //return getEntrants_(client, slug, 0, limiter, silentErrors);
 }

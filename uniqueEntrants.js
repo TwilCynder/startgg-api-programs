@@ -1,5 +1,5 @@
 import { ArgumentsManager, parseArguments } from "@twilcynder/arguments-parser";
-import { EventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsers, EventListParser, readEventLists } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
@@ -8,21 +8,23 @@ import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
 
-let {list, count, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
-    .addCustomParser(new EventListParser, "list")
+let {eventSlugs, eventsFilenames, count, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+    .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
     .addSwitch(["-c", "--count"], {description: "Output the number of unique entrants"})
     .enableHelpParameter()
     .parseProcessArguments();
  
+eventSlugs = await readEventLists(eventSlugs, eventsFilenames);
+
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
 let entrants = await readMultimodalInput(inputfile, stdinput, 
-    getEntrantsBasicForEvents(client, list)
+    getEntrantsBasicForEvents(client, eventSlugs)
 );
 limiter.stop();
 
