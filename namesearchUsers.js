@@ -3,7 +3,7 @@ import fs from "fs/promises"
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { fResults, readLinesAsync } from "./include/lib/jsUtil.js";
-import { getUniqueUsersOverLeague } from "./include/getEntrants.js";
+import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "./include/lib/common.js";
 import { addInputParams } from "./include/lib/paramConfig.js";
 import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
@@ -40,7 +40,7 @@ let [results] = await Promise.all([
             if (list && list.length > 0){
                 let client = createClient();
                 let limiter = new StartGGDelayQueryLimiter;
-                let events = await getUniqueUsersOverLeague(client, list, limiter);
+                let events = await getUniqueUsersBasicOverLeague(client, list, limiter);
                 limiter.stop();
                 return events;
             }
