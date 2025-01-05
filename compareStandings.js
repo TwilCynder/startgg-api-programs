@@ -3,7 +3,7 @@ import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addInputParams, addOutputParamsCustom, doWeLog, isSilent } from "./include/lib/paramConfig.js";
-import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
@@ -11,11 +11,11 @@ import { getEventsResults } from "./include/getEventResults.js";
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
 
-let {events, slugsFilename, startDate, endDate, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, slugsFilename, startDate, endDate, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
     .addParameter("slugsFilename", {}, false)
     .addParameter("startDate", {type: "number"}, true)
     .addParameter("endDate", {type: "number"}, true)
-    .addCustomParser(new SwitchableEventListParser, "events")
+    .apply(addEventParsersSwitchable)
     .apply(addOutputParamsCustom(false, true))
     .apply(addInputParams)
     .enableHelpParameter()
@@ -26,6 +26,8 @@ printdata = printdata || !outputfile;
 let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
+
+let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let userSlugs;
 try {

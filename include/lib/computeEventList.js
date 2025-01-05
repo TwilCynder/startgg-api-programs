@@ -29,6 +29,15 @@ export function addEventParsers(am){
     addFileEventListParser(am);
 }
 
+/**
+ * Added dests : eventSlugs, eventsFilenames
+ * @param {ArgumentsManager} am 
+ */
+export function addEventParsersSwitchable(am){
+    am.addCustomParser(new SwitchableEventListParser, "eventSlugs")
+    addFileEventListParser(am);
+}
+
 export async function readEventLists(currentList, filenames){
     let events = (await readLinesInFiles(filenames))
         .filter(ev => !!ev)

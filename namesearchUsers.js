@@ -6,10 +6,10 @@ import { fResults, readLinesAsync } from "./include/lib/jsUtil.js";
 import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "./include/lib/common.js";
 import { addInputParams } from "./include/lib/paramConfig.js";
-import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 
-let {inputfile, stdinput, list, names, namesfile, outputfile, outputFormat} = new ArgumentsManager()
-    .addCustomParser(new SwitchableEventListParser, "list")
+let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, outputfile, outputFormat} = new ArgumentsManager()
+    .apply(addEventParsers)
     .addMultiParameter("names")
     .addOption(["-f", "--names-file"], {dest: "namesfile"})
     .addOption(["-o", "--output-file"], {dest: "outputfile"})
@@ -17,6 +17,8 @@ let {inputfile, stdinput, list, names, namesfile, outputfile, outputFormat} = ne
     .apply(addInputParams)
     .enableHelpParameter()  
     .parseProcessArguments();
+
+let list = await readEventLists(eventSlugs, eventsFilenames);
 
 let [results] = await Promise.all([
     Promise.all(fResults(

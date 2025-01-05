@@ -1,6 +1,6 @@
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 
-import { EventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsers, EventListParser, readEventLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
@@ -12,8 +12,8 @@ import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/jsUtil.js
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
 
-let {slugs, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, names, number, min_sets} = new ArgumentsManager()
-    .addCustomParser(new EventListParser, "slugs")
+let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, names, number, min_sets} = new ArgumentsManager()
+    .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
     .addSwitch(["-a", "--names"], {description: "Fetch players names (to use in human-readable instead of ID). True by default"})
@@ -24,6 +24,8 @@ let {slugs, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, s
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
+
+eventSlugs = await readEventLists(eventSlugs, eventsFilenames)
 
 let limiter = new StartGGDelayQueryLimiter();
 
@@ -36,7 +38,7 @@ let data = await Promise.all([
     : null,
     stdinput ? loadInputFromStdin() : null,
     slugs.length > 0 ?
-        getEventsSetsBasic(client, slugs, limiter)
+        getEventsSetsBasic(client, eventSlugs, limiter)
     : null
 ])
 data = data.reduce( (prev, curr) => {
