@@ -3,8 +3,8 @@ import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramCon
 import { deep_get, muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import { output } from "./include/lib/util.js";
-import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { output, readMultimodalInput } from "./include/lib/util.js";
+import { addEventParsers, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
@@ -12,11 +12,11 @@ import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 
 //========== CONFIGURING PARAMETERS ==============
 
-let {userSlugs, filename, start_date, end_date, events, exclude_expression, minimum_in, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, eventName} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, eventSlugs, eventsFilenames, exclude_expression, minimum_in, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, eventName} = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments.")
     .apply(addOutputParams)
     .apply(addInputParams)
-    .addCustomParser(new SwitchableEventListParser, "events")
+    .apply(addEventParsers)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
     })
@@ -49,6 +49,8 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
 
+let events = await readEventLists(eventSlugs, eventsFilenames);
+
 //========== LOADING DATA ==============
 
 if (filename){
@@ -67,14 +69,7 @@ let limiter = new StartGGDelayQueryLimiter;
 
 let [users, data] = await Promise.all([
     User.createUsers(client, userSlugs, limiter),
-    Promise.all([
-        inputfile ? readJSONAsync(inputfile).catch(err => {
-            console.warn(`Could not open file ${inputfile} : ${err}`)
-            return [];
-        }) : null,
-
-        stdinput ? loadInputFromStdin() : null,
-
+    readMultimodalInput(inputfile, stdinput, 
         (async()=>{
         
             if (start_date || end_date){
@@ -86,13 +81,16 @@ let [users, data] = await Promise.all([
                 return await getEventsResults(client, events, undefined, limiter);
             }
         })()
-    ]).then(results => results.reduce((previous, current) => current ? previous.concat(current) : previous, []))
-
+    )
 ])
 
 limiter.stop();
 
 //========== PROCESSING DATA ==============
+
+if (!users || users.length < 1){
+    console.warn("No users specified : result will be empty");
+}
 
 if (exclude_expression){
     let exclude_regex = exclude_expression.map(exp => new RegExp(exp));
@@ -160,5 +158,6 @@ output(outputFormat, outputfile, printdata, data, (data) => {
         //console.log(event.tournament.name, `(${event.slug}) on`, new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
         resultString += generateLine(event) + '\n';
     }
+
     return resultString;
 });

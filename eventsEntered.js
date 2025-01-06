@@ -23,7 +23,7 @@ let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat
         description: "Only count tournaments before this UNIX date"
     })
     .addMultiOption(["-R", "--exclude_expression"], 
-        {description: "A list of regular expressions that will remove events they match with"}
+        {description: "Regular expressions that will remove events they match with"}
     )
     .enableHelpParameter()
 

@@ -10,3 +10,4 @@ Each script has a -h/--help option that can be used to get more information abou
 - `leagueHead2Head.js` : Computes direct head to head records for each pair of players in a list.
 - `namesearchUsers.js` : Tries to match a list of user names with users that attended a set of events, outputting user slugs for these users. 
 - `userInfo.js` : Prints info about one or many users
+- `resultsAtEvents.js` : Checks the results of a list of users at a set of events (either a list of events, or all events entered by these users, optionally in a specified time range). Useful to get all results from players you are trying to rank, even from events you might not know about.

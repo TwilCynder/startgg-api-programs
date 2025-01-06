@@ -68,8 +68,8 @@ export function addOutputParams(argumentsManager){
  */
 export function addInputParams(argumentsManager){
     argumentsManager
-        .addOption(["-i", "--input-file"], {dest: "inputfile"})
-        .addSwitch(["-S", "--stdin-input"], {dest: "stdinput"})
+        .addOption(["-i", "--input-file"], {dest: "inputfile", description: "A file containing pre-downloaded data"})
+        .addSwitch(["-S", "--stdin-input"], {dest: "stdinput", description: "Enable reading start.gg data from stdin (downloaded by another script)"})
 }
 
 /**

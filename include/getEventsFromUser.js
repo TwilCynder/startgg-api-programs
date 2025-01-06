@@ -69,8 +69,6 @@ export async function getEventsFromUser(client, slug, limiter, after = null, unt
   } else {
     let result = [];
 
-    console.log("doing the thing")
-
     let page = 1
     while (await processPage(client, slug, limiter, result, page, after, until)){
       page++    
