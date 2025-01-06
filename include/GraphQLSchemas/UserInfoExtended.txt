@@ -6,5 +6,12 @@ query UserInfo($slug : String!){
             gamerTag
           	prefix
         }
+        genderPronoun
+        location {
+            country
+            state
+            city
+        }
+        email
     }
 }
