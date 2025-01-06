@@ -1,6 +1,8 @@
 import { Query } from './lib/query.js';
 import { readSchema } from './lib/util.js';
 import { deep_get } from './lib/jsUtil.js';
+import { GraphQLClient } from 'graphql-request';
+import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventsFromUser.txt");
 const query = new Query(schema, 3);
@@ -63,7 +65,15 @@ async function processPage(client, slug, limiter, currentList, page, after = nul
   return events.length > 0;
 }
 
-export async function getEventsFromUser(client, slug, limiter, after = null, until = null){
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {string} slug 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {{after: number, until: number, game: string}} config 
+ * @returns 
+ */
+export async function getEventsFromUser(client, slug, limiter, config){
   if (!after && !until){ //we don't have to check each page, we can go for a simple paginated query
     return query.executePaginated(client, {slug}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
   } else {

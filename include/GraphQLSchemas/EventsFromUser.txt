@@ -1,9 +1,12 @@
-query StandinsgQuery($id: ID, $slug: String, $standingsPage: Int, $standingsPerPage: Int, $eventsPage: Int, $eventsPerPage: Int) {
+query EventsFromUser($id: ID, $slug: String, $eventsPage: Int, $eventsPerPage: Int, $games: [Int]) {
 	user(id: $id, slug: $slug) {
     events (query : {
       page: $eventsPage,
       sortBy: "startAt desc",
-      perPage: $eventsPerPage
+      perPage: $eventsPerPage,
+      filter: {
+        videogameId: 
+      }
     }){
       nodes {
         slug

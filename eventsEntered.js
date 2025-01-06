@@ -6,7 +6,7 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output } from "./include/lib/util.js";
 
-let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent, slugOnly} = new ArgumentsManager()
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
@@ -25,6 +25,7 @@ let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat
     .addMultiOption(["-R", "--exclude_expression"], 
         {description: "Regular expressions that will remove events they match with"}
     )
+    .addSwitch(["-g", "--slug-only"], {dest: "slugOnly", description: "Only output the slug for each event"})
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -44,8 +45,6 @@ if (filename){
         process.exit(1);
     }
 }
-
-console.log(end_date, start_date);
 
 let limiter = new StartGGDelayQueryLimiter;
 let data = await getEventsFromUsers(client, userSlugs, limiter, start_date, end_date)
@@ -68,15 +67,29 @@ if (exclude_expression){
 if (silent_) unmuteStdout();
 
 if (logdata_){
-    for (let event of data){
-        console.log(event.tournament.name, `(${event.slug}) |`, event.numEntrants, "entrants |", "on", new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
+    if (slugOnly){
+        for (let event of data){
+            console.log(event.slug);
+        }
+    } else {
+        for (let event of data){
+            console.log(event.tournament.name, `(${event.slug}) |`, event.numEntrants, "entrants |", "on", new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
+        }
     }
+
 }
 
 output(outputFormat, outputfile, printdata, data, (data) => {
     let resultString = "";
-    for (let event of data){
-        resultString += event.slug + '\t' + event.tournament.name + '\t' + event.numEntrants + '\t' + event.startAt + '\n';
+    if (slugOnly ){
+        for (let event of data){
+            resultString += event.slug + '\n';
+        }
+    } else {
+        for (let event of data){
+            resultString += event.slug + '\t' + event.tournament.name + '\t' + event.numEntrants + '\t' + event.startAt + '\n';
+        }
     }
+
     return resultString;
 });
