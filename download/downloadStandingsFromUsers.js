@@ -2,13 +2,13 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { muteStdout, readLines, unmuteStdout } from "../include/lib/jsUtil.js";
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
-import { SwitchableEventListParser } from "../include/lib/computeEventList.js";
+import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
 import { getStandingsFromUsers } from "../include/getStandingsFromUser.js";
 import { getEventsResults } from "../include/getEventResults.js";
 import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 
-let {userSlugs, filename, start_date, end_date, events, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, eventSlugs, eventsFilenames, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments.")
     .apply(addOutputParamsJSON)
     .addMultiParameter("userSlugs", {
@@ -25,7 +25,7 @@ let {userSlugs, filename, start_date, end_date, events, outputfile, printdata, s
         type: "number",
         description: "Only count tournaments before this UNIX date"
     })
-    .addCustomParser(new SwitchableEventListParser, "events")
+    .apply(addEventParsers)
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -35,6 +35,8 @@ printdata = printdata || !outputfile;
 let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
+
+let events = await readEventLists(eventSlugs, eventsFilenames);
 
 if (filename){
     try {
@@ -47,7 +49,6 @@ if (filename){
         process.exit(1);
     }
 }
-
 
 let limiter = new StartGGDelayQueryLimiter;
 
