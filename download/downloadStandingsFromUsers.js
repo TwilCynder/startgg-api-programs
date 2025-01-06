@@ -5,13 +5,12 @@ import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 import { SwitchableEventListParser } from "../include/lib/computeEventList.js";
 import { getStandingsFromUsers } from "../include/getStandingsFromUser.js";
 import { getEventsResults } from "../include/getEventResults.js";
-import { addOutputParamsBasic, isSilent } from "../include/lib/paramConfig.js";
+import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 
 let {userSlugs, filename, start_date, end_date, events, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments.")
-    .apply(addOutputParamsBasic)
-    .addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson"})
+    .apply(addOutputParamsJSON)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
     })

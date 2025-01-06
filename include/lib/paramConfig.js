@@ -20,6 +20,15 @@ export function addOutputParamsBasic(argumentsManager){
         })
 }
 
+/**
+ * Added dests : outputfile, printdata, silent, prettyjson
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addOutputParamsJSON(argumentsManager){
+    addOutputParamsBasic(argumentsManager);
+    argumentsManager.addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson"})
+}
+
 function addLogParameter(argumentsManager){
     argumentsManager.addSwitch(["-l", "--log-data"], {
         dest: "logdata",

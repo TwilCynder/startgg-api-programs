@@ -6,15 +6,14 @@ import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 
 import { muteStdout, readLinesAsync, unmuteStdout } from "../include/lib/jsUtil.js";
-import { addOutputParamsBasic, isSilent } from "../include/lib/paramConfig.js";
+import { addOutputParamsBasic, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 import { getUsersInfoExtended } from "../include/getUserInfoExtended.js";
 
 let {userSlugs, file, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .addMultiParameter("userSlugs")
     .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"})
-    .apply(addOutputParamsBasic)
-    .addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson"})
+    .apply(addOutputParamsJSON)
     .enableHelpParameter()
     .parseProcessArguments();
 
