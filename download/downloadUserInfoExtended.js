@@ -7,7 +7,7 @@ import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 
 import { muteStdout, readLinesAsync, unmuteStdout } from "../include/lib/jsUtil.js";
 import { addOutputParamsBasic, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { outputJSON } from "../include/lib/util.js";
+import { outputJSON, readUsersFile} from "../include/lib/util.js";
 import { getUsersInfoExtended } from "../include/getUserInfoExtended.js";
 
 let {userSlugs, file, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
@@ -22,12 +22,7 @@ let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
 
-if (file){
-    let lines = await readLinesAsync(file);
-    if (lines && lines.length){
-        userSlugs = userSlugs.concat(lines.filter(line => !!line && line != "null" && line != "undefined").map(line => line.trim()));
-    }
-}
+userSlugs = await readUsersFile(file, userSlugs);
 
 let limiter = new StartGGDelayQueryLimiter();
 let data = await getUsersInfoExtended(client, userSlugs, limiter);

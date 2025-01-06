@@ -20,5 +20,5 @@ export async function getUserInfoExtended(client, slug, limiter = null, silentEr
 }
 
 export function getUsersInfoExtended(client, slugs, limiter = null, silentErrors = false){
-  return Promise.all(slugs.map((slug) => getUserInfo(client, slug, limiter, silentErrors).catch((err) => console.log("User slug", slug, "kaput : ", err))));
+  return Promise.all(slugs.map((slug) => getUserInfoExtended(client, slug, limiter, silentErrors).catch((err) => console.log("User slug", slug, "kaput : ", err))));
 }

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { loadInputFromStdin } from './loadInputStdin.js';
-import { readJSONAsync, toJSON } from './jsUtil.js';
+import { readJSONAsync, readLinesAsync, toJSON } from './jsUtil.js';
 import { relurl } from "./dirname.js"
 
 export function readSchema(source, filename){
@@ -42,6 +42,18 @@ export function outputJSON(data, filename, printdata, prettyJSON){
 
 export function outputText(text, filename, printdata){
     output_(filename, printdata, text);
+}
+
+export async function readUsersFile(filename, existingArray){
+    if (filename){
+        let lines = await readLinesAsync(filename);
+        if (lines && lines.length){
+            let arr = lines.filter(line => !!line && line != "null" && line != "undefined").map(line => line.trim());
+            return (existingArray && existingArray.length) ? existingArray.concat(arr) : arr;
+        }
+    } else {
+        return existingArray;
+    }
 }
 
 /**
