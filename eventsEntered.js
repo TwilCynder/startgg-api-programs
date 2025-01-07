@@ -5,8 +5,9 @@ import { getEventsFromUsers } from "./include/getEventsFromUser.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output } from "./include/lib/util.js";
+import { getVideogameID } from "./include/getVideogameID.js";
 
-let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent, slugOnly} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent, slugOnly, filter, games, minEntrants} = new ArgumentsManager()
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
@@ -25,7 +26,10 @@ let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat
     .addMultiOption(["-R", "--exclude_expression"], 
         {description: "Regular expressions that will remove events they match with"}
     )
-    .addSwitch(["-g", "--slug-only"], {dest: "slugOnly", description: "Only output the slug for each event"})
+    .addMultiOption(["-b", "--filter"], {description: "Add a word filter. Events containing one of these words will be ignored"})
+    .addOption(["-g", "--games"], {description: "Comma-separated list of videogames to limit search to. Can be start.gg game slugs or numerical IDs"})
+    .addOption(["-m", "--min-entrants"], {dest: "minEntrants", type: "number", description: "Only count events with at least this number of entrants"})
+    .addSwitch(["-u", "--slug-only"], {dest: "slugOnly", description: "Only output the slug for each event"})
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -46,8 +50,28 @@ if (filename){
     }
 }
 
+
 let limiter = new StartGGDelayQueryLimiter;
-let data = await getEventsFromUsers(client, userSlugs, limiter, start_date, end_date)
+
+let gamesID;
+if (games){
+    gamesID = await Promise.all(games.split(",").map(word => {
+        word = word.trim();
+        let id = parseInt(word);
+        if (!id){ //assuming it was a slug
+            return getVideogameID(client, word, limiter);
+        } else {
+            return id;
+        }
+    }))
+}
+
+let data = await getEventsFromUsers(client, userSlugs, limiter, {
+    after: start_date,
+    until: end_date,
+    games: gamesID,
+    minEntrants: minEntrants
+})
 limiter.stop();
 
 if (exclude_expression){
@@ -58,6 +82,15 @@ if (exclude_expression){
             if (exp.test(event.slug)){
                 return false;
             }
+        }
+        return true;
+    })
+}
+
+if (filter && filter.length){
+    data = data.filter(event => {
+        for (let word of filter){
+            if (event.slug.includes(word)) return false
         }
         return true;
     })

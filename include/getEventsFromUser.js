@@ -8,12 +8,23 @@ const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventsFromUser.txt"
 const query = new Query(schema, 3);
 
 query.log = {
-  query: params => `Fetching events attended by user ${params.slug} (page ${params.eventsPage} of events, ${params.eventsPerPage} per page) ...`,
+  query: params => `Fetching events attended by user ${params.slug} (page ${params.eventsPage} of events, ${params.eventsPerPage} per page, games: ${params.games}, minimum ${params.minEntrants} entrants) ...`,
   error: params => `Request failed for user ${params.slug} ...`
 }
 
-async function getEventsPage(client, slug, limiter = null, page, silentErrors = false){
-  let data = await query.execute(client, {slug, eventsPage: page}, limiter, silentErrors);
+/** @typedef {{after: number, until: number, games: number[], minEntrants: number}} GEFUConfig */
+
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {string} slug 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {number} page 
+ * @param {GEFUConfig} config 
+ * @returns 
+ */
+async function getEventsPage(client, slug, limiter = null, page, config){
+  let data = await query.execute(client, {slug, eventsPage: page, games: config.games, minEntrants: config.minEntrants}, limiter, false);
   console.log("Fetched events page", page, "for user slug", slug);
   let result = deep_get(data, "user.events.nodes");
   return result;
@@ -47,8 +58,21 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
 }
 */
 
-async function processPage(client, slug, limiter, currentList, page, after = null, until = null){
-  let events = await getEventsPage(client, slug, limiter, page);
+
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {string} slug 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {any[]} currentList 
+ * @param {number} page 
+ * @param {GEFUConfig} config 
+ * @returns 
+ */
+async function processPage(client, slug, limiter, currentList, page, config = {}){
+  let until = config.until;
+  let after = config.after;
+  let events = await getEventsPage(client, slug, limiter, page, config);
    if (!events) throw `No result for slug ${slug} page ${page}`;
 
   for (let ev of events){
@@ -57,7 +81,6 @@ async function processPage(client, slug, limiter, currentList, page, after = nul
     if (after && ev.startAt < after) return false;
 
     currentList.push(ev);
-
   }
 
   console.log("Got page", page, "result :", events.length)
@@ -70,17 +93,17 @@ async function processPage(client, slug, limiter, currentList, page, after = nul
  * @param {GraphQLClient} client 
  * @param {string} slug 
  * @param {TimedQuerySemaphore} limiter 
- * @param {{after: number, until: number, game: string}} config 
+ * @param {GEFUConfig} config 
  * @returns 
  */
-export async function getEventsFromUser(client, slug, limiter, config){
-  if (!after && !until){ //we don't have to check each page, we can go for a simple paginated query
-    return query.executePaginated(client, {slug}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
+export async function getEventsFromUser(client, slug, limiter, config = {}){
+  if (!config.after && !config.until){ //we don't have to check each page, we can go for a simple paginated query
+    return query.executePaginated(client, {slug, games: config.games, minEntrants: config.minEntrants}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
   } else {
     let result = [];
 
     let page = 1
-    while (await processPage(client, slug, limiter, result, page, after, until)){
+    while (await processPage(client, slug, limiter, result, page, config)){
       page++    
     }
 
@@ -88,8 +111,16 @@ export async function getEventsFromUser(client, slug, limiter, config){
   }
 }
 
-export async function getEventsFromUsers(client, slugs, limiter, after = null, until = null){
-  let results = await Promise.all(slugs.map( slug => getEventsFromUser(client, slug, limiter, after, until).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {string[]} slug 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {GEFUConfig} config 
+ * @returns 
+ */
+export async function getEventsFromUsers(client, slugs, limiter, config){
+  let results = await Promise.all(slugs.map( slug => getEventsFromUser(client, slug, limiter, config).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
 
   let dict = {};
   for (let list of results){

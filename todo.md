@@ -1,3 +1,4 @@
+- Trouver un moyen de factoriser les getXXX qui font des trucs simples
 - Mieux séparer les fichiers util (jsUtil/fileUtil/startggUtil/scriptsUtil/tournamentUtil ?)
 - Utiliser @twilcynder/startgg-helper
 - Moderniser le truc de events for videogames

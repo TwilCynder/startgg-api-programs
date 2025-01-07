@@ -1,11 +1,12 @@
-query EventsFromUser($id: ID, $slug: String, $eventsPage: Int, $eventsPerPage: Int, $games: [Int]) {
+query EventsFromUser($id: ID, $slug: String, $eventsPage: Int, $eventsPerPage: Int, $games: [ID], $minEntrants: Int) {
 	user(id: $id, slug: $slug) {
     events (query : {
       page: $eventsPage,
       sortBy: "startAt desc",
       perPage: $eventsPerPage,
       filter: {
-        videogameId: 
+        videogameId: $games,
+        minEntrantCount: $minEntrants
       }
     }){
       nodes {
