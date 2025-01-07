@@ -6,8 +6,9 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output } from "./include/lib/util.js";
 import { getVideogameID } from "./include/getVideogameID.js";
+import { extractSlug } from "./include/lib/tournamentUtil.js";
 
-let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent, slugOnly, filter, games, minEntrants} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent, slugOnly, filter, games, minEntrants, minUsers} = new ArgumentsManager()
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
@@ -50,7 +51,6 @@ if (filename){
     }
 }
 
-
 let limiter = new StartGGDelayQueryLimiter;
 
 let gamesID;
@@ -59,7 +59,7 @@ if (games){
         word = word.trim();
         let id = parseInt(word);
         if (!id){ //assuming it was a slug
-            return getVideogameID(client, word, limiter);
+            return getVideogameID(client, extractSlug(word), limiter);
         } else {
             return id;
         }
@@ -106,7 +106,7 @@ if (logdata_){
         }
     } else {
         for (let event of data){
-            console.log(event.tournament.name, `(${event.slug}) |`, event.numEntrants, "entrants |", "on", new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
+            console.log(event.tournament.name, '-', event.name, `(${event.slug}) |`, event.numEntrants, "entrants |", "on", new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
         }
     }
 
@@ -120,7 +120,7 @@ output(outputFormat, outputfile, printdata, data, (data) => {
         }
     } else {
         for (let event of data){
-            resultString += event.slug + '\t' + event.tournament.name + '\t' + event.numEntrants + '\t' + event.startAt + '\n';
+            resultString += event.slug + '\t' + event.tournament.name + '\t' + event.name + '\t' + event.numEntrants + '\t' + event.startAt + '\n';
         }
     }
 
