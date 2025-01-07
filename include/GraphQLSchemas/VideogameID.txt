@@ -1,0 +1,5 @@
+query VideogameID($slug: String){
+	videogame(slug: $slug) {
+    id
+  }
+}
