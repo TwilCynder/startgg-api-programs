@@ -8,7 +8,7 @@ import { output } from "./include/lib/util.js";
 import { getVideogameID } from "./include/getVideogameID.js";
 import { extractSlug } from "./include/lib/tournamentUtil.js";
 
-let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent, slugOnly, filter, games, minEntrants, minUsers} = new ArgumentsManager()
+let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent, slugOnly, filter, games, minEntrants} = new ArgumentsManager()
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"

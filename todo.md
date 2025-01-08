@@ -1,3 +1,5 @@
+- Utiliser des dates yyyy-mm-dd
+- Généraliser l'utilisation de extract slugs (events, users, jeux)
 - Trouver un moyen de factoriser les getXXX qui font des trucs simples
 - Mieux séparer les fichiers util (jsUtil/fileUtil/startggUtil/scriptsUtil/tournamentUtil ?)
 - Utiliser @twilcynder/startgg-helper
