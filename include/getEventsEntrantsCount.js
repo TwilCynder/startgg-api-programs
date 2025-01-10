@@ -9,7 +9,7 @@ query.log = {
     error: params => `Request failed for event ${params.slug} ...`
 }
 
-export async function getEventInfo(client, slug, limiter = null){
+export async function getEventEntrantCount(client, slug, limiter = null){
     let res = await query.execute(client, {slug}, limiter);
 
     if (!res.event) throw "Slug " + slug + " not found.";
@@ -19,6 +19,9 @@ export async function getEventInfo(client, slug, limiter = null){
     return res.event;
 }
 
-export function getEventsInfo(client, slugs, limiter){
-    return Promise.all(slugs.map((slug) => getEventInfo(client, slug, limiter).catch((err) => console.log("Slug", slug, "kaput : ", err))));
+export function getEventsEntrantCount(client, slugs, limiter){
+    return Promise.all(slugs.map((slug) => getEventEntrantCount(client, slug, limiter)
+        .catch((err) => console.log("Slug", slug, "kaput : ", err))
+        .then(data => Object.assign(data, {slug}))
+    ));
 }

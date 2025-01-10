@@ -1,8 +1,11 @@
 - Utiliser des dates yyyy-mm-dd
 - Généraliser l'utilisation de extract slugs (events, users, jeux)
 - Trouver un moyen de factoriser les getXXX qui font des trucs simples
+- généraliser l'utilisation de readMultimodalInputWrapper
 - Mieux séparer les fichiers util (jsUtil/fileUtil/startggUtil/scriptsUtil/tournamentUtil ?)
 - Utiliser @twilcynder/startgg-helper
+- Pour les data sur plusieurs éléments (liste de standings etc), peut être passer à des hashmaps (slug en key)
+- Harmoniser les formats de data (arrays de standings etc, assurer une constance sur les données quand applicable)
 - Moderniser le truc de events for videogames
 - Faire la version de leaguehead2head qui prend des dates
 - Infos + approfondies sur qui joue les persos

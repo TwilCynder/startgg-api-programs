@@ -20,5 +20,8 @@ export async function getLastStandings(client, slug, limiter = null, count = DEF
 }
 
 export async function getPlayersLastStandings(client, slugs, limiter = null, count = DEFAULT_COUNT){
-    return await Promise.all(slugs.map( (slug) => getLastStandings(client, slug, limiter, count).catch(err => console.error("Slug", slug, "kaput :", err))))
+    return await Promise.all(slugs.map( (slug) => getLastStandings(client, slug, limiter, count)
+        .catch(err => console.error("Slug", slug, "kaput :", err))
+        .then(data => Object.assign(data, {slug}))
+    ))
 }
