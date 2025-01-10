@@ -57,12 +57,36 @@ export async function readUsersFile(filename, existingArray){
 }
 
 /**
+ * 
  * @param {string} inputfile 
  * @param {boolean} stdinput 
- * @param {() => Promise<any>} APIFetcher 
  */
-export function readMultimodalInputWrapper(inputfile, stdinput, APIFetcher){
-    return readMultimodalInput(inputfile, stdinput, APIFetcher());
+function readInputText(inputfile, stdinput){
+    return [
+        inputfile ? readJSONAsync(inputfile).catch(err => {
+            console.warn(`Could not open file ${inputfile} : ${err}`)
+            return [];
+        }) : null,
+    
+        stdinput ? loadInputFromStdin() : null,
+    ]
+}
+
+/**
+ * 
+ * @param {(Promise<any[]>?)[]} promises 
+ */
+function aggregateDataPromises(promises){
+    return Promise.all(promises).then(results => results.flat());
+}
+
+/**
+ * 
+ * @param {string} inputfile 
+ * @param {boolean} stdinput 
+ */
+export function readInputData(inputfile, stdinput){
+    return aggregateDataPromises(readInputText(inputfile, stdinput));
 }
 
 /**
@@ -72,14 +96,14 @@ export function readMultimodalInputWrapper(inputfile, stdinput, APIFetcher){
  * @returns 
  */
 export function readMultimodalInput(inputfile, stdinput, APIPromise){
-    return Promise.all([
-        inputfile ? readJSONAsync(inputfile).catch(err => {
-            console.warn(`Could not open file ${inputfile} : ${err}`)
-            return [];
-        }) : null,
-    
-        stdinput ? loadInputFromStdin() : null,
-    
-        APIPromise
-    ]).then(results => results.reduce((previous, current) => current ? previous.concat(current) : previous, []))
+    return aggregateDataPromises(readInputText(inputfile, stdinput).concat(APIPromise));
+}
+
+/**
+ * @param {string} inputfile 
+ * @param {boolean} stdinput 
+ * @param {() => Promise<any[]>} APIFetcher 
+ */
+export function readMultimodalInputWrapper(inputfile, stdinput, APIFetcher){
+    return readMultimodalInput(inputfile, stdinput, APIFetcher());
 }
