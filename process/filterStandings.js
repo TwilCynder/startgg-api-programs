@@ -1,23 +1,40 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addInputParams, addOutputParamsJSON } from "../include/lib/paramConfig";
-import { addEventParsers, readEventLists } from "../include/lib/computeEventList";
-import { readInputData } from "../include/lib/util";
+import { addEventNameFilterParams, addInputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
+import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
+import { outputJSON, readInputData } from "../include/lib/util.js";
+import { filterEvents } from "../include/filterEvents.js";
+import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
 
-let {inputfile, stdinput, eventSlugs, eventsFilenames, outputfile, printdata, silent, prettyjson} = new ArgumentsManager() 
+let {inputfile, stdinput, eventSlugs, eventsFilenames, exclude_expression, filter, outputfile, printdata, silent, prettyjson} = new ArgumentsManager() 
     .apply(addInputParams)
     .apply(addEventParsers)
+    .apply(addEventNameFilterParams)
     .apply(addOutputParamsJSON)
     .enableHelpParameter()
     .parseProcessArguments()
 
-let data = await readInputData(inputfile, stdinput);
-let events = await readEventLists(eventSlugs, eventsFilenames);
+    printdata = printdata || !outputfile;
+let silent_ = isSilent(printdata, silent);
+if (silent_) muteStdout();
 
-data = data.filter(event => {
-    for (let slug of events){
-        if (slug == event.slug) return true;
-    }
-    return false;
-});
+let [data, events] = await Promise.all([
+    readInputData(inputfile, stdinput),
+    readEventLists(eventSlugs, eventsFilenames)
+]);
 
-console.log(data);
+if (events && events.length){
+    data = data.filter(event => {
+        for (let slug of events){
+            if (slug == event.slug) return true;
+        }
+        return false;
+    });
+    
+    console.log(data);
+}
+
+data = filterEvents(data, exclude_expression, filter);
+
+if (silent_) unmuteStdout();
+
+outputJSON(data, outputfile, printdata, prettyjson);
