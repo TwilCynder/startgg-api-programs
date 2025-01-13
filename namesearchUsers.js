@@ -7,6 +7,7 @@ import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "./include/lib/common.js";
 import { addInputParams } from "./include/lib/paramConfig.js";
 import { addEventParsers, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { readMultimodalInputWrapper } from "./include/lib/util.js";
 
 let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, outputfile, outputFormat} = new ArgumentsManager()
     .apply(addEventParsers)
@@ -21,33 +22,15 @@ let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, outputf
 let list = await readEventLists(eventSlugs, eventsFilenames);
 
 let [results] = await Promise.all([
-    Promise.all(fResults(
-        async () => {
-            if (inputfile){
-                return await fs.readFile(inputfile)
-                    .then(buf => JSON.parse(buf))
-                    .catch(err => {
-                        console.warn(`Could not open file ${inputfile} : ${err}`)
-                        return [];
-                    })
-            }
-        },
-        async () => {
-            if (stdinput){
-                console.log("-- Waiting for JSON input --");
-                return await loadInputFromStdin()
-            }
-        },
-        async () => {
-            if (list && list.length > 0){
-                let client = createClient();
-                let limiter = new StartGGDelayQueryLimiter;
-                let events = await getUniqueUsersBasicOverLeague(client, list, limiter);
-                limiter.stop();
-                return events;
-            }
+    readMultimodalInputWrapper(inputfile, stdinput, async () => {
+        if (list && list.length > 0){
+            let client = createClient();
+            let limiter = new StartGGDelayQueryLimiter;
+            let events = await getUniqueUsersBasicOverLeague(client, list, limiter);
+            limiter.stop();
+            return events;
         }
-    )),
+    }),
     (async () => {
         if (namesfile){
             try {
