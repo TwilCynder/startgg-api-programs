@@ -73,6 +73,45 @@ export function addInputParams(argumentsManager){
 }
 
 /**
+ * Dests added : games, minEntrants, startDate, endDate
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addEventQueryFilterParams(argumentsManager){
+    argumentsManager
+        .addOption("--start-date", {
+            type: "number",
+            dest: "startDate",
+            description: "Only count tournaments after this UNIX date"
+        })
+        .addOption("--end-date", {
+            type: "number",
+            dest: "endDate",
+            description: "Only count tournaments before this UNIX date"
+        })
+        .addOption(["-g", "--games"], {description: "Comma-separated list of videogames to limit search to. Can be start.gg game slugs or numerical IDs"})
+        .addOption(["-m", "--min-entrants"], {dest: "minEntrants", type: "number", description: "Only count events with at least this number of entrants"})
+}
+
+/**
+ * Dests added : exclude_expression, filter
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addEventNameFilterParams(argumentsManager){
+    argumentsManager
+        .addMultiOption(["-R", "--exclude_expression"], {description: "Regular expressions that will remove events they match with"})
+        .addMultiOption(["-b", "--filter"], {description: "Add a word filter. Events containing one of these words will be ignored"})
+}
+
+/**
+ * Dests added : games, minEntrants, exclude_expression, filter, startDate, endDate
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addEventFilterParams(argumentsManager){
+    addEventQueryFilterParams(argumentsManager);
+    addEventNameFilterParams(argumentsManager);
+}
+
+/**
  * @param {boolean} printdata 
  * @param {string} outputfile 
  * @param {boolean} silent 

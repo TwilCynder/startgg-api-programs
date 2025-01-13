@@ -14,8 +14,11 @@ query.log = {
 
 const STANDINGS_PER_PAGE = 96;
 
-async function getStandingsPage(client, slug, limiter = null, page, standingsPage = 1, standingsPerPage = STANDINGS_PER_PAGE, silentErrors = false){
-  let data = await query.execute(client, {slug, eventsPage: page, eventsPerPage: 5, standingsPage, standingsPerPage}, limiter, silentErrors);
+/** @typedef {{after: number, until: number, games: number[], minEntrants: number}} GEFUConfig */
+
+
+async function getStandingsPage(client, slug, limiter = null, page, standingsPage = 1, standingsPerPage = STANDINGS_PER_PAGE, silentErrors = false, config){
+  let data = await query.execute(client, {slug, eventsPage: page, eventsPerPage: 5, standingsPage, standingsPerPage, games: config.games, minEntrants: config.minEntrants}, limiter, silentErrors);
   console.log("Fetched standings page", page, "for user slug", slug);
   let result = deep_get(data, "user.events.nodes");
   return result;
@@ -49,9 +52,12 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
 }
 */
 
-async function processStandingsPage(client, slug, limiter, currentList, page, after = null, until = null){
-  let events = await getStandingsPage(client, slug, limiter, page);
-   if (!events) throw `No result for slug ${slug} page ${page}`;
+async function processStandingsPage(client, slug, limiter, currentList, page, config = {}){
+  let until = config.until;
+  let after = config.after;
+  
+  let events = await getStandingsPage(client, slug, limiter, page, undefined, undefined, undefined, config);
+  if (!events) throw `No result for slug ${slug} page ${page}`;
 
   for (let ev of events){
 
@@ -75,14 +81,14 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
  * @param {number} until 
  * @returns {Promise<{}>}
  */
-export async function getStandingsFromUser(client, slug, limiter, after = null, until = null){
-  if (!after && !until){ //we don't have to check each page, we can go for a simple paginated query
-    return query.executePaginated(client, {slug, standingsPerPage: STANDINGS_PER_PAGE, standingsPage: 1}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
+export async function getStandingsFromUser(client, slug, limiter, config){
+  if (!config.after && !config.until){ //we don't have to check each page, we can go for a simple paginated query
+    return query.executePaginated(client, {slug, standingsPerPage: STANDINGS_PER_PAGE, standingsPage: 1, games: config.games, minEntrants: config.minEntrants}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
   } else {
     let result = [];
 
     let page = 1
-    while (await processStandingsPage(client, slug, limiter, result, page, after, until)){
+    while (await processStandingsPage(client, slug, limiter, result, page, config)){
       page++    
     }
 
@@ -100,8 +106,8 @@ export async function getStandingsFromUser(client, slug, limiter, after = null, 
  * @param {string[]} eventsBlacklist slugs of events to ignore
  * @returns {Promise<{}[]>}
  */
-export async function getStandingsFromUsers(client, slugs, limiter, after = null, until = null, eventsBlacklist){
-  let results = await Promise.all(slugs.map( slug => getStandingsFromUser(client, slug, limiter, after, until).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
+export async function getStandingsFromUsers(client, slugs, limiter, config, eventsBlacklist){
+  let results = await Promise.all(slugs.map( slug => getStandingsFromUser(client, slug, limiter, config).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
 
   let dict = {};
   for (let list of results){

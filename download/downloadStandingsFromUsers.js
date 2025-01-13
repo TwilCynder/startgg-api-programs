@@ -5,10 +5,12 @@ import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
 import { getStandingsFromUsers } from "../include/getStandingsFromUser.js";
 import { getEventsResults } from "../include/getEventResults.js";
-import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
+import { addEventQueryFilterParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
+import { fetchUsersStandings } from "../include/fetchUserStandings.js";
+import { loadGames } from "../include/loadGames.js";
 
-let {userSlugs, filename, start_date, end_date, eventSlugs, eventsFilenames, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
+let {userSlugs, filename, startDate, endDate, eventSlugs, eventsFilenames, games, minEntrants, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments.")
     .apply(addOutputParamsJSON)
     .addMultiParameter("userSlugs", {
@@ -17,14 +19,7 @@ let {userSlugs, filename, start_date, end_date, eventSlugs, eventsFilenames, out
     .addOption(["-f", "--filename"], {
         description: "Path to a file containing a list of user slugs"
     })
-    .addOption("--start_date", {
-        type: "number",
-        description: "Only count tournaments after this UNIX date"
-    })
-    .addOption("--end_date", {
-        type: "number",
-        description: "Only count tournaments before this UNIX date"
-    })
+    .apply(addEventQueryFilterParams)
     .apply(addEventParsers)
     .enableHelpParameter()
 
@@ -51,19 +46,8 @@ if (filename){
 }
 
 let limiter = new StartGGDelayQueryLimiter;
-
-let data;
-if (start_date || end_date){
-    if (events){
-        console.log("The arguments specify both a time range and an event list. The event list will be treated as a blacklist.")
-    }
-    data = await getStandingsFromUsers(client, userSlugs, limiter, start_date, end_date, events);
-} else {
-    data = await getEventsResults(client, events, undefined, limiter);
-}
-
+let data = await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, minEntrants, games: await loadGames(client, games, limiter)});
 limiter.stop();
-
 
 if (silent_){
     unmuteStdout();
