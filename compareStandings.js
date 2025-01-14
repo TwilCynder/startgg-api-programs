@@ -2,7 +2,7 @@ import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-import { addInputParams, addOutputParamsCustom, doWeLog, isSilent } from "./include/lib/paramConfig.js";
+import { addEventFilterParams, addInputParams, addOutputParamsCustom, doWeLog, isSilent } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
@@ -10,12 +10,15 @@ import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
+import { loadGames } from "./include/loadGames.js";
+import { filterEvents } from "./include/filterEvents.js";
 
-let {eventSlugs, eventsFilenames, slugsFilename, startDate, endDate, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, slugsFilename, games, minEntrants, startDate, endDate, exclude_expression, filter, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
     .addParameter("slugsFilename", {}, false)
     .addParameter("startDate", {type: "number"}, true)
     .addParameter("endDate", {type: "number"}, true)
     .apply(addEventParsersSwitchable)
+    .apply(addEventFilterParams)
     .apply(addOutputParamsCustom(false, true))
     .apply(addInputParams)
     .enableHelpParameter()
@@ -56,7 +59,7 @@ let [users, eventsStandings] = await Promise.all([
 
                 console.log("Looking for events after", new Date(startDate * 1000).toLocaleDateString("fr-FR"), "and before", new Date(endDate * 1000).toLocaleDateString("fr-FR"));
 
-                return await getStandingsFromUsers(client, userSlugs, limiter, startDate, endDate);
+                return await getStandingsFromUsers(client, userSlugs, limiter, {startDate, endDate, minEntrants, games: loadGames(client, games, limiter)});
             } else {
                 return await getEventsResults(client, events, undefined, limiter);
             }
@@ -65,6 +68,8 @@ let [users, eventsStandings] = await Promise.all([
 ])
 
 limiter.stop();
+
+eventsStandings = filterEvents(eventsStandings, exclude_expression, filter);
 
 //console.log(users, eventsStandings);
 
