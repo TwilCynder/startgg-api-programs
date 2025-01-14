@@ -12,7 +12,7 @@ query.log = {
   error: params => `Request failed for user ${params.slug} ...`
 }
 
-/** @typedef {{after: number, until: number, games: number[], minEntrants: number}} GEFUConfig */
+/** @typedef {{startDate: number, endDate: number, games: number[], minEntrants: number}} GEFUConfig */
 
 /**
  * 
@@ -70,8 +70,8 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
  * @returns 
  */
 async function processPage(client, slug, limiter, currentList, page, config = {}){
-  let until = config.until;
-  let after = config.after;
+  let until = config.endDate;
+  let after = config.startDate;
   let events = await getEventsPage(client, slug, limiter, page, config);
    if (!events) throw `No result for slug ${slug} page ${page}`;
 
@@ -97,7 +97,7 @@ async function processPage(client, slug, limiter, currentList, page, config = {}
  * @returns 
  */
 export async function getEventsFromUser(client, slug, limiter, config = {}){
-  if (!config.after && !config.until){ //we don't have to check each page, we can go for a simple paginated query
+  if (!config.startDate && !config.endDate){ //we don't have to check each page, we can go for a simple paginated query
     return query.executePaginated(client, {slug, games: config.games, minEntrants: config.minEntrants}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
   } else {
     let result = [];

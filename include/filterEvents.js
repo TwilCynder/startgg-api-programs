@@ -19,5 +19,14 @@ export function filterEvents(events, exclude_expression, exclude_words){
         })
     }
 
-    
+    if (exclude_words && exclude_words.length){
+        data = data.filter(event => {
+            for (let word of exclude_words){
+                if (event.slug.includes(word)) return false
+            }
+            return true;
+        })
+    }
+
+    return data;
 }

@@ -4,12 +4,12 @@ import { muteStdout, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { getEventsFromUsers } from "./include/getEventsFromUser.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import { output } from "./include/lib/util.js";
-import { getVideogameID } from "./include/getVideogameID.js";
-import { extractSlug } from "./include/lib/tournamentUtil.js";
+import { output, readUsersFile } from "./include/lib/util.js";
 import { loadGames } from "./include/loadGames.js";
+import { fetchUserEvents } from "./include/fetchUserEvents.js";
+import { filterEvents } from "./include/filterEvents.js";
 
-let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat, outputfile, logdata, printdata, silent, slugOnly, filter, games, minEntrants} = new ArgumentsManager()
+let {userSlugs, filename, games, minEntrants, exclude_expression, filter, startDate, endDate, outputFormat, outputfile, logdata, printdata, silent, slugOnly} = new ArgumentsManager()
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
@@ -32,54 +32,17 @@ let {userSlugs, filename, start_date, end_date, exclude_expression, outputFormat
     .parseProcessArguments()
 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-
 if (silent_) muteStdout();
 
-if (filename){
-    try {
-        let fileSlugs = readLines(filename).filter(line => !!line);
-        if (fileSlugs){
-            userSlugs = userSlugs.concat(fileSlugs);
-        }
-    } catch (err){
-        console.error("Could not read user slugs from file", filename, ":", err);
-        process.exit(1);
-    }
-}
+userSlugs = readUsersFile(filename, userSlugs);
 
 let limiter = new StartGGDelayQueryLimiter;
-
-let gamesID = loadGames(client, games, limiter);
-
-let data = await getEventsFromUsers(client, userSlugs, limiter, {
-    after: start_date,
-    until: end_date,
-    games: gamesID,
-    minEntrants: minEntrants
+let data = await fetchUserEvents(client, userSlugs, limiter, {
+    startDate, endDate, games, minEntrants
 })
 limiter.stop();
 
-if (exclude_expression){
-    let exclude_regex = exclude_expression.map(exp => new RegExp(exp));
-
-    data = data.filter( event => {
-        for (let exp of exclude_regex){
-            if (exp.test(event.slug)){
-                return false;
-            }
-        }
-        return true;
-    })
-}
-
-if (filter && filter.length){
-    data = data.filter(event => {
-        for (let word of filter){
-            if (event.slug.includes(word)) return false
-        }
-        return true;
-    })
-}
+data = filterEvents(data, exclude_expression, filter);
 
 
 if (silent_) unmuteStdout();
