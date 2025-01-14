@@ -21,7 +21,9 @@ query EventStandingsQuery($slug: String!, $numEntrants: Int) {
           participants {
             user {
               id
-              slug
+            }
+            player {
+              gamerTag
             }
           }
         }
