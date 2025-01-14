@@ -155,3 +155,15 @@ export function unmuteStdout(){
 export function toJSON(data, pretty){
     return JSON.stringify(data, null, pretty ? 4 : undefined);
 }
+
+export function isNumber(n){
+    return typeof n == "number";
+}
+
+/**
+ * 
+ * @param {number | Date | string} d 
+ */
+export function toUNIXTimestamp(d){
+    return isNumber(d) ? d : new Date(d).getTime() / 1000
+}

@@ -3,8 +3,6 @@ import { muteStdout, readLines, unmuteStdout } from "../include/lib/jsUtil.js";
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
-import { getStandingsFromUsers } from "../include/getStandingsFromUser.js";
-import { getEventsResults } from "../include/getEventResults.js";
 import { addEventQueryFilterParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 import { fetchUsersStandings } from "../include/fetchUserStandings.js";
@@ -46,7 +44,7 @@ if (filename){
 }
 
 let limiter = new StartGGDelayQueryLimiter;
-let data = await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, minEntrants, games: await loadGames(client, games, limiter)});
+let data = await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, minEntrants, games});
 limiter.stop();
 
 if (silent_){

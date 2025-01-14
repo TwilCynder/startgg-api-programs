@@ -5,7 +5,6 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output, readMultimodalInput, readUsersFile } from "./include/lib/util.js";
 import { addEventParsers, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
-import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
@@ -69,7 +68,7 @@ let [users, data] = await Promise.all([
     readMultimodalInput(inputfile, stdinput, 
         (async()=>{
             if (startDate || endDate){
-                return await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, minEntrants, games: loadGames(client, games, limiter)});
+                return await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, minEntrants, games});
             } else {
                 return await getEventsResults(client, events, undefined, limiter);
             }

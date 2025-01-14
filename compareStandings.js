@@ -6,12 +6,12 @@ import { addEventFilterParams, addInputParams, addOutputParamsCustom, doWeLog, i
 import { addEventParsersSwitchable, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
 import { loadGames } from "./include/loadGames.js";
 import { filterEvents } from "./include/filterEvents.js";
+import { fetchUsersStandings } from "./include/fetchUserStandings.js";
 
 let {eventSlugs, eventsFilenames, slugsFilename, games, minEntrants, startDate, endDate, exclude_expression, filter, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
     .addParameter("slugsFilename", {}, false)
@@ -53,13 +53,7 @@ let [users, eventsStandings] = await Promise.all([
 
         (async ()=>{
             if (startDate || endDate){
-                if (events.length > 0){
-                    console.warn("Both a start date/end date and a list of events have been specified. This program can only use one of these methods of fetching events ; the events list will be ignored.");
-                }
-
-                console.log("Looking for events after", new Date(startDate * 1000).toLocaleDateString("fr-FR"), "and before", new Date(endDate * 1000).toLocaleDateString("fr-FR"));
-
-                return await getStandingsFromUsers(client, userSlugs, limiter, {startDate, endDate, minEntrants, games: loadGames(client, games, limiter)});
+                return await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, games, minEntrants});
             } else {
                 return await getEventsResults(client, events, undefined, limiter);
             }

@@ -14,7 +14,7 @@ query.log = {
 
 const STANDINGS_PER_PAGE = 96;
 
-/** @typedef {{after: number, until: number, games: number[], minEntrants: number}} GEFUConfig */
+/** @typedef {{startDate: number, endDate: number, games: number[], minEntrants: number}} GEFUConfig */
 
 
 async function getStandingsPage(client, slug, limiter = null, page, standingsPage = 1, standingsPerPage = STANDINGS_PER_PAGE, silentErrors = false, config){
@@ -53,8 +53,8 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
 */
 
 async function processStandingsPage(client, slug, limiter, currentList, page, config = {}){
-  let until = config.until;
-  let after = config.after;
+  let until = config.startDate;
+  let after = config.endDate;
   
   let events = await getStandingsPage(client, slug, limiter, page, undefined, undefined, undefined, config);
   if (!events) throw `No result for slug ${slug} page ${page}`;
@@ -82,7 +82,7 @@ async function processStandingsPage(client, slug, limiter, currentList, page, co
  * @returns {Promise<{}>}
  */
 export async function getStandingsFromUser(client, slug, limiter, config){
-  if (!config.after && !config.until){ //we don't have to check each page, we can go for a simple paginated query
+  if (!config.startDate && !config.startDate){ //we don't have to check each page, we can go for a simple paginated query
     return query.executePaginated(client, {slug, standingsPerPage: STANDINGS_PER_PAGE, standingsPage: 1, games: config.games, minEntrants: config.minEntrants}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
   } else {
     let result = [];

@@ -12,6 +12,11 @@ query.log = {
 
 export async function getVideogameID(client, slug, limiter){
     let result = await query.execute(client, {slug}, limiter);
+    let res = deep_get(result, "videogame.id");
+    if (!res){
+        console.warn("ID not found for videogame", slug);
+        return null;
+    }
     console.log("Fetched ID for videogame", slug);
-    return deep_get(result, "videogame.id");
+    return res;
 }
