@@ -11,7 +11,7 @@ import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
 import { loadGames } from "./include/loadGames.js";
 import { filterEvents } from "./include/filterEvents.js";
-import { fetchUsersStandings } from "./include/fetchUserStandings.js";
+import { fetchUsersStandings } from "./include/fetchUserEvents.js";
 
 let {eventSlugs, eventsFilenames, slugsFilename, games, minEntrants, startDate, endDate, exclude_expression, filter, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
     .addParameter("slugsFilename", {}, false)

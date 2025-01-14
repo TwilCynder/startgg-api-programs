@@ -7,6 +7,7 @@ export async function loadGames(client, games, limiter){
         console.log("Fetching IDs for games", games);
         gamesID = await Promise.all(games.split(",").map(word => {
             word = word.trim();
+            if (!word.includes("game/")) word = "game/" + word;
             let id = parseInt(word);
             if (!id){ //assuming it was a slug
                 return getVideogameID(client, extractSlug(word), limiter);

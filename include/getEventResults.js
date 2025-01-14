@@ -23,14 +23,15 @@ export async function getEventResults(client, slug, numEntrants = 192, limiter =
     console.log("Getting standings from event : ", slug);
 
     let res = await query.execute(client, {slug, numEntrants}, limiter);
-    if (!res.event) return null;
+    if (!res.event) {
+        console.warn("Couldn't fetch resuls for event", slug);
+        return {slug};
+    }
 
     console.log("Fetched results for event", slug);
 
     res.event["slug"] = slug;
-
     return res.event;
-
 }
 
 /**

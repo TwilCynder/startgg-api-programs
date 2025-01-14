@@ -4,12 +4,10 @@ import { deep_get, muteStdout, readJSONAsync, readLines, unmuteStdout } from "./
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output, readMultimodalInput, readUsersFile } from "./include/lib/util.js";
-import { addEventParsers, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
-import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
-import { fetchUsersStandings, tryReadUsersFile } from "./include/fetchUserStandings.js";
-import { loadGames } from "./include/loadGames.js";
+import { fetchUsersStandings, tryReadUsersFile } from "./include/fetchUserEvents.js";
 import { filterEvents } from "./include/filterEvents.js";
 
 //========== CONFIGURING PARAMETERS ==============
@@ -17,38 +15,29 @@ import { filterEvents } from "./include/filterEvents.js";
 let {
     userSlugs, filename, 
     eventSlugs, eventsFilenames, 
-    games, minEntrants, filter, exclude_expression, startDate, endDate, minimum_in, 
-    outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, eventName
+    games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, 
+    outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, eventName, outSlug
 } = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments. You can use preexisting standings data as fetched by download/downloadStandingsFromUsers.js or by download/downloadEventsStandings.js, or ")
     .apply(addOutputParams)
     .apply(addInputParams)
-    .apply(addEventParsers)
+    .apply(addEventParsersSwitchable)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
     })
     .addOption(["-f", "--filename"], {
         description: "Path to a file containing a list of user slugs"
     })
-    .addOption("--start_date", {
-        type: "number",
-        description: "Only count tournaments after this UNIX date"
-    })
-    .addOption("--end_date", {
-        type: "number",
-        description: "Only count tournaments before this UNIX date"
-    })
-    .addMultiOption(["-R", "--exclude_expression"], 
-        {description: "A list of regular expressions that will remove events they match with"}
-    )
-    .addOption(["-m", "--minimum_in"], {
-        type: "number",
-        description: "Minimum amount of users for an event to be included in the output"
-    })
     .addSwitch("--eventName", {
         description: "Include each event's name in the csv result (aside from the tournament's name)"
     })
+    .addOption(["-M", "--minimum-in"], {
+        dest: "minimumIn",
+        type: "number",
+        description: "Minimum amount of users for an event to be included in the output"
+    })
     .apply(addEventFilterParams)
+    .addSwitch(["-u", "--output-slug"], {dest: "outSlug", description: "Include event slugs in the csv output"})
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -92,6 +81,7 @@ for (let event of data){
     event.standings.nodes = [];
 
     for (let standing of standings){
+        console.log(standing.entrant.participants)
         let user = deep_get(standing, "entrant.participants.0.user");
         if (!user){
             console.log("No user for standing", standing.entrant.participants[0].player.gamerTag, standing);
@@ -106,8 +96,8 @@ for (let event of data){
     }
 }
 
-if (minimum_in){
-    data = data.filter(event => event.standings.nodes.length >= minimum_in);
+if (minimumIn){
+    data = data.filter(event => event.standings.nodes.length >= minimumIn);
 }
 
 data = data.sort((a, b) => a.startAt - b.startAt);
@@ -123,7 +113,9 @@ function generateLine(event){
         .replace('m', date.getMonth()+1)
         .replace('d', date.getDate());
     let result = `${dateString}\t${event.tournament.name}\t${eventName ? event.name + "\t" : ""}${event.numEntrants}`;
-
+    if (outSlug){
+        result += '\t' + event.slug;
+    }
     for (const s of event.standings.nodes){
         let name = s.entrant.participants[0].player.gamerTag;
         result += '\t' + `${s.placement} : ${name}`;

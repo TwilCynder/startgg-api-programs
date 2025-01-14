@@ -79,12 +79,10 @@ export function addInputParams(argumentsManager){
 export function addEventQueryFilterParams(argumentsManager){
     argumentsManager
         .addOption("--start-date", {
-            type: "number",
             dest: "startDate",
             description: "Only count tournaments after this UNIX date"
         })
         .addOption("--end-date", {
-            type: "number",
             dest: "endDate",
             description: "Only count tournaments before this UNIX date"
         })

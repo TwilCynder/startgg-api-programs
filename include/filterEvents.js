@@ -20,7 +20,7 @@ export function filterEvents(events, exclude_expression, exclude_words){
     }
 
     if (exclude_words && exclude_words.length){
-        data = data.filter(event => {
+        events = events.filter(event => {
             for (let word of exclude_words){
                 if (event.slug.includes(word)) return false
             }
@@ -28,5 +28,5 @@ export function filterEvents(events, exclude_expression, exclude_words){
         })
     }
 
-    return data;
+    return events;
 }

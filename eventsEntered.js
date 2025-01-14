@@ -1,11 +1,9 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventFilterParams, addOutputParams, addQueryFilterParams, doWeLog } from "./include/lib/paramConfig.js";
-import { muteStdout, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
-import { getEventsFromUsers } from "./include/getEventsFromUser.js";
+import { addEventFilterParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output, readUsersFile } from "./include/lib/util.js";
-import { loadGames } from "./include/loadGames.js";
 import { fetchUserEvents } from "./include/fetchUserEvents.js";
 import { filterEvents } from "./include/filterEvents.js";
 
@@ -17,14 +15,6 @@ let {userSlugs, filename, games, minEntrants, exclude_expression, filter, startD
     .addOption(["-f", "--filename"], {
         description: "Path to a file containing a list of user slugs"
     })
-    .addOption("--start_date", {
-        type: "number",
-        description: "Only count tournaments after this UNIX date"
-    })
-    .addOption("--end_date", {
-        type: "number",
-        description: "Only count tournaments before this UNIX date"
-    })
     .apply(addEventFilterParams)
     .addSwitch(["-u", "--slug-only"], {dest: "slugOnly", description: "Only output the slug for each event"})
     .enableHelpParameter()
@@ -34,16 +24,15 @@ let {userSlugs, filename, games, minEntrants, exclude_expression, filter, startD
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
-userSlugs = readUsersFile(filename, userSlugs);
-
+userSlugs = await readUsersFile(filename, userSlugs);
+console.log(userSlugs);
 let limiter = new StartGGDelayQueryLimiter;
 let data = await fetchUserEvents(client, userSlugs, limiter, {
     startDate, endDate, games, minEntrants
-})
+});
 limiter.stop();
 
 data = filterEvents(data, exclude_expression, filter);
-
 
 if (silent_) unmuteStdout();
 

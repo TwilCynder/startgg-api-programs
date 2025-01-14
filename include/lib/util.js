@@ -77,7 +77,7 @@ function readInputText(inputfile, stdinput){
  * @param {(Promise<any[]>?)[]} promises 
  */
 function aggregateDataPromises(promises){
-    return Promise.all(promises).then(results => results.flat());
+    return Promise.all(promises).then(results => results.filter(v=>!!v).flat());
 }
 
 /**
