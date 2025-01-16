@@ -16,7 +16,8 @@ let {
     userSlugs, filename, 
     eventSlugs, eventsFilenames, 
     games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, offline,
-    outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, eventName, outSlug
+    outputFormat, outputfile, logdata, printdata, silent, eventName, outSlug,
+    inputfile, stdinput, userDataFile, 
 } = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments. You can use preexisting standings data as fetched by download/downloadStandingsFromUsers.js or by download/downloadEventsStandings.js, or ")
     .apply(addOutputParams)
@@ -27,6 +28,10 @@ let {
     })
     .addOption(["-f", "--filename"], {
         description: "Path to a file containing a list of user slugs"
+    })
+    .addOption(["-D", "--user-data-file"], {
+        dest: "userDataFile",
+        description: "File containing user data"
     })
     .addSwitch("--eventName", {
         description: "Include each event's name in the csv result (aside from the tournament's name)"
@@ -53,7 +58,7 @@ userSlugs = await tryReadUsersFile(filename, userSlugs);
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, data] = await Promise.all([
-    User.createUsers(client, userSlugs, limiter),
+    User.createUsersMultimodal(client, userSlugs, limiter, userDataFile),
     readMultimodalInput(inputfile, stdinput, 
         (async()=>{
             if (startDate || endDate){

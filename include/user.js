@@ -1,6 +1,8 @@
 import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
+import { aggregateDataPromises } from './lib/util.js';
+import { readJSONAsync } from './lib/jsUtil.js';
 
 export class User {
 
@@ -12,25 +14,20 @@ export class User {
     /**
      * @param {string} slug 
      */
-    constructor(slug){
-        this.slug = slug;
-    }
-
-    async load(client, limiter = null){
-        let user = await getUserInfo(client, this.slug, limiter);
-
+    constructor(user){
         if (user == null){
             throw "Couldn't load user " + this.slug;
         }
-
+        this.slug = user.slug;
         this.id = user.id;
         this.name = user.player.gamerTag;
 
         return this;
     }
 
-    static createUser(client, slug, limiter = null){
-        return (new User(slug).load(client, limiter));
+    static async loadUser(client, slug, limiter = null){
+        let user = await getUserInfo(client, slug, limiter);
+        return new User(user);
     }
 
     /**
@@ -40,8 +37,17 @@ export class User {
      * @param {TimedQuerySemaphore} limiter 
      * @returns 
      */
-    static async createUsers(client, slugs, limiter = null){
-        return await Promise.all(slugs.map( (slug) => this.createUser(client, slug, limiter)))
+    static async createUsers(client, slugs = [], limiter = null){
+        return await Promise.all(slugs.map( (slug) => this.loadUser(client, slug, limiter)))
+    }
+
+    static createUsersMultimodal(client, slugs, limiter, datafile){
+        return aggregateDataPromises([
+            this.createUsers(client, slugs, limiter),
+            datafile ? readJSONAsync(datafile).catch(err => {
+                throw "Couldn't read specified user data file " + datafile + " : " + err
+            }).then(data => data.map(user => new User(user))) : []
+        ])
     }
 
     static async loadUsers(client, users, limiter = null){
