@@ -1,5 +1,5 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventFilterParams, addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addEventFilterParams, addInputParams, addOutputParams, addUsersParams, doWeLog } from "./include/lib/paramConfig.js";
 import { deep_get, muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
@@ -13,26 +13,17 @@ import { filterEvents } from "./include/filterEvents.js";
 //========== CONFIGURING PARAMETERS ==============
 
 let {
-    userSlugs, filename, 
+    userSlugs, filename, userDataFile, 
     eventSlugs, eventsFilenames, 
     games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, offline,
     outputFormat, outputfile, logdata, printdata, silent, eventName, outSlug,
-    inputfile, stdinput, userDataFile, 
+    inputfile, stdinput, 
 } = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments. You can use preexisting standings data as fetched by download/downloadStandingsFromUsers.js or by download/downloadEventsStandings.js, or ")
     .apply(addOutputParams)
     .apply(addInputParams)
     .apply(addEventParsersSwitchable)
-    .addMultiParameter("userSlugs", {
-        description: "A list of users slugs to fetch events for"
-    })
-    .addOption(["-f", "--filename"], {
-        description: "Path to a file containing a list of user slugs"
-    })
-    .addOption(["-D", "--user-data-file"], {
-        dest: "userDataFile",
-        description: "File containing user data"
-    })
+    .apply(addUsersParams)
     .addSwitch("--eventName", {
         description: "Include each event's name in the csv result (aside from the tournament's name)"
     })

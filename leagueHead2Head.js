@@ -1,18 +1,17 @@
 import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js"; 
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-import { addInputParams, addOutputParamsCustom, isSilent } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
 import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
-import { getUsersSets } from "./include/getSetsUser.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
 
-let {events, slugsFilename, startDate, endDate, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
-    .addParameter("slugsFilename", {}, false)
+let {events, userSlugs, filename, userDataFile, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+    .apply(addUsersParams)
     .addCustomParser(new SwitchableEventListParser, "events")
     .apply(addOutputParamsCustom(false, true))
     .apply(addInputParams)
@@ -25,18 +24,12 @@ let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
 
-let userSlugs;
-try {
-    userSlugs = readLines(slugsFilename).filter(line => !!line);
-} catch (err){
-    console.error("Could not read user slugs from file", slugsFilename, ":", err);
-    process.exit(1);
-}
+userSlugs = tryReadUsersFile(filename, userSlugs)
 
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, sets] = await Promise.all([
-    User.createUsers(client, userSlugs, limiter),
+    User.createUsersMultimodal(client, userSlugs, limiter, userDataFile),
     Promise.all([
         inputfile ? readJSONAsync(inputfile).catch(err => {
             console.warn(`Could not open file ${inputfile} : ${err}`)

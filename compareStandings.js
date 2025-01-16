@@ -2,7 +2,7 @@ import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-import { addEventFilterParams, addInputParams, addOutputParamsCustom, doWeLog, isSilent } from "./include/lib/paramConfig.js";
+import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, doWeLog, isSilent } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
@@ -11,16 +11,14 @@ import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
 import { loadGames } from "./include/loadGames.js";
 import { filterEvents } from "./include/filterEvents.js";
-import { fetchUsersStandings } from "./include/fetchUserEvents.js";
+import { fetchUsersStandings, tryReadUsersFile } from "./include/fetchUserEvents.js";
 
 let {
-    eventSlugs, eventsFilenames, slugsFilename, 
+    eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, 
     games, minEntrants, startDate, endDate, exclude_expression, filter, offline, 
     outputFormat, outputfile, printdata, silent, inputfile, stdinput
 } = new ArgumentsManager()
-    .addParameter("slugsFilename", {}, false)
-    .addParameter("startDate", {type: "number"}, true)
-    .addParameter("endDate", {type: "number"}, true)
+    .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
     .apply(addEventFilterParams)
     .apply(addOutputParamsCustom(false, true))
@@ -34,20 +32,15 @@ let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
 
-let events = await readEventLists(eventSlugs, eventsFilenames);
-
-let userSlugs;
-try {
-    userSlugs = readLines(slugsFilename).filter(line => !!line);
-} catch (err){
-    console.error("Could not read user slugs from file", slugsFilename, ":", err);
-    process.exit(1);
-}
+let [events, usersSlugs] = await Promise.all([
+    readEventLists(eventSlugs, eventsFilenames),
+    tryReadUsersFile(filename, userSlugs)
+])
 
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, eventsStandings] = await Promise.all([
-    User.createUsers(client, userSlugs, limiter),
+    User.createUsersMultimodal(client, usersSlugs, limiter, userDataFile),
     Promise.all([
         inputfile ? readJSONAsync(inputfile).catch(err => {
             console.warn(`Could not open file ${inputfile} : ${err}`)

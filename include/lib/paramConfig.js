@@ -118,6 +118,25 @@ export function addEventFilterParams(argumentsManager){
 }
 
 /**
+ * Dests added : userSlugs, filename, userDataFile
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addUsersParams(argumentsManager){
+    am
+    .addMultiParameter("userSlugs", {
+        description: "A list of users slugs to fetch events for"
+    })
+    .addOption(["-f", "--filename"], {
+        description: "Path to a file containing a list of user slugs"
+    })
+    .addOption(["-D", "--user-data-file"], {
+        dest: "userDataFile",
+        description: "File containing user data"
+    })
+    
+}
+
+/**
  * @param {boolean} printdata 
  * @param {string} outputfile 
  * @param {boolean} silent 
