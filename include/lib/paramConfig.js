@@ -94,10 +94,11 @@ export function addEventQueryFilterParams(argumentsManager){
  * Dests added : exclude_expression, filter
  * @param {ArgumentsManager} argumentsManager 
  */
-export function addEventNameFilterParams(argumentsManager){
+export function addEventPropertiesFilterParams(argumentsManager){
     argumentsManager
         .addMultiOption(["-R", "--exclude_expression"], {description: "Regular expressions that will remove events they match with"})
         .addMultiOption(["-b", "--filter"], {description: "Add a word filter. Events containing one of these words will be ignored"})
+        .addSwitch(["-O", "--offline"], {description: "Only keep offline event"})
 }
 
 /**
@@ -106,7 +107,7 @@ export function addEventNameFilterParams(argumentsManager){
  */
 export function addEventFilterParams(argumentsManager){
     addEventQueryFilterParams(argumentsManager);
-    addEventNameFilterParams(argumentsManager);
+    addEventPropertiesFilterParams(argumentsManager);
 }
 
 /**

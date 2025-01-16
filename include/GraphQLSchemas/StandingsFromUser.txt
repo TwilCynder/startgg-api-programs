@@ -17,6 +17,7 @@ query StandinsgQuery($id: ID, $slug: String, $standingsPage: Int, $standingsPerP
         tournament {
           name
         }
+        isOnline
         entrantSizeMin
         id
         startAt

@@ -7,7 +7,11 @@ import { output, readUsersFile } from "./include/lib/util.js";
 import { fetchUserEvents } from "./include/fetchUserEvents.js";
 import { filterEvents } from "./include/filterEvents.js";
 
-let {userSlugs, filename, games, minEntrants, exclude_expression, filter, startDate, endDate, outputFormat, outputfile, logdata, printdata, silent, slugOnly} = new ArgumentsManager()
+let {
+    userSlugs, filename, 
+    games, minEntrants, exclude_expression, filter, startDate, endDate, offline, 
+    outputFormat, outputfile, logdata, printdata, silent, slugOnly
+} = new ArgumentsManager()
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
@@ -32,7 +36,7 @@ let data = await fetchUserEvents(client, userSlugs, limiter, {
 });
 limiter.stop();
 
-data = filterEvents(data, exclude_expression, filter);
+data = filterEvents(data, exclude_expression, filter, offline);
 
 if (silent_) unmuteStdout();
 

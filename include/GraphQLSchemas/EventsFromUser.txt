@@ -11,6 +11,7 @@ query EventsFromUser($id: ID, $slug: String, $eventsPage: Int, $eventsPerPage: I
     }){
       nodes {
         slug
+        isOnline
         tournament {
           name
         }

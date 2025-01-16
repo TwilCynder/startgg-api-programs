@@ -5,7 +5,7 @@
  * @param {string[]} exclude_expression 
  * @param {string[]} exclude_words 
  */
-export function filterEvents(events, exclude_expression, exclude_words){
+export function filterEvents(events, exclude_expression, exclude_words, offline){
 
     if (exclude_expression){
         let exclude_regex = exclude_expression.map(exp => new RegExp(exp));
@@ -26,6 +26,10 @@ export function filterEvents(events, exclude_expression, exclude_words){
             }
             return true;
         })
+    }
+
+    if (typeof offline == "boolean"){
+        events = events.filter(event => event.isOnline != offline)
     }
 
     return events;

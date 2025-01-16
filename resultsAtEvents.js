@@ -15,7 +15,7 @@ import { filterEvents } from "./include/filterEvents.js";
 let {
     userSlugs, filename, 
     eventSlugs, eventsFilenames, 
-    games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, 
+    games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, offline,
     outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, eventName, outSlug
 } = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments. You can use preexisting standings data as fetched by download/downloadStandingsFromUsers.js or by download/downloadEventsStandings.js, or ")
@@ -73,15 +73,25 @@ if (!users || users.length < 1){
     console.warn("No users specified : result will be empty");
 }
 
-data = filterEvents(data, exclude_expression, filter);
+data = data.filter(event => {
+    if (!event || !event.standings){
+        console.warn("No standings for event", event ? event.slug : null);
+        return false;
+    }
+    return true;
+});
+data = filterEvents(data, exclude_expression, filter, offline);
 
 for (let event of data){
+    if (!event || !event.standings){
+        
+        continue;
+    }
     let standings = event.standings.nodes;
     event.numEntrants = standings.length;
     event.standings.nodes = [];
 
     for (let standing of standings){
-        console.log(standing.entrant.participants)
         let user = deep_get(standing, "entrant.participants.0.user");
         if (!user){
             console.log("No user for standing", standing.entrant.participants[0].player.gamerTag, standing);

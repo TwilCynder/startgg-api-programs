@@ -13,7 +13,11 @@ import { loadGames } from "./include/loadGames.js";
 import { filterEvents } from "./include/filterEvents.js";
 import { fetchUsersStandings } from "./include/fetchUserEvents.js";
 
-let {eventSlugs, eventsFilenames, slugsFilename, games, minEntrants, startDate, endDate, exclude_expression, filter, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+let {
+    eventSlugs, eventsFilenames, slugsFilename, 
+    games, minEntrants, startDate, endDate, exclude_expression, filter, offline, 
+    outputFormat, outputfile, printdata, silent, inputfile, stdinput
+} = new ArgumentsManager()
     .addParameter("slugsFilename", {}, false)
     .addParameter("startDate", {type: "number"}, true)
     .addParameter("endDate", {type: "number"}, true)
@@ -63,7 +67,7 @@ let [users, eventsStandings] = await Promise.all([
 
 limiter.stop();
 
-eventsStandings = filterEvents(eventsStandings, exclude_expression, filter);
+eventsStandings = filterEvents(eventsStandings, exclude_expression, filter, offline);
 
 //console.log(users, eventsStandings);
 
