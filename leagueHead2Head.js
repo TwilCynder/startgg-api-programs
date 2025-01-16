@@ -2,17 +2,18 @@ import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js"; 
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
-import { SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
 import { output } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
+import { tryReadUsersFile } from "./include/fetchUserEvents.js";
 
-let {events, userSlugs, filename, userDataFile, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
     .apply(addUsersParams)
-    .addCustomParser(new SwitchableEventListParser, "events")
+    .apply(addEventParsersSwitchable)
     .apply(addOutputParamsCustom(false, true))
     .apply(addInputParams)
     .enableHelpParameter()
@@ -24,7 +25,8 @@ let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
 
-userSlugs = tryReadUsersFile(filename, userSlugs)
+userSlugs = await tryReadUsersFile(filename, userSlugs);
+let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
 

@@ -122,7 +122,7 @@ export function addEventFilterParams(argumentsManager){
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addUsersParams(argumentsManager){
-    am
+    argumentsManager
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
     })
