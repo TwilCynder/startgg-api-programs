@@ -1,6 +1,7 @@
 query UserInfo($slug : String!){
     user(slug: $slug){
         id
+        slug
         player {
             id
             gamerTag

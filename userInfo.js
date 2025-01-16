@@ -1,16 +1,22 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addInputParams } from "./include/lib/paramConfig.js";
-import { readMultimodalInput, readUsersFile } from "./include/lib/util.js";
+import { addInputParams, addOutputParamsCustom, doWeLog, isSilent } from "./include/lib/paramConfig.js";
+import { outputText, outputTextLazy, readMultimodalInput, readUsersFile } from "./include/lib/util.js";
 import { getUsersInfoExtended } from "./include/getUserInfoExtended.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
 
-let {userSlugs, file, inputfile, stdinput} = new ArgumentsManager()
+let {userSlugs, file, inputfile, stdinput, outputfile, printdata, silent, logdata, slug} = new ArgumentsManager()
     .addMultiParameter("userSlugs")
     .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"})
+    .addSwitch(["-u", "--slug"], {description: "Include slug in output"})
+    .apply(addOutputParamsCustom(true, false))
     .apply(addInputParams)
     
     .parseProcessArguments();
+
+let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+if (silent_) muteStdout();
 
 userSlugs = await readUsersFile(file, userSlugs);
 
@@ -24,7 +30,9 @@ let users = await readMultimodalInput(inputfile, stdinput, (async()=>{
     return [];
 })());
 
-
+function locationString(location){
+    return location ? [location.city, location.state, location.country].filter(e=>e).join(", ") : ""
+}
 
 function displayUser(user){
     console.log("Name :", user.player.gamerTag);
@@ -32,16 +40,33 @@ function displayUser(user){
     if (user.genderPronoun) console.log("Pronouns :", user.genderPronoun);
     if (user.location){
         console.log(user.location)
-        console.log("Location : ", [user.location.city, user.location.state, user.location.country].filter(e=>e).join(", "));
+        console.log("Location : ", locationString(user.location));
     }
 }
 
-if (users.length == 1){
-    displayUser(users[0]);
-} else {
-    for (let user of users.slice(0, -1)){
-        displayUser(user);
-        console.log("---------");
+if (silent_) unmuteStdout();
+
+if (logdata_){
+    if (users.length == 1){
+        displayUser(users[0]);
+    } else {
+        for (let user of users.slice(0, -1)){
+            displayUser(user);
+            console.log("---------");
+        }
+        displayUser(users.at(-1));
     }
-    displayUser(users.at(-1));
 }
+
+outputTextLazy((users) => {
+    let res = "";
+    for (let user of users) {
+        if (slug) res += user.slug + '\t';
+        res += (user.player.prefix ?? "") + '\t';
+        res += user.player.gamerTag + '\t';
+        res += (user.genderPronoun ?? "") + '\t';
+        res += locationString(user.location) + '\t';
+        res += '\n'
+    }
+    return res;
+}, outputfile, printdata, users)

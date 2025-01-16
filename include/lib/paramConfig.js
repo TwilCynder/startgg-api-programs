@@ -44,6 +44,13 @@ function addFormatParameter(argumentsManager){
     })
 }
 
+/**
+ * Returns a function to pass to .apply  
+ * Potential dests : outputfile, printdata, silent, logdata, outputFormat
+ * @param {boolean} log 
+ * @param {boolean} format 
+ * @returns 
+ */
 export function addOutputParamsCustom(log, format){
     return argumentsManager => {
         addOutputParamsBasic(argumentsManager);

@@ -7,6 +7,7 @@ export function readSchema(source, filename){
     return fs.readFileSync(relurl(source, filename), {encoding: "utf-8"});
 }
 
+
 function output_(filename, printdata, resultString){
     if (filename){
         let file = fs.createWriteStream(filename, {encoding: "utf-8"});
@@ -18,6 +19,7 @@ function output_(filename, printdata, resultString){
 }
 
 /**
+ * Manges output for a script able to log readable data, output JSON, and output CSV
  * @template T
  * @param {"json" | "csv" | "prettyjson"} format 
  * @param {string} filename 
@@ -36,12 +38,31 @@ export function output(format, filename, printdata, data, CSVtransform){
     output_(filename, printdata, resultString);
 }
 
+/**
+ * Manages output for a script that can only output JSON, no matter of the script can also log readable data. 
+ */
 export function outputJSON(data, filename, printdata, prettyJSON){
     output_(filename, printdata, toJSON(data, prettyJSON));
 }
 
+/**
+ * Manages output for a script that can only output a text
+ */
 export function outputText(text, filename, printdata){
     output_(filename, printdata, text);
+}
+
+/**
+ * Manages output for a script that can output a text *maybe* (i.e. can also log data)
+ * @param {string} filename 
+ * @param {boolean} printdata 
+ * @param {any} data 
+ * @param {(data: any) => string} textTransform 
+ */
+export function outputTextLazy(textTransform, filename, printdata, data){
+    if (filename || printdata){
+        outputText(textTransform(data), filename, printdata)
+    }
 }
 
 export async function readUsersFile(filename, existingArray){
