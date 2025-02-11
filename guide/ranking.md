@@ -14,7 +14,7 @@ Also, if in a command you see text between `<>`, always replace it, braces inclu
 - Run `node namesearchUsers.js -f slugs.txt --events-file data/localEvents.txt -o data/slugs.txt`
 - Check `data/slugs.txt` for "undefined" or "null" lines : you need to fill these slugs yourself (can be found on their startgg page)
 - Run `download/downloadUserInfo.js -f data/slugs.txt -o data/users.json`
-- Run `node eventsEntered.js -f data/slugs.txt -o data/events.txt --start_date <start of season date> --end_date <end of season date> --format csv -u -b session -b amateur -b ladder -b doubles -b squad-strike -g <game slug> -O`
+- Run `node eventsEntered.js -f data/slugs.txt -o data/events.txt --start-date <start of season date> --end-date <end of season date> --format csv -u -b session -b amateur -b ladder -b doubles -b squad-strike -g <game slug> -O`
 - Run `node download/downloadEventsStandings.js --events-file data/events.txt -o data/standings.json`. 
 - Run `node resultsAtEvents.js -i data/standings.json -D data/users.json -o out/results.csv --eventName --format csv -M 2 -u`   
   If you want two separate lists with local and outside events, instead run : 
@@ -52,7 +52,7 @@ Once you've got all your users slugs, run :
 `download/downloadUserInfo.js -f data/slugs.txt -o data/users.json`
 
 ### Checking all the events they entered during the season
-Now, we want to know all the events they entered during the season. To fetch that, use `node eventsEntered.js -f data/slugs.txt -o data/events.txt --start_date <start of season date> --end_date <end of season date> --format csv -u`, with the appropriate dates, in the yyyy-mm-dd format.   
+Now, we want to know all the events they entered during the season. To fetch that, use `node eventsEntered.js -f data/slugs.txt -o data/events.txt --start-date <start of season date> --end-date <end of season date> --format csv -u`, with the appropriate dates, in the yyyy-mm-dd format.   
 If you only want events running a specific game (and I'm pretty sure you want), you can add `-g <game slug or URL>` ; the url is tat of the game's page on start.gg (search for the game in start.gg's search bar)  
 You can also filter events using some blacklisted words, by adding `-b <filtered word>`. For example, you can use `-b session -b amateur -b ladder` to filter session bracket, ladders and amateur brackets (or at least, events with these words in their names), which you usually don't want in a ranking data.  
 Finally `-O` removes online events.
