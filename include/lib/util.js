@@ -19,7 +19,7 @@ function output_(filename, printdata, resultString){
 }
 
 /**
- * Manges output for a script able to log readable data, output JSON, and output CSV
+ * Manages output for a script able to log readable data, output JSON, and output CSV
  * @template T
  * @param {"json" | "csv" | "prettyjson"} format 
  * @param {string} filename 
