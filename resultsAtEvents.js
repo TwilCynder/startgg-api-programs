@@ -90,7 +90,7 @@ for (let event of data){
     for (let standing of standings){
         let user = deep_get(standing, "entrant.participants.0.user");
         if (!user){
-            console.log("No user for standing", standing.entrant.participants[0].player.gamerTag, standing);
+            console.log("No user for standing", standing.entrant.participants[0].player.gamerTag, "at", event.tournament.name, standing);
             continue;
         }
 

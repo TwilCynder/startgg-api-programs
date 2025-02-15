@@ -2,10 +2,12 @@ import * as fs from 'fs';
 import { readLines } from '../include/lib/jsUtil.js';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
 
-let {rankingsFilename, rankingSize, outputFile} = new ArgumentsManager()
+let {rankingsFilename, rankingSize, outputFile, tiers} = new ArgumentsManager()
     .addParameter("rankingsFilename")
     .addParameter("rankingSize", {type: "number"}, true)
     .addOption("-o", {dest: "outputFile"})
+    .addOption(["-t", "--tiers"], {description: "Make tiers using k-means clustering"})
+
     .enableHelpParameter()
 
     .parseProcessArguments();
@@ -60,6 +62,29 @@ for (let line of lines){
 let result = Object.entries(players).map(([name, scores]) => player(name, scores))
   
 result = result.sort((a, b) => b.avg - a.avg);
+
+//---- K-MEANS
+
+function kmeans(players, k){
+    console.log("Calculating k-means with", k, "clusters");
+
+    let clusters = [];
+    for (let i  = 0; i < k; i++){
+        clusters.push({mean: (rankingSize / k * i) + rankingSize / (k*2), players: []})
+        console.log("Cluster", i, ":", clusters[i].mean);
+    }
+
+    
+    
+}
+
+if (tiers == "auto"){
+    
+} else if (!isNaN(tiers)){
+
+} else {
+    console.error("The value of the --tiers/-t option should be a number or \"auto\"");
+}
 
 console.log("---------------")
 for (let i = 0; i < result.length; i++){

@@ -165,5 +165,5 @@ export function isNumber(n){
  * @param {number | Date | string} d 
  */
 export function toUNIXTimestamp(d){
-    return isNumber(d) ? d : new Date(d).getTime() / 1000
+    return isNaN(d) ? new Date(d).getTime() / 1000 : d;
 }

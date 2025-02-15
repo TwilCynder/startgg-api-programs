@@ -120,6 +120,8 @@ export async function getEventsFromUser(client, slug, limiter, config = {}){
  * @returns 
  */
 export async function getEventsFromUsers(client, slugs, limiter, config){
+  console.log(config);
+
   let results = await Promise.all(slugs.map( slug => getEventsFromUser(client, slug, limiter, config).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
 
   let dict = {};
@@ -127,6 +129,7 @@ export async function getEventsFromUsers(client, slugs, limiter, config){
     if (!list) continue;
 
     for (let event of list){
+
       dict[event.id] = event;
     }
   }
