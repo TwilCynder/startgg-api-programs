@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 import { aggregateDataPromises } from './lib/util.js';
-import { readJSONAsync } from './lib/jsUtil.js';
+import { readJSONInput } from './lib/jsUtil.js';
 
 export class User {
 
@@ -44,7 +44,7 @@ export class User {
     static createUsersMultimodal(client, slugs, limiter, datafile){
         return aggregateDataPromises([
             this.createUsers(client, slugs, limiter),
-            datafile ? readJSONAsync(datafile).catch(err => {
+            datafile ? readJSONInput(datafile).catch(err => {
                 throw "Couldn't read specified user data file " + datafile + " : " + err
             }).then(data => data.map(user => new User(user))) : []
         ])

@@ -8,8 +8,8 @@ import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
 import { getPlayerName } from "./include/getPlayerName.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/jsUtil.js";
-import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
+import { muteStdout, readJSONInput, unmuteStdout } from "./include/lib/jsUtil.js";
+import { readJSONFromStdin } from "./include/lib/loadInput.js";
 import { output } from "./include/lib/util.js";
 
 let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, names, number, min_sets} = new ArgumentsManager()
@@ -31,12 +31,12 @@ let limiter = new StartGGDelayQueryLimiter();
 
 let data = await Promise.all([
     inputfile ? 
-        readJSONAsync(inputfile).catch(err => {
+        readJSONInput(inputfile).catch(err => {
             console.warn(`Could not open file ${inputfile} : ${err}`)
             return [];
         }) 
     : null,
-    stdinput ? loadInputFromStdin() : null,
+    stdinput ? readJSONFromStdin() : null,
     slugs.length > 0 ?
         getEventsSetsBasic(client, eventSlugs, limiter)
     : null

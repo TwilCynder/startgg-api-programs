@@ -1,6 +1,6 @@
 import fs from 'fs';
-import { loadInputFromStdin } from './loadInputStdin.js';
-import { readJSONAsync, readLinesAsync, toJSON } from './jsUtil.js';
+import { readJSONFromStdin } from './loadInput.js';
+import { readJSONInput, readLinesAsync, toJSON } from './jsUtil.js';
 import { relurl } from "./dirname.js"
 
 export function readSchema(source, filename){
@@ -84,12 +84,12 @@ export async function readUsersFile(filename, existingArray){
  */
 function readInputText(inputfile, stdinput){
     return [
-        inputfile ? readJSONAsync(inputfile).catch(err => {
+        inputfile ? readJSONInput(inputfile).catch(err => {
             console.warn(`Could not open file ${inputfile} : ${err}`)
             return [];
         }) : null,
     
-        stdinput ? loadInputFromStdin() : null,
+        stdinput ? readJSONFromStdin() : null,
     ]
 }
 

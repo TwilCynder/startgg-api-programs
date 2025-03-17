@@ -4,10 +4,10 @@ import * as SC from "./include/computeStandingComparison.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, doWeLog, isSilent } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
-import { muteStdout, readJSONAsync, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
+import { muteStdout, readJSONInput, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { getEventsResults } from "./include/getEventResults.js";
-import { loadInputFromStdin } from "./include/lib/loadInputStdin.js";
+import { readJSONFromStdin } from "./include/lib/loadInput.js";
 import { output } from "./include/lib/util.js";
 import { loadGames } from "./include/loadGames.js";
 import { filterEvents } from "./include/filterEvents.js";
@@ -42,11 +42,11 @@ let limiter = new StartGGDelayQueryLimiter;
 let [users, eventsStandings] = await Promise.all([
     User.createUsersMultimodal(client, usersSlugs, limiter, userDataFile),
     Promise.all([
-        inputfile ? readJSONAsync(inputfile).catch(err => {
+        inputfile ? readJSONInput(inputfile).catch(err => {
             console.warn(`Could not open file ${inputfile} : ${err}`)
             return [];
         }) : null,
-        stdinput ? loadInputFromStdin() : null,
+        stdinput ? readJSONFromStdin() : null,
 
         (async ()=>{
             if (startDate || endDate){

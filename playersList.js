@@ -3,7 +3,7 @@ import { EventListParser } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { unmuteStdout, muteStdout, readJSONAsync } from "./include/lib/jsUtil.js";
+import { unmuteStdout, muteStdout, readJSONInput } from "./include/lib/jsUtil.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
@@ -55,7 +55,7 @@ if (mains){
         console.error("Main characters info was requested, but neither a game slug (-g) or a game characters filename (-G) were specified. Exiting.");
         process.exit(1)
     }
-    characters = gamefile ? await readJSONAsync(gamefile) : await getVideogameCharacters(client, game, limiter);
+    characters = gamefile ? await readJSONInput(gamefile) : await getVideogameCharacters(client, game, limiter);
     if (characters){
         characters = characters.reduce((prev, {id, name}) => {prev[id] = name ; return prev}, {});
     } else {

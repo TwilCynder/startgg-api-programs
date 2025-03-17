@@ -1,5 +1,9 @@
 import fs from 'fs/promises'
 
+function didTheyMeanStdin(name){
+    return name == "@stdin";
+} 
+
 /**
  * Reads data from stdin once
  * @returns {Promise<string>}
@@ -23,14 +27,8 @@ function readFromStdin(){
  * Fetches a text input either from the given file or the standard input
  * @param {string} inputFile
  */
-async function loadInputText(inputFile){
-    let rawText;
-    if (inputFile){
-        rawText = await fs.readFile(inputFile).then(buf => buf.toString());
-    } else {
-        rawText = await readFromStdin();
-    }
-    return rawText;
+export async function readText(inputFile){
+    return await (didTheyMeanStdin() ? readFromStdin() : fs.readFile(inputFile).then(buf => buf.toString('utf-8')))
 }
 
 /**
@@ -38,12 +36,12 @@ async function loadInputText(inputFile){
  * @param {string} inputFile 
  * @returns 
  */
-export async function loadInput(inputFile){
-    let text = await loadInputText(inputFile);
+export async function readJSONInput(inputFile){
+    let text = await readText(inputFile);
     return JSON.parse(text);
 }
 
-export async function loadInputFromStdin(){
+export async function readJSONFromStdin(){
     let text = await readFromStdin();
     return JSON.parse(text);
 }

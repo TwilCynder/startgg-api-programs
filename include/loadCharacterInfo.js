@@ -1,5 +1,5 @@
 import fs, { writeFileSync } from 'fs';
-import { readJSONAsync } from './lib/jsUtil.js';
+import { readJSONInput } from './lib/jsUtil.js';
 import { getVideogameCharacters } from './getVideogameCharacters.js';
 
 function convertCharsList(list){
@@ -14,7 +14,7 @@ export async function loadCharacterInfo(filename, client, limiter, slug, writeIf
 
     if (filename){
         if (fs.existsSync(filename)){
-            return convertCharsList(await readJSONAsync(filename));
+            return convertCharsList(await readJSONInput(filename));
         }
     }
 

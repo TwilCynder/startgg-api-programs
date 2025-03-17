@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { readText } from './loadInput';
 
 /**
  * Reads all lines of a file into an array
@@ -14,8 +15,7 @@ export function readLines(filename){
  * @param {string} filename 
  */
 export function readLinesAsync(filename){
-    return fs.promises.readFile(filename)
-        .then(buf => buf.toString('utf-8').replace(/\r/g, '').split('\n'));
+    return readText(filename).then(text => replace(/\r/g, '').split('\n'));
 }
 
 /**
@@ -27,11 +27,6 @@ export function readLinesInFiles(filenames){
         return readLinesAsync(filename).catch("Coundl't read provided filename " + filename)
             .then(lines => lines.filter(line => !!line))
     })).then(lists => lists.flat())
-}
-
-export async function readJSONAsync(filename){
-    return fs.promises.readFile(filename)
-        .then(buf => JSON.parse(buf))
 }
 
 function processObjectPath(path){

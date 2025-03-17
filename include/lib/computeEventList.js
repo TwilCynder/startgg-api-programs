@@ -38,7 +38,7 @@ export function addEventParsersSwitchable(am){
     addFileEventListParser(am);
 }
 
-export async function readEventLists(currentList, filenames){
+export async function readEventLists(currentList, filenames, stdinput){
     let events = (await readLinesInFiles(filenames))
         .filter(ev => !!ev)
         .map(ev => {

@@ -6,7 +6,7 @@ import { output, outputJSON, readMultimodalInput } from "./include/lib/util.js";
 import { processMain } from "./include/getMain.js";
 import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 import { getVideogameCharacters } from "./include/getVideogameCharacters.js";
-import { muteStdout, readJSONAsync, unmuteStdout } from "./include/lib/jsUtil.js";
+import { muteStdout, readJSONInput, unmuteStdout } from "./include/lib/jsUtil.js";
 
 let {slugs, inputfile, stdinput, number, game, gamefile, percentages, outputFormat, outputfile, logdata, printdata, silent, all} = new ArgumentsManager()
     .setAbstract("Data expected as input : result of downloadUserSetsChars -i")
@@ -29,7 +29,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let users = await readMultimodalInput(inputfile, stdinput, getUsersSetsChars(client, slugs, null, {max, includeWholeQuery: true}));
-let characters = gamefile ? await readJSONAsync(gamefile) : await getVideogameCharacters(client, game, null);
+let characters = gamefile ? await readJSONInput(gamefile) : await getVideogameCharacters(client, game, null);
 
 if (max){
     users.forEach(user => {
