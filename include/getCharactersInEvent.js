@@ -3,7 +3,7 @@ import { readSchema } from './lib/util.js';
 import { getSetsInEvent, getSetsInEvents, reduceSetsInEvents } from './getSetsInEvents.js';
 import { processSets } from './processCharacterStats.js';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacter.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacterOnly.txt");
 const query = new Query(schema, 3);
 
 query.log = {

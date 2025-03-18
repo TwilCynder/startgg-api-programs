@@ -8,6 +8,31 @@ query EventStandingsQuery($slug: String!, $page: Int, $perPage: Int) {
                         selectionValue
                     }
                 }
+                slots {
+                    entrant {
+                        id
+                        name
+                        participants {
+                            player {
+                                id
+                                gamerTag
+                            }
+                            user {
+                                slug
+                            }
+                        }
+                        seeds {
+                            seedNum
+                        }
+                    }
+                    standing {
+                        stats {
+                            score {
+                                value
+                            }
+                        }
+                    }
+                }
             }
         }
     }

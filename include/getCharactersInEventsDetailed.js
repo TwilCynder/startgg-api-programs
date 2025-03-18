@@ -3,7 +3,7 @@ import { readSchema } from './lib/util.js';
 import { getSetsInEvent, getSetsInEvents, reduceSetsInEvents } from './getSetsInEvents.js';
 import { processSets } from './processCharacterStats.js';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacterDetailed.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacter.txt");
 const query = new Query(schema, 3);
 
 query.log = {
@@ -29,7 +29,6 @@ export async function getCharsDetailedInEvents(client, slugs, limiter, updateFun
         if (!sets) return chars;
         return processSets(chars, sets, updateFunction);
     }, {}, limiter)
-    console.log(chars);
 
     return chars;
 }

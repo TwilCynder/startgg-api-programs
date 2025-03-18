@@ -1,0 +1,14 @@
+query EventStandingsQuery($slug: String!, $page: Int, $perPage: Int) {
+    event(slug: $slug) {
+        sets  (page: $page, perPage: $perPage)  {
+            nodes {
+                games {
+                    winnerId
+                    selections {
+                        selectionValue
+                    }
+                }
+            }
+        }
+    }
+}
