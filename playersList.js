@@ -12,7 +12,7 @@ import { getUserSetsChars } from "./include/getUserSetsChars.js";
 import { processMain } from "./include/getMain.js";
 import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
-import { getVideogameCharacters } from "./include/getVideogameCharacters.js";
+import { getVideogameContent } from "./include/getVideogameContent.js";
 
 let {list, extended, mains, minimum, game, gamefile, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "list")
@@ -55,7 +55,7 @@ if (mains){
         console.error("Main characters info was requested, but neither a game slug (-g) or a game characters filename (-G) were specified. Exiting.");
         process.exit(1)
     }
-    characters = gamefile ? await readJSONInput(gamefile) : await getVideogameCharacters(client, game, limiter);
+    characters = gamefile ? await readJSONInput(gamefile) : await getVideogameContent(client, game, limiter);
     if (characters){
         characters = characters.reduce((prev, {id, name}) => {prev[id] = name ; return prev}, {});
     } else {

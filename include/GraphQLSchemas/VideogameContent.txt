@@ -4,5 +4,9 @@ query VieogameChars($slug: String!) {
       id
       name
     }
+    stages {
+      id
+      name
+    }
   }
 }

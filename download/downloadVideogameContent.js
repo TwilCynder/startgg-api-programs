@@ -6,7 +6,8 @@ import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
 import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
-import { getVideogameCharacters } from "../include/getVideogameCharacters.js";
+import { getVideogameContent } from "../include/getVideogameContent.js";
+import { loadVideogameContent } from "../include/loadVideogameContent.js";
 
 let {game, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .addParameter("game")
@@ -20,7 +21,7 @@ let silent_ = isSilent(printdata, silent)
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await getVideogameCharacters(client, game, limiter);
+let data = await loadVideogameContent(null, client, limiter, game);
 limiter.stop();
 
 if (silent_){

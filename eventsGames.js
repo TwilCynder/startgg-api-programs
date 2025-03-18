@@ -1,7 +1,6 @@
 import { EventListParser } from './include/lib/computeEventList.js'
 import { getCharsInSets, getSetsCharsInEvents } from './include/getCharactersInEvent.js';
 import { client } from './include/lib/client.js';
-import { loadCharacterInfo } from './include/loadCharacterInfo.js';
 import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
 import { output, readMultimodalInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from './include/lib/queryLimiter.js';

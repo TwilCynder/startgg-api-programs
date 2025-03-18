@@ -1,7 +1,8 @@
 import { client } from "./include/lib/client.js";
-import { getCharacters } from "./include/getVideogameCharacters.js";
-import {Parser, parseArguments, OutputModeParser} from '@twilcynder/arguments-parser'
+import { getVideogameContent } from "./include/getVideogameContent.js";
+import {Parser, parseArguments, OutputModeParser, ArgumentsManager} from '@twilcynder/arguments-parser'
 import fs from 'fs'
+import { addOutputParamsBasic } from "./include/lib/paramConfig.js";
 
 let [outputMode, slug] = parseArguments(process.argv.slice(2), 
     new OutputModeParser("log"),
@@ -13,12 +14,15 @@ let [outputMode, slug] = parseArguments(process.argv.slice(2),
     }
 )
 
+let {characters, stages, outputfile, printdata, silent} = new ArgumentsManager()
+    .apply(addOutputParamsBasic)
+
 if (!slug){
     console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " slug [-o file]");
     process.exit(1);
 }
 
-let result = await getCharacters(client, slug)
+let result = await getVideogameContent(client, slug)
 
 if (!result) {
     console.error("No result, request failed");

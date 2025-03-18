@@ -2,7 +2,7 @@ import { EventListParser } from './include/lib/computeEventList.js'
 import { getSetsCharsDetailedInEvents } from './include/getCharactersInEventsDetailed.js';
 import { getCharsStatsInSets, getUpdateFunction } from './include/processCharacterStats.js';
 import { client } from './include/lib/client.js';
-import { loadCharacterInfo } from './include/loadCharacterInfo.js';
+import { loadCharactersInfo } from './include/loadVideogameContent.js';
 import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
 import { output, readMultimodalInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from './include/lib/queryLimiter.js';
@@ -52,7 +52,7 @@ try {
 
     let [data, charNames] = await Promise.all([
         readMultimodalInput(inputfile, stdinput, getSetsCharsDetailedInEvents(client, events, limiter)),
-        loadCharacterInfo(charactersInfoFilename, client, limiter, gameSlug, true)
+        loadCharactersInfo(charactersInfoFilename, client, limiter, gameSlug, true)
     ])
 
     limiter.stop();
