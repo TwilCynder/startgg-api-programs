@@ -8,9 +8,8 @@ import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
 import { getPlayerName } from "./include/getPlayerName.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { muteStdout, readJSONInput, unmuteStdout } from "./include/lib/jsUtil.js";
-import { readJSONFromStdin } from "./include/lib/loadInput.js";
-import { output } from "./include/lib/util.js";
+import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { output, readMultimodalInput } from "./include/lib/util.js";
 
 let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, names, number, min_sets} = new ArgumentsManager()
     .apply(addEventParsers)
@@ -29,18 +28,10 @@ eventSlugs = await readEventLists(eventSlugs, eventsFilenames)
 
 let limiter = new StartGGDelayQueryLimiter();
 
-let data = await Promise.all([
-    inputfile ? 
-        readJSONInput(inputfile).catch(err => {
-            console.warn(`Could not open file ${inputfile} : ${err}`)
-            return [];
-        }) 
-    : null,
-    stdinput ? readJSONFromStdin() : null,
-    slugs.length > 0 ?
-        getEventsSetsBasic(client, eventSlugs, limiter)
-    : null
-])
+let data = await readMultimodalInput(inputfile, stdinput, 
+    slugs.length > 0 ? getEventsSetsBasic(client, eventSlugs, limiter): null
+)
+
 data = data.reduce( (prev, curr) => {
     return curr ? prev.concat(curr) : prev;
 }, []);

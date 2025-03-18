@@ -7,9 +7,7 @@ import { addEventParsersSwitchable, readEventLists, SwitchableEventListParser } 
 import { muteStdout, readJSONInput, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { getEventsResults } from "./include/getEventResults.js";
-import { readJSONFromStdin } from "./include/lib/loadInput.js";
-import { output } from "./include/lib/util.js";
-import { loadGames } from "./include/loadGames.js";
+import { output, readMultimodalInput } from "./include/lib/util.js";
 import { filterEvents } from "./include/filterEvents.js";
 import { fetchUsersStandings, tryReadUsersFile } from "./include/fetchUserEvents.js";
 
@@ -41,21 +39,11 @@ let limiter = new StartGGDelayQueryLimiter;
 
 let [users, eventsStandings] = await Promise.all([
     User.createUsersMultimodal(client, usersSlugs, limiter, userDataFile),
-    Promise.all([
-        inputfile ? readJSONInput(inputfile).catch(err => {
-            console.warn(`Could not open file ${inputfile} : ${err}`)
-            return [];
-        }) : null,
-        stdinput ? readJSONFromStdin() : null,
-
-        (async ()=>{
-            if (startDate || endDate){
-                return await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, games, minEntrants});
-            } else {
-                return await getEventsResults(client, events, undefined, limiter);
-            }
-        })()
-    ]).then(results => results.reduce((previous, current) => current ? previous.concat(current) : previous, []))
+    readMultimodalInput(inputfile, stdinput, 
+        (startDate || endDate) ? 
+        fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, games, minEntrants}) :
+        getEventsResults(client, events, undefined, limiter)
+    ),
 ])
 
 limiter.stop();

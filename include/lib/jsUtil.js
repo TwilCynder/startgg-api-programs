@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { readText } from './loadInput';
+import { readText } from './loadInput.js';
 
 /**
  * Reads all lines of a file into an array
