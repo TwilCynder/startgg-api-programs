@@ -3,6 +3,8 @@ import { Parser, parseArguments, argsLeft, ArgumentsManager } from "@twilcynder/
 import { readLines, readLinesAsync, readLinesInFiles, splitWhitespace } from "./jsUtil.js";
 import { extractSlug } from "./tournamentUtil.js";
 
+//tout ça reste ici
+
 /**
  * @param {string[]} argList 
  * @returns 

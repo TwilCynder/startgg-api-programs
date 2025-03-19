@@ -1,5 +1,7 @@
 //i am a god of JS
 
+//voir la diff avec la version de sgghelper ?
+
 import { GraphQLClient } from "graphql-request";
 
 export class TimedQuerySemaphore {

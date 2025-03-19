@@ -3,6 +3,8 @@ import { readJSONFromStdin } from './loadInput.js';
 import { readJSONInput, readLinesAsync, toJSON } from './jsUtil.js';
 import { relurl } from "./dirname.js"
 
+//scriptutil
+
 export function readSchema(source, filename){
     return fs.readFileSync(relurl(source, filename), {encoding: "utf-8"});
 }

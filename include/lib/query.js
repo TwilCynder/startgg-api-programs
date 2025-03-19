@@ -2,6 +2,8 @@ import { GraphQLClient } from 'graphql-request';
 import { deep_get, deep_set } from './jsUtil.js';
 import { TimedQuerySemaphore } from './queryLimiter.js'
 
+//voir la diff avec la version de sgghelper ?
+
 export class Query {
     #schema;
     #maxTries;

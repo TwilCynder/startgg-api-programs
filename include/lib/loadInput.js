@@ -1,5 +1,7 @@
 import fs from 'fs/promises'
 
+//ça on renomme fileutil
+
 function didTheyMeanStdin(name){
     return name == "@stdin";
 } 

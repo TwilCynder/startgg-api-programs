@@ -8,7 +8,7 @@ import { readText } from './loadInput.js';
  */
 export function readLines(filename){
     return fs.readFileSync(filename).toString('utf-8').replaceAll(/\r/g, '').split('\n');
-}
+}//fileutil
 
 /**
  * Reads all line of a file into an array
@@ -40,7 +40,7 @@ function processObjectPath(path){
         }
     }
     return path;
-}
+}//jsutil
 
 /**
  * 
@@ -101,12 +101,12 @@ export function parseCSV(text, options){
         text.split(options.delimiter);
 
     return lines.filter(line => !!line).map(line => line.trim().split(options.separator));
-}
+}//scriptsutil
 
 let currentID = 1;
 export function generateUniqueID(){
     return currentID++;
-}
+}//jsutil
 
 /**
  * 
@@ -136,7 +136,7 @@ let write = process.stdout.write;
 
 export function muteStdout(){
     process.stdout.write = ()=>{};
-}
+}//scriptutil
 
 export function unmuteStdout(){
     process.stdout.write = write;
@@ -149,7 +149,7 @@ export function unmuteStdout(){
  */
 export function toJSON(data, pretty){
     return JSON.stringify(data, null, pretty ? 4 : undefined);
-}
+}//jsutil
 
 export function isNumber(n){
     return typeof n == "number";
