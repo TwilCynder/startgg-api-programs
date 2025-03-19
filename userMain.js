@@ -5,8 +5,10 @@ import { client } from "./include/lib/client.js";
 import { output, outputJSON, readMultimodalInput } from "./include/lib/util.js";
 import { processMain } from "./include/getMain.js";
 import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
-import { getVideogameCharacters } from "./include/getVideogameCharacters.js";
+import { getVideogameContent } from "./include/getVideogameContent.js";
 import { muteStdout, readJSONInput, unmuteStdout } from "./include/lib/jsUtil.js";
+import { loadCharactersInfo } from "./include/loadVideogameContent.js";
+import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
 let {slugs, inputfile, stdinput, number, game, gamefile, percentages, outputFormat, outputfile, logdata, printdata, silent, all} = new ArgumentsManager()
     .setAbstract("Data expected as input : result of downloadUserSetsChars -i")
@@ -28,17 +30,15 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
 
+let limiter = new StartGGDelayQueryLimiter()
 let users = await readMultimodalInput(inputfile, stdinput, getUsersSetsChars(client, slugs, null, {max, includeWholeQuery: true}));
-let characters = gamefile ? await readJSONInput(gamefile) : await getVideogameCharacters(client, game, null);
+let characters = loadCharactersInfo(gamefile, client, limiter, game);
+limiter.stop();
 
 if (max){
     users.forEach(user => {
         user.data.sets = user.data.sets.slice(0, max);
     })
-}
-
-if (characters){
-    characters = characters.reduce((prev, {id, name}) => {prev[id] = name ; return prev}, {});
 }
 
 let result = users.map(user => {

@@ -1,8 +1,19 @@
 import { readJSONInput } from './lib/loadInput.js';
 import { getVideogameContent } from './getVideogameContent.js';
 import { existsSync, writeFile } from 'fs';
+import { GraphQLClient } from 'graphql-request';
+import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
-export async function loadVideogameContent(filename, client, limiter, slug, writeIfNeeded){
+/**
+ * Returns an object containing characters and stages data for a given game, reading from a file if it exists, and writing to it if it didn't
+ * @param {string} filename 
+ * @param {GraphQLClient} client 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {string} slug 
+ * @param {boolean} writeIfNeeded 
+ * @returns 
+ */
+export async function loadVideogameContent(filename, client, limiter, slug, writeIfNeeded = true){
     //INSERT BETTER CACHE SYSTEM HERE
     let data;
     if (filename){
@@ -39,12 +50,30 @@ export async function loadVideogameContent(filename, client, limiter, slug, writ
     return data;
 }
 
-export async function loadCharactersInfo(filename, client, limiter, slug, writeIfNeeded){
+/**
+ * Returns characters data for a given game, reading from a file if it exists, and writing to it if it didn't
+ * @param {string} filename 
+ * @param {GraphQLClient} client 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {string} slug 
+ * @param {boolean} writeIfNeeded 
+ * @returns 
+ */
+export async function loadCharactersInfo(filename, client, limiter, slug, writeIfNeeded = true){
     let data = await loadVideogameContent(filename, client, limiter, slug, writeIfNeeded);
     return data ? data.characters : null;
 }
 
-export async function loadStagedInfo(filename, client, limiter, slug, writeIfNeeded){
+/**
+ * Returns stages data for a given game, reading from a file if it exists, and writing to it if it didn't
+ * @param {string} filename 
+ * @param {GraphQLClient} client 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {string} slug 
+ * @param {boolean} writeIfNeeded 
+ * @returns 
+ */
+export async function loadStagedInfo(filename, client, limiter, slug, writeIfNeeded = true){
     let data = await loadVideogameContent(filename, client, limiter, slug, writeIfNeeded);
     return data ? data.stages : null;
 }

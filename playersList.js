@@ -13,6 +13,7 @@ import { processMain } from "./include/getMain.js";
 import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 import { getVideogameContent } from "./include/getVideogameContent.js";
+import { loadCharactersInfo } from "./include/loadVideogameContent.js";
 
 let {list, extended, mains, minimum, game, gamefile, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "list")
@@ -51,17 +52,7 @@ let users = minimum ?
 
 let characters;
 if (mains){
-    if (!gamefile && !game){
-        console.error("Main characters info was requested, but neither a game slug (-g) or a game characters filename (-G) were specified. Exiting.");
-        process.exit(1)
-    }
-    characters = gamefile ? await readJSONInput(gamefile) : await getVideogameContent(client, game, limiter);
-    if (characters){
-        characters = characters.reduce((prev, {id, name}) => {prev[id] = name ; return prev}, {});
-    } else {
-        console.error("Characters couldn't be loaded.");
-        process.exit(2);
-    }
+    characters = loadCharactersInfo(gamefile, client, limiter, game, true);
 
     await Promise.all(users.map(async user => {
         let data = await getUserSetsChars(client, user.id, limiter, {max: 60, includeWholeQuery: true});
