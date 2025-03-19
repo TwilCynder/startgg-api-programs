@@ -5,8 +5,8 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 
-import { muteStdout, readLinesAsync, unmuteStdout } from "../include/lib/jsUtil.js";
-import { addOutputParamsBasic, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
+import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
+import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON, readUsersFile} from "../include/lib/util.js";
 import { getUsersInfoExtended } from "../include/getUserInfoExtended.js";
 

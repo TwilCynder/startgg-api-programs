@@ -1,7 +1,5 @@
 import fs from 'fs/promises'
 
-//ça on renomme fileutil
-
 function didTheyMeanStdin(name){
     return name == "@stdin";
 } 
@@ -46,4 +44,32 @@ export async function readJSONInput(inputFile){
 export async function readJSONFromStdin(){
     let text = await readFromStdin();
     return JSON.parse(text);
+}
+
+/**
+ * Reads all lines of a file into an array
+ * @param {string} filename 
+ * @returns {string[]}
+ */
+export function readLines(filename){
+    return fs.readFileSync(filename).toString('utf-8').replaceAll(/\r/g, '').split('\n');
+}
+
+/**
+ * Reads all line of a file into an array
+ * @param {string} filename 
+ */
+export function readLinesAsync(filename){
+    return readText(filename).then(text => replace(/\r/g, '').split('\n'));
+}
+
+/**
+ * @param {any[]} currentList 
+ * @param {string[]} filenames 
+ */
+export function readLinesInFiles(filenames){
+    return Promise.all(filenames.map(filename => {
+        return readLinesAsync(filename).catch("Coundl't read provided filename " + filename)
+            .then(lines => lines.filter(line => !!line))
+    })).then(lists => lists.flat())
 }

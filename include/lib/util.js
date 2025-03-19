@@ -1,6 +1,7 @@
 import fs from 'fs';
-import { readJSONFromStdin } from './loadInput.js';
-import { readJSONInput, readLinesAsync, toJSON } from './jsUtil.js';
+import { readJSONFromStdin } from './readUtil.js';
+import { toJSON } from './jsUtil.js';
+import { readJSONInput, readLinesAsync } from './readUtil.js';
 import { relurl } from "./dirname.js"
 
 //scriptutil

@@ -1,12 +1,12 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { muteStdout, readLines, unmuteStdout } from "../include/lib/jsUtil.js";
+import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
 import { addEventQueryFilterParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 import { fetchUsersStandings } from "../include/fetchUserStandings.js";
-import { loadGames } from "../include/loadGames.js";
+import { readLines } from "../include/lib/readUtil.js";
 
 let {userSlugs, filename, startDate, endDate, eventSlugs, eventsFilenames, games, minEntrants, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments.")

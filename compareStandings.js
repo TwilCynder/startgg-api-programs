@@ -4,7 +4,7 @@ import * as SC from "./include/computeStandingComparison.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, doWeLog, isSilent } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
-import { muteStdout, readJSONInput, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
+import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";

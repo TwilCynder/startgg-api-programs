@@ -1,4 +1,4 @@
-import { readJSONInput } from './lib/loadInput.js';
+import { readJSONInput } from './lib/readUtil.js';
 import { getVideogameContent } from './getVideogameContent.js';
 import { existsSync, writeFile } from 'fs';
 import { GraphQLClient } from 'graphql-request';

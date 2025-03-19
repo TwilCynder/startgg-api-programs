@@ -1,9 +1,9 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventFilterParams, addInputParams, addOutputParams, addUsersParams, doWeLog } from "./include/lib/paramConfig.js";
-import { deep_get, muteStdout, readJSONInput, readLines, unmuteStdout } from "./include/lib/jsUtil.js";
+import { deep_get, muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import { output, readMultimodalInput, readUsersFile } from "./include/lib/util.js";
+import { output, readMultimodalInput } from "./include/lib/util.js";
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";

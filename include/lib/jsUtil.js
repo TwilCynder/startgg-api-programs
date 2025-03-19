@@ -1,34 +1,3 @@
-import fs from 'fs';
-import { readText } from './loadInput.js';
-
-/**
- * Reads all lines of a file into an array
- * @param {string} filename 
- * @returns {string[]}
- */
-export function readLines(filename){
-    return fs.readFileSync(filename).toString('utf-8').replaceAll(/\r/g, '').split('\n');
-}//fileutil
-
-/**
- * Reads all line of a file into an array
- * @param {string} filename 
- */
-export function readLinesAsync(filename){
-    return readText(filename).then(text => replace(/\r/g, '').split('\n'));
-}
-
-/**
- * @param {any[]} currentList 
- * @param {string[]} filenames 
- */
-export function readLinesInFiles(filenames){
-    return Promise.all(filenames.map(filename => {
-        return readLinesAsync(filename).catch("Coundl't read provided filename " + filename)
-            .then(lines => lines.filter(line => !!line))
-    })).then(lists => lists.flat())
-}
-
 function processObjectPath(path){
     path = path=path.split('.');
     for (let i = 0; i < path.length; i++){

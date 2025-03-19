@@ -1,7 +1,8 @@
 
 import { Parser, parseArguments, argsLeft, ArgumentsManager } from "@twilcynder/arguments-parser";
-import { readLines, readLinesAsync, readLinesInFiles, splitWhitespace } from "./jsUtil.js";
+import { splitWhitespace } from "./jsUtil.js";
 import { extractSlug } from "./tournamentUtil.js";
+import { readLinesInFiles } from "./readUtil.js";
 
 //tout ça reste ici
 

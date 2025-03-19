@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { readLines } from '../include/lib/jsUtil.js';
+import { readLines } from '../include/lib/readUtil';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
 
 let {rankingsFilename, rankingSize, outputFile, tiers} = new ArgumentsManager()

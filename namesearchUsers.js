@@ -1,7 +1,7 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import fs from "fs/promises"
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import { readLinesAsync } from "./include/lib/jsUtil.js";
+import { readLinesAsync } from "./include/lib/readUtil.js";
 import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "./include/lib/common.js";
 import { addInputParams } from "./include/lib/paramConfig.js";
