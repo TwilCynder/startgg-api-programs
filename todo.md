@@ -1,4 +1,3 @@
-- std input pour les download scripts (genre prendre les listes de slugs sur stdin quand possible)
 - système de cache pour les infos des jeux
 - Généraliser l'utilisation de extract slugs (events, users, jeux)
 - Trouver un moyen de factoriser les getXXX qui font des trucs simples

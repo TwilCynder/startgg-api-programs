@@ -46,6 +46,16 @@ function addFormatParameter(argumentsManager){
 }
 
 /**
+ * For scripts that can only output processed text.
+ * Added dests : outputfile, printdata, silent, logdata
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addOutputParamsText(argumentsManager){
+    addOutputParamsBasic(argumentsManager);
+    addLogParameter(argumentsManager);
+}
+
+/**
  * Returns a function to pass to .apply  
  * Potential dests : outputfile, printdata, silent, logdata, outputFormat
  * @param {boolean} log 

@@ -4,6 +4,15 @@ import { existsSync, writeFile } from 'fs';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
+function convert(list){
+    let res = {}
+    for (let val of list){
+        res[val.id] = val.name;
+    }
+
+    return res;
+}
+
 /**
  * Returns an object containing characters and stages data for a given game, reading from a file if it exists, and writing to it if it didn't
  * @param {string} filename 
@@ -46,6 +55,9 @@ export async function loadVideogameContent(filename, client, limiter, slug, writ
     if (!data){
         console.warn("Could not load videogame content info");
     }
+
+    if (data.characters) data.characters = convert(data.characters);
+    if (data.stages) data.stages = convert(data.stages);
 
     return data;
 }

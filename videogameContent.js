@@ -1,50 +1,63 @@
 import { client } from "./include/lib/client.js";
-import { getVideogameContent } from "./include/getVideogameContent.js";
 import {Parser, parseArguments, OutputModeParser, ArgumentsManager} from '@twilcynder/arguments-parser'
 import fs from 'fs'
-import { addOutputParamsBasic } from "./include/lib/paramConfig.js";
+import { addOutputParamsBasic, addOutputParamsText, doWeLog } from "./include/lib/paramConfig.js";
+import { loadVideogameContent } from "./include/loadVideogameContent.js";
+import { outputText, outputTextLazy } from "./include/lib/util.js";
+import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
 
-let [outputMode, slug] = parseArguments(process.argv.slice(2), 
-    new OutputModeParser("log"),
-    new class extends Parser {
-        parse(args, i){
-            if (this._state) console.warn("Multiple slugs given; only the last one will be processed");
-            this._state = args[i];
-        }
-    }
-)
+let {game, filename, characters, stages, outputfile, printdata, silent, logdata} = new ArgumentsManager()
+    .apply(addOutputParamsText)
+    .addParameter("game", {description: "start.gg videogame slug (found in a game's page URL)"})
+    .addSwitch(["-c", "--characters"], {description: "Display characters info"})
+    .addSwitch(["-S", "--stages"], {description: "Display stages info"}) 
+    .addSwitch(["-f", "--filename"], {description: "If specified, the program will try to load the data from this file, and write to it if it wasn't"})
+    .parseProcessArguments();
 
-let {characters, stages, outputfile, printdata, silent} = new ArgumentsManager()
-    .apply(addOutputParamsBasic)
+let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
-if (!slug){
-    console.log("Usage : " + process.argv[0] + " " + process.argv[1] + " slug [-o file]");
+if (silent_) muteStdout();
+
+let result = await loadVideogameContent(filename, client, null, game, true);
+
+if (!result) {
+    console.error("Couldn't load videogame data.");
     process.exit(1);
 }
 
-let result = await getVideogameContent(client, slug)
+if (silent_) unmuteStdout();
 
-if (!result) {
-    console.error("No result, request failed");
-    process.exit(2);
-} else if (!result.videogame) {
-    console.error("Videogame not found");
-    process.exit(3);
+if (!characters && !stages) {
+    characters = true;
+    stages = true;
 }
 
-result = result.videogame.characters;
-
-if (outputMode.file){
-    let filename = "./out/" + outputMode.file;
-    let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-
-    file.write(JSON.stringify(result));
+if (logdata_){
+    if (characters){
+        console.log("Characters");
+        for (let [id, char] of Object.entries(result.characters)){
+            console.log("-", char);
+        }
+    }
+    if (stages){
+        console.log("Stages");
+        for (let [id, char] of Object.entries(result.stages)){
+            console.log("-", char);
+        }
+    }
 }
 
-switch (outputMode.stdout){
-    case "log":
-        console.log(result);
-        break;
-    case "string": 
-        console.log(JSON.stringify(result));
-}
+outputTextLazy((data) => {
+    let res = "";
+    if (characters){
+        for (let [id, char] of Object.entries(result.characters)){
+            res += char + '\t' + id
+        }
+    }
+    if (stages){
+        for (let [id, char] of Object.entries(result.stages)){
+            res += char + '\t' + id
+        }
+    }
+    return res;
+}, filename, printdata, result);
