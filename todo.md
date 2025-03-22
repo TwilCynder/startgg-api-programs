@@ -11,3 +11,4 @@
 - Harmonizer le comportement si un event/user n'est pas trouvé 
   - A priori suivre getEntrantsCount.js
 - readme (en cours)
+- ajouter un mode users à stagesStats

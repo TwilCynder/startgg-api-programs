@@ -16,7 +16,7 @@ export function computeEventList(argList){
 }
 
 /**
- * Added dests : eventsFilename
+ * Added dests : eventsFilenames
  * @param {ArgumentsManager} am 
  */
 export function addFileEventListParser(am){
@@ -41,7 +41,7 @@ export function addEventParsersSwitchable(am){
     addFileEventListParser(am);
 }
 
-export async function readEventLists(currentList, filenames, stdinput){
+export async function readEventLists(currentList, filenames){
     let events = (await readLinesInFiles(filenames))
         .filter(ev => !!ev)
         .map(ev => {

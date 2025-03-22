@@ -60,7 +60,7 @@ export function readLines(filename){
  * @param {string} filename 
  */
 export function readLinesAsync(filename){
-    return readText(filename).then(text => replace(/\r/g, '').split('\n'));
+    return readText(filename).then(text => text.replace(/\r/g, '').split('\n'));
 }
 
 /**
@@ -72,4 +72,16 @@ export function readLinesInFiles(filenames){
         return readLinesAsync(filename).catch("Coundl't read provided filename " + filename)
             .then(lines => lines.filter(line => !!line))
     })).then(lists => lists.flat())
+}
+
+export async function stat(filename){
+    try {
+        let stat = await fs.stat(filename);
+        return stat;
+    } catch (err){
+        if (err.code != "ENOENT"){
+            throw err;
+        }
+        return false;
+    }
 }

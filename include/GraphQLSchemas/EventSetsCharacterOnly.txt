@@ -7,6 +7,9 @@ query EventStandingsQuery($slug: String!, $page: Int, $perPage: Int) {
                     selections {
                         selectionValue
                     }
+                    stage {
+                        id
+                    }
                 }
             }
         }

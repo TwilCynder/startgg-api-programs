@@ -11,7 +11,7 @@ let {game, filename, characters, stages, outputfile, printdata, silent, logdata}
     .addParameter("game", {description: "start.gg videogame slug (found in a game's page URL)"})
     .addSwitch(["-c", "--characters"], {description: "Display characters info"})
     .addSwitch(["-S", "--stages"], {description: "Display stages info"}) 
-    .addSwitch(["-f", "--filename"], {description: "If specified, the program will try to load the data from this file, and write to it if it wasn't"})
+    .addOption(["-f", "--filename"], {description: "If specified, the program will try to load the data from this file, and write to it if it wasn't"})
     .parseProcessArguments();
 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
@@ -36,13 +36,13 @@ if (logdata_){
     if (characters){
         console.log("Characters");
         for (let [id, char] of Object.entries(result.characters)){
-            console.log("-", char);
+            console.log("-", char, `(${id})`);
         }
     }
     if (stages){
         console.log("Stages");
         for (let [id, char] of Object.entries(result.stages)){
-            console.log("-", char);
+            console.log("-", char, `(${id})`);
         }
     }
 }
@@ -51,13 +51,13 @@ outputTextLazy((data) => {
     let res = "";
     if (characters){
         for (let [id, char] of Object.entries(result.characters)){
-            res += char + '\t' + id
+            res += char + '\t' + id + '\n'
         }
     }
     if (stages){
         for (let [id, char] of Object.entries(result.stages)){
-            res += char + '\t' + id
+            res += char + '\t' + id + '\n'
         }
     }
     return res;
-}, filename, printdata, result);
+}, outputfile, printdata, result);
