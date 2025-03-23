@@ -12,6 +12,8 @@ let {game, filename, characters, stages, outputfile, printdata, silent, logdata}
     .addSwitch(["-c", "--characters"], {description: "Display characters info"})
     .addSwitch(["-S", "--stages"], {description: "Display stages info"}) 
     .addOption(["-f", "--filename"], {description: "If specified, the program will try to load the data from this file, and write to it if it wasn't"})
+    .enableHelpParameter()
+
     .parseProcessArguments();
 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);

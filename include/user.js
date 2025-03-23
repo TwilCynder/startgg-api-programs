@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 import { aggregateDataPromises } from './lib/util.js';
-import { readJSONInput } from './lib/jsUtil.js';
+import { readJSONInput } from './lib/readUtil.js';
 
 export class User {
 

@@ -12,6 +12,7 @@ let {userSlugs, file, inputfile, stdinput, outputfile, printdata, silent, logdat
     .addSwitch(["-u", "--slug"], {description: "Include slug in output"})
     .apply(addOutputParamsCustom(true, false))
     .apply(addInputParams)
+    .enableHelpParameter()
     
     .parseProcessArguments();
 

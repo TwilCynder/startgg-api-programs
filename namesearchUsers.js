@@ -1,17 +1,18 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import fs from "fs/promises"
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import { readLinesAsync } from "./include/lib/readUtil.js";
+import { readJSONInput, readLinesAsync } from "./include/lib/readUtil.js";
 import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "./include/lib/common.js";
 import { addInputParams } from "./include/lib/paramConfig.js";
 import { addEventParsers, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { readMultimodalInputWrapper } from "./include/lib/util.js";
 
-let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, outputfile, outputFormat} = new ArgumentsManager()
+let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, userDataFile, outputfile, outputFormat} = new ArgumentsManager()
     .apply(addEventParsers)
     .addMultiParameter("names")
     .addOption(["-f", "--names-file"], {dest: "namesfile"})
+    .addOption(["-u", "--user-data-file"], {dest: "userDataFile", description: "File containing user data"})
     .addOption(["-o", "--output-file"], {dest: "outputfile"})
     .addOption("--format", {dest: "outputFormat", default: "txt"})
     .apply(addInputParams)
@@ -20,7 +21,7 @@ let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, outputf
 
 let list = await readEventLists(eventSlugs, eventsFilenames);
 
-let [results] = await Promise.all([
+let [results, userData] = await Promise.all([
     readMultimodalInputWrapper(inputfile, stdinput, async () => {
         if (list && list.length > 0){
             let client = createClient();
@@ -30,6 +31,7 @@ let [results] = await Promise.all([
             return events;
         }
     }),
+    userDataFile ? readJSONInput(userDataFile) : [],
     (async () => {
         if (namesfile){
             try {
@@ -46,6 +48,8 @@ let [results] = await Promise.all([
         }
     })()
 ]) 
+
+results = results.concat(userData);
 
 let users = results.reduce((acc, current) => current ? acc.concat(current) : acc, []);
 
