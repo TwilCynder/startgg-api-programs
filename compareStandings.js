@@ -30,15 +30,12 @@ let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
 
-let [events, usersSlugs] = await Promise.all([
-    readEventLists(eventSlugs, eventsFilenames),
-    tryReadUsersFile(filename, userSlugs)
-])
+let events = readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, eventsStandings] = await Promise.all([
-    User.createUsersMultimodal(client, usersSlugs, limiter, userDataFile),
+    User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
     readMultimodalInput(inputfile, stdinput, 
         (startDate || endDate) ? 
         fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, games, minEntrants}) :

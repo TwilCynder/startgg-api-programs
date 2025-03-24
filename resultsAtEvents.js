@@ -44,12 +44,10 @@ let events = await readEventLists(eventSlugs, eventsFilenames);
 
 //========== LOADING DATA ==============
 
-userSlugs = await tryReadUsersFile(filename, userSlugs);
-
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, data] = await Promise.all([
-    User.createUsersMultimodal(client, userSlugs, limiter, userDataFile),
+    User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
     readMultimodalInput(inputfile, stdinput, 
         (async()=>{
             if (startDate || endDate){

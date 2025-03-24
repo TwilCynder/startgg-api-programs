@@ -3,6 +3,7 @@ import { getUserInfo } from './getUserInfo.js'
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 import { aggregateDataPromises } from './lib/util.js';
 import { readJSONInput } from './lib/readUtil.js';
+import { tryReadUsersFile } from './fetchUserEvents.js';
 
 export class User {
 
@@ -41,9 +42,11 @@ export class User {
         return await Promise.all(slugs.map( (slug) => this.loadUser(client, slug, limiter)))
     }
 
-    static createUsersMultimodal(client, slugs, limiter, datafile){
+    static createUsersMultimodal(client, limiter, slugs, slugsFile, datafile){
         return aggregateDataPromises([
-            this.createUsers(client, slugs, limiter),
+            (async () => {
+                return this.createUsers(client, await tryReadUsersFile(slugsFile, slugs), limiter)
+            })(),
             datafile ? readJSONInput(datafile).catch(err => {
                 throw "Couldn't read specified user data file " + datafile + " : " + err
             }).then(data => data.map(user => new User(user))) : []

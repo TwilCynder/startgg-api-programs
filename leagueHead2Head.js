@@ -8,7 +8,6 @@ import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
-import { tryReadUsersFile } from "./include/fetchUserEvents.js";
 
 let {eventSlugs, eventsFilenames, userSlugs, filename, total, userDataFile, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
     .apply(addUsersParams)
@@ -25,13 +24,12 @@ let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
 
-userSlugs = await tryReadUsersFile(filename, userSlugs);
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, sets] = await Promise.all([
-    User.createUsersMultimodal(client, userSlugs, limiter, userDataFile),
+    User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
     readMultimodalInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter)),
 ])
 

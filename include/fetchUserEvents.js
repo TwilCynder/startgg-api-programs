@@ -40,13 +40,17 @@ export async function fetchUserEvents(client, userSlugs, limiter, config){
     return await getEventsFromUsers(client, userSlugs, limiter, config);
 }
 
+/**
+ * 
+ * @param {string} filename 
+ * @param {string[]} userSlugs 
+ * @returns 
+ */
 export async function tryReadUsersFile(filename, userSlugs){
-    if (filename){
-        try {
-            return await readUsersFile(filename, userSlugs);
-        } catch (err){
-            console.error("Could not read user slugs from file", filename, ":", err);
-            process.exit(1);
-        }
+    try {
+        return await readUsersFile(filename, userSlugs);
+    } catch (err){
+        console.error("Could not read user slugs from file", filename, ":", err);
+        process.exit(1);
     }
 }

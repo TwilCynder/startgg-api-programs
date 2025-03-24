@@ -71,16 +71,21 @@ export function outputTextLazy(textTransform, filename, printdata, data){
     }
 }
 
+/**
+ * 
+ * @param {string} filename 
+ * @param {string[]} existingArray 
+ * @returns 
+ */
 export async function readUsersFile(filename, existingArray){
     if (filename){
         let lines = await readLinesAsync(filename);
         if (lines && lines.length){
             let arr = lines.filter(line => !!line && line != "null" && line != "undefined").map(line => line.trim());
             return (existingArray && existingArray.length) ? existingArray.concat(arr) : arr;
-        }
-    } else {
-        return existingArray;
-    }
+        } 
+    } 
+    return existingArray;
 }
 
 /**
