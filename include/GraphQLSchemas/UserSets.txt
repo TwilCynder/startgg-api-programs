@@ -5,6 +5,7 @@ query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp
                 updatedAfter: $after
             }) {
                 nodes {
+                    id
                     completedAt
                     slots {
                         entrant {

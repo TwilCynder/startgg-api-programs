@@ -14,6 +14,7 @@ query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp
                 updatedAfter: $after
             }) {
                 nodes {
+                    id
                     event {
                         slug
                     }
