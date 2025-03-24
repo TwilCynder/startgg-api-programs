@@ -1,60 +1,97 @@
 import { getEventSetsBasic, getEventsSetsBasic } from "./include/getEventsSets.js";
 
-import { EventListParser } from "./include/lib/computeEventList.js";
-import { OutputModeParser, parseArguments } from "@twilcynder/arguments-parser"; 
+import { addEventParsers, EventListParser, readEventLists } from "./include/lib/computeEventList.js";
+import { ArgumentsManager, OutputModeParser, parseArguments } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 import { getDoubleEliminationUpsetFactorFromSet } from "./include/lib/tournamentUtil.js";
+import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { columns, output, readMultimodalInput } from "./include/lib/util.js";
+import { yellow } from "./include/lib/consoleUtil.js";
 
-let [outputMode, slugs] = parseArguments(process.argv.slice(2), 
-    new OutputModeParser("log", "casseur2bracket"),
-    new EventListParser()
-)
+let {eventSlugs, eventsFilenames, top, min_sets, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+    .apply(addOutputParams)
+    .apply(addInputParams)
+    .apply(addEventParsers)
+    .addOption(["-t", "--top"], {description: "Display the top x players in the logs (does not affect the data output)", default: 3, type: "number"})
+    .addOption("--min-sets", {description: "Minimum amount of sets to be counted in the average spr ranking", default: 20, type: "number", dest: "min_sets"},)
+    .enableHelpParameter()
+
+    .parseProcessArguments()
+
+let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+
+if (silent_) muteStdout();
+
+let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await getEventsSetsBasic(client, slugs, limiter);
+let data = await readMultimodalInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter));
+limiter.stop();
+
+console.log(`Data fetched, ${data.length} sets`);
 
 let players = {}
-function addUpset(user, value, name, opponentName){
-    if (!user) return;
-    console.log("------- ADD --------")
-    console.log(name, opponentName, user.id);
-    let id = user.id;
+let biggestUpsets = {spr: 0, matches: []};
+
+function newPlayer(name, upsets){
+    return {name, upsets : upsets, sets: 1, upsetsPosNb: 0}
+}
+
+function addUpset(player, value, opponentName){
+    if (!player) {
+        console.warn("No player !", opponentName);
+    };
+    let name = player.gamerTag;
+
+    let id = player.id;
     if (players[id]){
         players[id].upsets.push({opponent: opponentName, spr: value});
         players[id].sets++;
     } else {
-        players[id] = {name, upsets : [{opponent: opponentName, spr: value}], sets: 1};
+        players[id] = newPlayer(name, [{opponent: opponentName, spr: value}]);
+    }
+
+    if (value > 0){
+        players[id].upsetsPosNb++;
     }
 }   
 
-function addSet(user, name){
-    if (!user) return;
-    let id = user.id;
+function addSet(player){
+    if (!player) {
+        console.warn("No player !", opponentName);
+    };
+    let name = player.gamerTag;
+
+    let id = player.id;
     if (players[id]){
         players[id].sets++;
     } else {
-        players[id] = {name, upsets: [], sets: 1};
+        players[id] = newPlayer(name, []);
     }
 }
-
-console.log("Data fetched, ${data.length} sets");
 
 for (let set of data){
     let [spr, winner] = getDoubleEliminationUpsetFactorFromSet(set);
 
-    let winnerEntrant = set.slots[winner].entrant;
-    let loserEntrant = set.slots[1 - winner].entrant;
+    let winnerPlayer = set.slots[winner].entrant.participants[0].player;
+    let loserPlayer = set.slots[1 - winner].entrant.participants[0].player;
 
     if (spr > 0){
-        console.log("NON NULL SPR", spr)
-        console.log(set.slots[winner].entrant.name, set.slots[1 - winner].entrant.name);
-        addUpset(winnerEntrant.participants[0].player.user, spr, winnerEntrant.name, loserEntrant.name);
-        addUpset(loserEntrant.participants[0].player.user, -spr, loserEntrant.name, winnerEntrant.name);
+        addUpset(winnerPlayer, spr, loserPlayer.gamerTag);
+        addUpset(loserPlayer, -spr, winnerPlayer.gamerTag);
+
+        if (spr > biggestUpsets.spr){
+            biggestUpsets.spr = spr;
+            biggestUpsets.matches = [{p1: winnerPlayer.gamerTag, p2: loserPlayer.gamerTag}];
+        } else if (spr == biggestUpsets.spr){
+            biggestUpsets.matches.push({p1: winnerPlayer.gamerTag, p2: loserPlayer.gamerTag});
+        }
     } else {
-        addSet(winnerEntrant.participants[0].player.user, winnerEntrant.name);
-        addSet(loserEntrant.participants[0].player.user, loserEntrant.name);
+        addSet(winnerPlayer);
+        addSet(loserPlayer);
     }
 }   
 
@@ -72,51 +109,72 @@ players = Object.entries(players).map( ([id, player]) => {
     return player;
 });
 
-console.log("===== TOTAL VALUE =====")
-players.sort((a, b) => a.total - b.total)
-for (let player of players.slice(-3)){
-    console.log("-------------");
-    console.log(player.name);
-    //console.log(player.upsets);
-    for (let set of player.upsets){
-        console.log(set.opponent, set.spr);
+if (silent_) unmuteStdout();
+
+if (logdata_){
+
+    console.log("======= TOTAL VALUE =======")
+    players.sort((a, b) => a.total - b.total)
+    for (let player of players.slice(-top)){
+        console.log("Player :", player.name);
+        for (let set of player.upsets){
+            console.log("-", set.opponent, set.spr);
+        }
+        console.log("-> Total :", player.total);
     }
-    console.log(player.total);
-}
-
-console.log("===== AVERAGE =====")
-players.sort((a, b) => b.average - a.average);
-let count = 0;
-for (let player of players){
-    if (player.sets < 10) continue;
-    count++;
-    console.log(player.name, player.average, player.upsets.length, player.sets);
-
-    if (count == 5) break;
-}
-
-console.log("===== TOTAL VALUE POSITIVE =====")
-players.sort((a, b) => a.totalPos - b.totalPos)
-for (let player of players.slice(-3)){
-    console.log("-------------");
-    console.log(player.name);
-    //console.log(player.upsets);
-    for (let set of player.upsets){
-        if (set.spr > 0)
-        console.log(set.opponent, set.spr);
+    
+    console.log("===== AVERAGE =====")
+    players.sort((a, b) => b.average - a.average);
+    let count = 0;
+    for (let player of players){
+        if (player.sets < min_sets) continue;
+        count++;
+        console.log(player.name, " ; average SPR : ", yellow(player.average.toFixed(2)), ";", `${yellow(player.upsets.length)} upsets out of ${yellow(player.sets)} matches`)
+    
+        if (count == top) break;
     }
-    console.log(player.totalPos);
+    
+    console.log("===== TOTAL VALUE POSITIVE =====")
+    players.sort((a, b) => a.totalPos - b.totalPos)
+    for (let player of players.slice(-top)){
+        console.log("Player :", player.name);
+        for (let set of player.upsets){
+            if (set.spr > 0) console.log("-", set.opponent, set.spr);
+
+        }
+        console.log("-> Total :", player.total);
+    }
+    
+    console.log("===== AVERAGE POSITIVE =====")
+    players.sort((a, b) => b.averagePos - a.averagePos)
+    count = 0;
+    for (let player of players){
+        if (player.sets < min_sets) continue;
+        count++;
+        console.log(player.name, " ; average SPR : ", yellow(player.averagePos.toFixed(2)), ";", `${yellow(player.upsetsPosNb)} upsets out of ${yellow(player.sets)} matches`)
+    
+        if (count == top) break;
+    }
+
+    console.log("===== BIGGEST UPSETS ======");
+    console.log("SPR :", biggestUpsets.spr);
+    for (let match of biggestUpsets.matches){
+        console.log("-", match.p1, "-", match.p2);
+    }
 }
 
-console.log("===== AVERAGE POSITIVE =====")
-players.sort((a, b) => b.averagePos - a.averagePos)
-count = 0;
-for (let player of players){
-    if (player.sets < 10) continue;
-    count++;
-    console.log(player.name, player.averagePos, player.upsets.length, player.sets);
-
-    if (count == 5) break;
-}
-
-limiter.stop();
+output(outputFormat, outputfile, printdata, players, players => {
+    let res = "";
+    for (let player of players){
+        res += columns(
+            player.name, 
+            player.total, 
+            player.average.toFixed(2), 
+            player.upsets.length, 
+            player.totalPos, 
+            player.averagePos.toFixed(2), 
+            player.upsetsPosNb,
+            player.sets) + '\n';
+    }
+    return res;
+})

@@ -10,6 +10,9 @@ export function readSchema(source, filename){
     return fs.readFileSync(relurl(source, filename), {encoding: "utf-8"});
 }
 
+export function columns(...text){
+    return text.join('\t');
+}
 
 function output_(filename, printdata, resultString){
     if (filename){

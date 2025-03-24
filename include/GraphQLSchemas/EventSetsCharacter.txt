@@ -24,9 +24,7 @@ query EventStandingsQuery($slug: String!, $page: Int, $perPage: Int) {
                                 slug
                             }
                         }
-                        seeds {
-                            seedNum
-                        }
+                        initialSeedNum
                     }
                     standing {
                         stats {

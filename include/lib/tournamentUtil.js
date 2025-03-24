@@ -31,8 +31,6 @@ export function getDoubleEliminationPlacementTier(placement){
 export function getDoubleEliminationUpsetFactorFromSeeds(winnerSeed, loserSeed){
     if (winnerSeed < loserSeed) return 0;
 
-    console.log("NON NULL SPR");
-
     let winnerExpectedTierID, loserExpectedTierID;
 
     for (let i = 0; i < placements.length; i++){
@@ -54,13 +52,13 @@ export function getDoubleEliminationUpsetFactorFromSeeds(winnerSeed, loserSeed){
 export function getDoubleEliminationUpsetFactorFromSet(set){
     let score1 = set.slots[0].standing.stats.score.value;
     let score2 = set.slots[1].standing.stats.score.value;
-    let seed1 = set.slots[0].entrant.seeds.at(-1).seedNum;
-    let seed2 = set.slots[1].entrant.seeds.at(-1).seedNum;
+    let seed1 = set.slots[0].entrant.initialSeedNum;
+    let seed2 = set.slots[1].entrant.initialSeedNum;
 
     if (score1 < 0 || score2 < 0) return [0, 0];
 
-    console.log(set.slots[0].entrant.name, set.slots[1].entrant.name);
-    console.log(score1, score2, seed1, seed2);
+    //console.log(set.slots[0].entrant.name, set.slots[1].entrant.name);
+    //console.log(score1, score2, seed1, seed2);
 
     return (score1 > score2) ? [getDoubleEliminationUpsetFactorFromSeeds(seed1, seed2), 0] : [getDoubleEliminationUpsetFactorFromSeeds(seed2, seed1), 1];
 }
