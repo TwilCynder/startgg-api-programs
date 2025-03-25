@@ -42,6 +42,15 @@ export class User {
         return await Promise.all(slugs.map( (slug) => this.loadUser(client, slug, limiter)))
     }
 
+    /**
+     * 
+     * @param {GraphQLClient} client 
+     * @param {TimedQuerySemaphore} limiter 
+     * @param {string[]} slugs 
+     * @param {string} slugsFile 
+     * @param {string} datafile 
+     * @returns {Promise<User[]>}
+     */
     static createUsersMultimodal(client, limiter, slugs, slugsFile, datafile){
         return aggregateDataPromises([
             (async () => {

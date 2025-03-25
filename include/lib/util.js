@@ -105,8 +105,8 @@ function readInputText(inputfile, stdinput){
 }
 
 /**
- * 
- * @param {(Promise<any[]>?)[]} promises 
+ * @template T
+ * @param {(Promise<T[]>?)[]} promises 
  */
 export function aggregateDataPromises(promises){
     return Promise.all(promises).then(results => results.filter(v=>!!v).flat());

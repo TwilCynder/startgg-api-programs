@@ -7,12 +7,15 @@ import { unmuteStdout, muteStdout } from "./include/lib/jsUtil.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
+import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 
-let {eventSlugs, eventsFilenames, count, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
+    .addOption(["-m", "--minimum"], {description: "Filter users who attended less than this many events", type: "number"})
     .addSwitch(["-c", "--count"], {description: "Output the number of unique entrants"})
+    .addSwitch(["--name"], {description: "Output the name instead of the slug"})
     .enableHelpParameter()
     .parseProcessArguments();
  
@@ -28,7 +31,10 @@ let entrants = await readMultimodalInput(inputfile, stdinput,
 );
 limiter.stop();
 
-let users = processUniqueEntrantsLeague(entrants);
+let users = minimum ? 
+    getSortedAttendanceFromEvents(entrants, true).filter(entrant => entrant.count >= minimum).map(entrant => entrant.user) :
+    processUniqueEntrantsLeague(entrants);
+
 
 if (silent_) unmuteStdout();
 
@@ -37,16 +43,21 @@ if (logdata_){
         console.log(users.length)
     } else {
         for (let user of users){
-            console.log(user);
-            console.log(user.id, user.player.gamerTag);
+            console.log(user.player.gamerTag, user.id);
         }
     }
 }
 
 output(outputFormat, outputfile, printdata, count ? users.length : users, (users) => {
     let resultString = "";
-    for (let user of users){
-        resultString += user.player.gamerTag + "\n";
+    if (name){
+        for (let user of users){
+            resultString += user.player.gamerTag + "\n";
+        }
+    } else {
+        for (let user of users){
+            resultString += user.slug + "\n";
+        }   
     }
     return resultString;
 });

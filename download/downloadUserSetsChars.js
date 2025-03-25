@@ -13,7 +13,7 @@ let {slugs, setscount, includeWholeQuery, outputfile, printdata, silent, prettyj
     .addMultiParameter("slugs")
     .apply(addOutputParamsJSON)
     .addSwitch(["-i", "--include-whole-query"], {description: "Include the whole query hierarchy in the result and not just the sets array. Result will include slug, id, pronouns and location info for the user", dest: "includeWholeQuery"})
-    .addOption(["-S", "--sets-count"], {description: "How many sets should be used to compute this (always take most recent, by default takes all)", dest: "setscount", type: "number"})
+    .addOption(["-S", "--sets-count"], {description: "How many sets to fecth for each user (always take most recent, by default takes all)", dest: "setscount", type: "number"})
     .enableHelpParameter()
     .parseProcessArguments();
 
