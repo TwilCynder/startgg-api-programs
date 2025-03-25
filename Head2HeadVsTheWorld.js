@@ -66,16 +66,13 @@ function find_slug(slugs, slot){
 for (let set of sets){
     let index = null;
     let user = null;
+
     if(user = find_user(users, set.slots[0])) index = 0;
-    if(user = find_user(users, set.slots[1])) index = 1;
+    else if(user = find_user(users, set.slots[1])) index = 1;
 
     if (user){
-        if (user.name == "KID") {
-            console.log(set);
-        }
         let otherSlug = find_slug(world, set.slots[1 - index]);
         if (otherSlug){
-            if (user.name == "KID") console.log("VS OTHER")
             let standing = set.slots[index].standing;
             let score = standing.stats.score.value;
             if (score < 0) continue;
