@@ -14,6 +14,10 @@ export function columns(...text){
     return text.join('\t');
 }
 
+export function columnsln(...text){
+    return columns(...text) + '\n';
+}
+
 function output_(filename, printdata, resultString){
     if (filename){
         let file = fs.createWriteStream(filename, {encoding: "utf-8"});

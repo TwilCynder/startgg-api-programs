@@ -1,9 +1,10 @@
 - système de cache pour les infos des jeux
 - Généraliser l'utilisation de extract slugs (events, users, jeux)
-- Trouver un moyen de factoriser les getXXX qui font des trucs simples
-- généraliser l'utilisation de readMultimodalInputWrapper
 - Mieux séparer les fichiers util (jsUtil/fileUtil/startggUtil/scriptsUtil/tournamentUtil ?)
+- généraliser l'utilisation de columns et yellow
 - Utiliser @twilcynder/startgg-helper
+- - Trouver un moyen de factoriser les getXXX qui font des trucs simples
+- généraliser l'utilisation de readMultimodalInput
 - Harmoniser les formats de data (arrays de standings etc, assurer une constance sur les données quand applicable)
 - Moderniser le truc de events for videogames
 - Faire la version de leaguehead2head qui prend des dates
