@@ -1,31 +1,36 @@
-import { EventListParser } from "./include/lib/computeEventList.js";
-import { OutputModeParser, SingleOptionParser, parseArguments } from "@twilcynder/arguments-parser"; 
+import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
+import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
 
-import fs from 'fs';
-import { Query } from "./include/lib/query.js";
-import { readSchema } from "./include/lib/util.js";
-import { getSetsInEvent } from "./include/getSetsInEvents.js";
+import { output, readMultimodalInput, readSchema } from "./include/lib/util.js";
+import { getEventsSetsGames } from "./include/getEventsSetsGames.js";
+import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { yellow } from "./include/lib/consoleUtil.js";
 
-let [outputMode, inputFile, slugs] = parseArguments(process.argv.slice(2), 
-    new OutputModeParser("log", "casseur2bracket"),
-    new SingleOptionParser("-f"),
-    new EventListParser()
-)
+let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, top, min_sets} = new ArgumentsManager()
+    .apply(addEventParsers)
+    .apply(addInputParams)
+    .apply(addOutputParams)
+    .addSwitch(["-a", "--names"], {description: "Fetch players names (to use in human-readable instead of ID). True by default"})
+    .addOption(["-n", "--number"], {description: "How many players to display in human-readbale result", type: "number"})
+    .addOption(["-m", "--min_sets"], {description: "Minimum number of sets to be included in the results", type: "number", default: 10})
+    .addOption(["-t", "--top"], {description: "Display only this many players"})
+    .enableHelpParameter()
+    .parseProcessArguments();
 
-let data;
+let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+
+if (silent_) muteStdout();
+
+
+let events = await readEventLists(eventSlugs, eventsFilenames);
+
 let limiter = new StartGGDelayQueryLimiter();
-
-if (inputFile){
-    data = fs.readFileSync(inputFile).toString();
-    data = JSON.parse(data);
-    console.log("Finished reading data from file");
-} else {
-    let query = new Query(readSchema(import.meta.url, "../include/GraphQLSchemas/EventSetsGames.txt"))
-    data = await getSetsInEvent(client, query, slugs, limiter);
-}
+let data = await readMultimodalInput(inputfile, stdinput, getEventsSetsGames(client, events, limiter));
+limiter.stop();
 
 function detectReverse(games){
     if (games.length < 5) return false;
@@ -42,34 +47,79 @@ function detectReverse(games){
 
 let players = {}
 
-function addReverse(id){
-    if (players[id]){
-        players[id]++;
-    } else {
-        players[id] = 1
+function addSet(player){
+    if (!player) {
+        console.warn("No player")
+        return
     }
+    let id = player.id;
+    if (players[id]){
+        players[id].sets++;
+    } else {
+        players[id] = {sets: 1, reverses: 0, name: player.gamerTag}
+    }
+}
+
+function addReverse(player){
+    if (!player) {
+        console.warn("No player");
+        return
+    }
+    players[player.id].reverses++;
 }
 
 for (let set of data){
     if (!set.games){
         continue;
     }
-    let reverseId = detectReverse(set.games);
 
+    let p1 = set.slots[0].entrant.participants[0].player;
+    let p2 = set.slots[1].entrant.participants[0].player;
+    addSet(p1);
+    addSet(p2);
+
+    let reverseId = detectReverse(set.games);
     if (reverseId){
         console.log("REVERSE")
-        if (reverseId == set.slots[0].entrant.id) addReverse(set.slots[0].entrant.participants[0].player.id)
-        else if (reverseId == set.slots[1].entrant.id) addReverse(set.slots[1].entrant.participants[0].player.id) 
+
+        if (reverseId == set.slots[0].entrant.id) addReverse(p1)
+        else if (reverseId == set.slots[1].entrant.id) addReverse(p2) 
         else console.error("WINNER ID DOESNT MATCH ANY OF THE ENTRANTS WHAT THE FUCK");
     }
 }
 
 console.log(players);
 
-players = Object.entries(players).sort(([ida, valueA], [idb, valueB]) => valueA - valueB).slice(-10);
+/**
+ * @type {{sets: number, reverses: number, average: number, name: string}[]}
+ */
+let playerList = Object.entries(players).map(([id, player]) => {
+    player.average = player.reverses / player.sets;
+    return player;
+}).filter(player => player.sets > min_sets);
 
-for (let [id, value] of players){
-    console.log(id, value);
+console.log(playerList)
+
+let totalList = playerList.sort((a, b) => b.reverses - a.reverses).slice(0, top);
+let averageList = playerList.sort((a, b) => b.average - a.average).slice(0, top);
+
+if (silent_) unmuteStdout();
+
+if (logdata_){
+    console.log("====== TOTAL ======")
+    for (let player of totalList){
+        console.log(player.name, ":", player.reverses, `(${yellow(player.average.toFixed(2))} average) out of ${yellow(player.sets)}`)
+    }
+    console.log("====== AVERAGE ======")
+    for (let player of averageList){
+        console.log(player.name, ":", yellow(player.average.toFixed(2)), `(${yellow(player.reverses)} total out of ${yellow(player.sets)})`)
+    }
 }
 
-limiter.stop();
+output(outputFormat, outputfile, printdata, playerList, (players) => {
+    let str = "";
+    for (let player of players){
+        str += `${player.name}\t${player.reverses}\t${player.sets}\t${player.average}\n`
+    }
+    return str;
+})

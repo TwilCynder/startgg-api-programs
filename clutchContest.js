@@ -121,6 +121,5 @@ output(outputFormat, outputfile, printdata, playerList, (players) => {
     for (let player of players){
         str += `${player.name}\t${player.slug}\t${player.clutchs}\t${player.sets}\t${player.average}\n`
     }
+    return str;
 })
-
-limiter.stop();
