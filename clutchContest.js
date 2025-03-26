@@ -1,6 +1,6 @@
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 
-import { addEventParsers, EventListParser, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
@@ -10,14 +10,17 @@ import { getPlayerName } from "./include/getPlayerName.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
+import { yellow } from "./include/lib/consoleUtil.js";
 
-let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, names, number, min_sets} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, names, top, min_sets} = new ArgumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
     .addSwitch(["-a", "--names"], {description: "Fetch players names (to use in human-readable instead of ID). True by default"})
     .addOption(["-n", "--number"], {description: "How many players to display in human-readbale result", type: "number"})
     .addOption(["-m", "--min_sets"], {description: "Minimum number of sets to be included in the results", type: "number", default: 10})
+    .addOption(["-t", "--top"], {description: "Display only this many players"})
+    .enableHelpParameter()
     .parseProcessArguments();
 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
@@ -29,22 +32,13 @@ eventSlugs = await readEventLists(eventSlugs, eventsFilenames)
 let limiter = new StartGGDelayQueryLimiter();
 
 let data = await readMultimodalInput(inputfile, stdinput, 
-    slugs.length > 0 ? getEventsSetsBasic(client, eventSlugs, limiter): null
+    eventSlugs.length > 0 ? getEventsSetsBasic(client, eventSlugs, limiter): null
 )
 
 data = data.reduce( (prev, curr) => {
     return curr ? prev.concat(curr) : prev;
 }, []);
 
-/*
-if (inputfile){
-    data = fs.readFileSync(inputfile).toString();
-    data = JSON.parse(data);
-    console.log("Finished reading data from file");
-} else {
-    data = await getEventsSetsBasic(client, slugs, limiter);
-}
-*/
 
 let players = {}
 function addSet(user, clutch){
@@ -80,27 +74,45 @@ for (let set of data){
 let playerList = Object.entries(players).map(([id, player]) => {
     player.average = player.clutchs / player.sets;
     player.slug = id;
+    player.name = id;
     return player;
-}).filter(player => player.sets > min_sets).sort((a, b) => a.average - b.average).slice(-number);
+}).filter(player => player.sets > min_sets);
+
+let totalList = playerList.sort((a, b) => b.clutchs - a.clutchs).slice(0, top);
+let averageList = playerList.sort((a, b) => b.average - a.average).slice(0, top);
+
+//console.log(totalList.length, averageList.length, top);
+
+//process.exit(0);
 
 if (names){
-    await Promise.all(playerList.map(player =>
-        getPlayerName(client, player.slug, limiter).then(name => {
-            player.name = name;
-        })
-    ))
-} else {
-    playerList.forEach(player => player.name = player.slug)
+    if (top){
+        await Promise.all(totalList.concat(averageList).map(player =>
+            getPlayerName(client, player.slug, limiter).then(name => {
+                player.name = name;
+            })
+        ))
+    } else {
+        await Promise.all(playerList.map(player =>
+            getPlayerName(client, player.slug, limiter).then(name => {
+                player.name = name;
+            })
+        ));
+    } 
 }
 
 limiter.stop();
 
-
 if (silent_) unmuteStdout();
 
 if (logdata_){
-    for (let player of playerList){
-        console.log(player.name, player.average.toFixed(2), player.clutchs, player.sets);
+    console.log("====== TOTAL ======")
+    for (let player of totalList){
+        console.log(player.name, ":", player.clutchs, `(${yellow(player.average.toFixed(2))} average) out of ${yellow(player.sets)}`)
+    }
+    console.log("====== AVERAGE ======")
+    for (let player of averageList){
+        console.log(player.name, ":", yellow(player.average.toFixed(2)), `(${yellow(player.clutchs)} total out of ${yellow(player.sets)})`)
     }
 }
 
