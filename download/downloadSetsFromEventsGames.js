@@ -12,6 +12,7 @@ import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
 import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
 import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
+import { getEventSetsGames, getEventsSetsGames } from "../include/getEventsSetsGames.js";
 
 let {eventSlugs, eventsFilenames, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .apply(addEventParsers)
@@ -26,9 +27,8 @@ if (silent_) muteStdout();
 
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
-let query = new Query(readSchema(import.meta.url, "../include/GraphQLSchemas/EventSetsGames.txt"))
 let limiter = new StartGGDelayQueryLimiter();
-let data = await getSetsInEvents(client, query, events, limiter);
+let data = await getEventsSetsGames(client, events, limiter);
 limiter.stop();
 
 if (silent_){
