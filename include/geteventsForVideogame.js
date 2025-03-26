@@ -1,7 +1,7 @@
 import { Query } from './lib/query.js';
 import { readSchema } from './lib/util.js';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrEventsByVideogameantsCount.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrEventsByVideogameantsCount.gql");
 const query = new Query(schema, 3);
 
 const perPage = 100;

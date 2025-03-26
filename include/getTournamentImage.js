@@ -5,7 +5,7 @@ import { GraphQLClient } from "graphql-request";
 import { TimedQuerySemaphore } from "./lib/queryLimiter.js";
 import { deep_get } from './lib/jsUtil.js';
 
-const schemaFilename = "./GraphQLSchemas/TournamentImage.txt";
+const schemaFilename = "./GraphQLSchemas/TournamentImage.gql";
 
 const schema = readFileSync(relurl(import.meta.url, schemaFilename), {encoding: "utf-8"});
 const query = new Query(schema, 3); 

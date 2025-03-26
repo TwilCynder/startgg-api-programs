@@ -2,7 +2,7 @@ import { Query } from './lib/query.js';
 import { getSetsInEvent, getSetsInEvents, getSetsInEventsHashmap} from './getSetsInEvents.js';
 import { readSchema } from './lib/util.js';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsGames.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsGames.gql");
 const query = new Query(schema, 3);
 
 query.log = {

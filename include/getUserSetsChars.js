@@ -3,7 +3,7 @@ import { Query } from './lib/query.js';
 import { readSchema } from './lib/util.js';
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/UserSetsChars.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/UserSetsChars.gql");
 const query = new Query(schema, 3);
 
 query.log = {

@@ -4,7 +4,7 @@ import { deep_get } from './lib/jsUtil.js';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.gql");
 const query = new Query(schema, 3);
 
 query.log = {

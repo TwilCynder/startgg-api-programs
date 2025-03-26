@@ -2,7 +2,7 @@ import { Query } from "./lib/query.js";
 import { readSchema } from './lib/util.js';
 import { deep_get } from './lib/jsUtil.js';
 
-let schema = readSchema(import.meta.url, "./GraphQLSchemas/VideogameID.txt");
+let schema = readSchema(import.meta.url, "./GraphQLSchemas/VideogameID.gql");
 
 let query = new Query(schema, 2)
 query.log = {

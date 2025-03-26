@@ -3,7 +3,7 @@ import { readSchema } from './lib/util.js';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from './lib/queryLimiter.js';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventStanding.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventStanding.gql");
 const query = new Query(schema, 3);
 
 query.log = {

@@ -4,7 +4,7 @@ import { deep_get } from './lib/jsUtil.js';
 
 const DEFAULT_COUNT = 20;
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/LastStandings.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/LastStandings.gql");
 const query = new Query(schema, 3);
 
 query.log = {

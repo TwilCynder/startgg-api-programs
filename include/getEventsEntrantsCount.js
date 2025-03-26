@@ -1,7 +1,7 @@
 import { Query } from './lib/query.js';
 import { readSchema } from './lib/util.js';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrantsCount.txt");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrantsCount.gql");
 const query = new Query(schema, 3);
 
 query.log = {
