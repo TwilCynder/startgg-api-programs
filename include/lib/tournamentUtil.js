@@ -31,7 +31,7 @@ export function getDoubleEliminationPlacementTier(placement){
 export function getDoubleEliminationUpsetFactorFromSeeds(winnerSeed, loserSeed){
     if (winnerSeed < loserSeed) return 0;
 
-    let winnerExpectedTierID, loserExpectedTierID;
+    let winnerExpectedTierID = -1, loserExpectedTierID = -1;
 
     for (let i = 0; i < placements.length; i++){
         if (winnerSeed <= placements[i]) {winnerExpectedTierID = i; break;}
@@ -44,7 +44,7 @@ export function getDoubleEliminationUpsetFactorFromSeeds(winnerSeed, loserSeed){
         } 
     }
 
-    if (!winnerExpectedTierID || !loserExpectedTierID) return undefined;
+    if (!winnerExpectedTierID < 0 || !loserExpectedTierID < 0) return undefined;
 
     return (winnerExpectedTierID - loserExpectedTierID);
 }

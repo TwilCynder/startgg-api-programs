@@ -11,12 +11,13 @@ import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
 import { columns, output, readMultimodalInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
-let {eventSlugs, eventsFilenames, top, min_sets, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, top, min_sets, sprRange, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addOutputParams)
     .apply(addInputParams)
     .apply(addEventParsers)
     .addOption(["-t", "--top"], {description: "Display the top x players in the logs (does not affect the data output)", default: 3, type: "number"})
     .addOption("--min-sets", {description: "Minimum amount of sets to be counted in the average spr ranking", default: 20, type: "number", dest: "min_sets"},)
+    .addOption(["--spr-range"], {description: "Number of SPRs to include in the biggest upset result ; by default, only the top one is displayed", type: "number", dest: "sprRange", default: 1})
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -34,6 +35,8 @@ limiter.stop();
 console.log(`Data fetched, ${data.length} sets`);
 
 let players = {}
+
+if (sprRange < 1) sprRange = 1;
 let biggestUpsets = {spr: 0, matches: []};
 
 function newPlayer(name, upsets){
@@ -74,8 +77,8 @@ function addSet(player){
 }
 
 for (let set of data){
+    //console.log(set.slots[0].entrant.participants[0].player.gamerTag, set.slots[1].entrant.participants[0].player.gamerTag, set.slots[0].standing.stats.score.value, set.slots[1].standing.stats.score.value)
     let [spr, winner] = getDoubleEliminationUpsetFactorFromSet(set);
-
     let winnerPlayer = set.slots[winner].entrant.participants[0].player;
     let loserPlayer = set.slots[1 - winner].entrant.participants[0].player;
 
@@ -83,12 +86,10 @@ for (let set of data){
         addUpset(winnerPlayer, spr, loserPlayer.gamerTag);
         addUpset(loserPlayer, -spr, winnerPlayer.gamerTag);
 
-        if (spr > biggestUpsets.spr){
-            biggestUpsets.spr = spr;
-            biggestUpsets.matches = [{p1: winnerPlayer.gamerTag, p2: loserPlayer.gamerTag}];
-        } else if (spr == biggestUpsets.spr){
-            biggestUpsets.matches.push({p1: winnerPlayer.gamerTag, p2: loserPlayer.gamerTag});
-        }
+        if (spr > biggestUpsets.spr - sprRange){
+            biggestUpsets.matches.push({p1: winnerPlayer.gamerTag, p2: loserPlayer.gamerTag, spr});
+            if (spr > biggestUpsets.spr) biggestUpsets.spr = spr;
+        } 
     } else {
         addSet(winnerPlayer);
         addSet(loserPlayer);
@@ -157,8 +158,15 @@ if (logdata_){
     }
 
     console.log("===== BIGGEST UPSETS ======");
-    console.log("SPR :", biggestUpsets.spr);
+    biggestUpsets.matches.sort((a, b) => b.spr - a.spr);
+    let currentSPR = Infinity
     for (let match of biggestUpsets.matches){
+        let spr = match.spr;
+        if (spr < currentSPR){
+            if (spr < biggestUpsets.spr - sprRange + 1) break;
+            console.log("SPR :", spr);
+            currentSPR = spr;
+        }
         console.log("-", match.p1, "-", match.p2);
     }
 }
