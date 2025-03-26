@@ -109,7 +109,16 @@ function readInputText(inputfile, stdinput){
  * @param {(Promise<T[]>?)[]} promises 
  */
 export function aggregateDataPromises(promises){
-    return Promise.all(promises).then(results => results.filter(v=>!!v).flat());
+    return Promise.all(promises).then(results => 
+        results
+            .map(elt => {
+                if (elt instanceof Array) return elt;
+                else if (elt instanceof Object) return Object.entries(elt);
+                return elt;
+            })
+            .filter(v=>!!v)
+            .flat()
+    );
 }
 
 /**

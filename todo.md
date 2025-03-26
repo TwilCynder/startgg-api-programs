@@ -12,3 +12,4 @@
   - A priori suivre getEntrantsCount.js
 - readme (en cours)
 - ajouter un mode users à stagesStats
+- ajouter un système de range à runContest
