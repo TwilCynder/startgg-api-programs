@@ -1,4 +1,4 @@
-import { EventListParser } from './include/lib/computeEventList.js'
+import { addEventParsers, EventListParser, readEventLists } from './include/lib/computeEventList.js'
 import { getSetsCharsDetailedInEvents } from './include/getCharactersInEventsDetailed.js';
 import { getCharsStatsInSets, getUpdateFunction } from './include/processCharacterStats.js';
 import { client } from './include/lib/client.js';
@@ -10,8 +10,8 @@ import { ArgumentsManager } from '@twilcynder/arguments-parser';
 import { muteStdout, unmuteStdout } from './include/lib/jsUtil.js';
 
 try {
-    let {charactersInfoFilename, gameSlug, processSets, processPlayers, minGamesPlayer, events, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
-        .addCustomParser(new EventListParser, "events")
+    let {charactersInfoFilename, gameSlug, processSets, processPlayers, minGamesPlayer, eventSlugs, eventsFilenames, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+        .apply(addEventParsers)
         .apply(addInputParams)
         .apply(addOutputParams)
         .addOption(["-f", "--characters-filename"], {
@@ -47,6 +47,8 @@ try {
     if (!gameSlug && !charactersInfoFilename){
         throw "Neither <charactersInfoFilename> or <gameSlug> were specified (using -s or -f respectively)"
     }
+
+    let events = await readEventLists(eventSlugs, eventsFilenames);
 
     let limiter = new StartGGDelayQueryLimiter();
 
