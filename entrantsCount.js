@@ -4,7 +4,7 @@ import { getEntrantsCountOverLeague } from "./include/getEntrantsCount.js";
 import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 
-let {eventSlugs, eventsFilenames, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames} = new ArgumentsManager()
     .addSwitch(["-s", "--silent"])
     .apply(addEventParsers)
     .enableHelpParameter()
