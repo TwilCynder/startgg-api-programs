@@ -1,5 +1,5 @@
-import { EventListParser } from './include/lib/computeEventList.js'
-import { getCharsInSets, getSetsCharsInEvents } from './include/getCharactersInEvent.js';
+import { addEventParsers, EventListParser, readEventLists } from './include/lib/computeEventList.js'
+import { getSetsCharsInEvents } from './include/getCharactersInEvent.js';
 import { client } from './include/lib/client.js';
 import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
 import { output, readMultimodalInput } from './include/lib/util.js';
@@ -8,8 +8,8 @@ import { ArgumentsManager } from '@twilcynder/arguments-parser';
 import { muteStdout, unmuteStdout } from './include/lib/jsUtil.js';
 
 try {
-    let {events, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
-        .addCustomParser(new EventListParser, "events")
+    let {eventSlugs, eventsFilenames, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+        .apply(addEventParsers)
         .apply(addInputParams)
         .apply(addOutputParams)
         .enableHelpParameter()
@@ -21,6 +21,7 @@ try {
 
     let limiter = new StartGGDelayQueryLimiter();
 
+    let events = await readEventLists(eventSlugs, eventsFilenames);
     let data = await readMultimodalInput(inputfile, stdinput, getSetsCharsInEvents(client, events, limiter))
 
     limiter.stop();

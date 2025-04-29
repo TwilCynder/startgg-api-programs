@@ -6,6 +6,7 @@ import { updateEntrantsAttendance } from './entrantAttendanceUtilities.js';
 export function getAttendanceFromEvents(events, usersOnly){
     let attendance = {}
     events.map(eventEntrants => {
+        console.log(eventEntrants.slug);
         updateEntrantsAttendance(attendance, eventEntrants.slug ? eventEntrants.entrants : eventEntrants, usersOnly);
     })
     return attendance;

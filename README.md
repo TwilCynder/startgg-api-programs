@@ -15,3 +15,6 @@ Each script has a -h/--help option that can be used to get more information abou
 - `videogameContent.js` : Displays characters and/or stages from a videogame. Requires a videogame slug, which you can find directly on start.gg (in the URL of a videogame's page)
 - `stageStats.js` : Displays stats about stage picks at a set of events.
 - `runContest.js` : Checks who had the longest (loser) run in a set of events.
+- `uniqueEntrants.js` : Computes a list of unique users who entered a set of events
+- `eventsGames.js` : Checks how many games and sets were played at a set of events
+- `eventsCharacters.js` : Computes statistics about characters picked at set of events
