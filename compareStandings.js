@@ -30,7 +30,7 @@ let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
 
-let events = readEventLists(eventSlugs, eventsFilenames);
+let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
 
