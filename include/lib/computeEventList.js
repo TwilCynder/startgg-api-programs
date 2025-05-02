@@ -41,8 +41,14 @@ export function addEventParsersSwitchable(am){
     addFileEventListParser(am);
 }
 
-export async function readEventLists(currentList, filenames){
-    let events = (await readLinesInFiles(filenames))
+/**
+ * @param {string[]} currentList 
+ * @param {string[]} filenames 
+ * @param {boolean} silentErrors 
+ * @returns 
+ */
+export async function readEventLists(currentList, filenames, silentErrors){
+    let events = (await readLinesInFiles(filenames, silentErrors))
         .filter(ev => !!ev)
         .map(ev => {
             if (ev.includes("%")){
