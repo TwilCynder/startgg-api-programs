@@ -58,9 +58,13 @@ export function readLinesAsync(filename){
  * @param {any[]} currentList 
  * @param {string[]} filenames 
  */
-export function readLinesInFiles(filenames){
+export function readLinesInFiles(filenames, silentErrors = false){
     return Promise.all(filenames.map(filename => {
-        return readLinesAsync(filename).catch("Coundl't read provided filename " + filename)
+        return readLinesAsync(filename)
+            .catch(err => {
+                if (!silentErrors) console.error("Coundl't read provided filename " + filename + " :", err);
+                return []
+            })
             .then(lines => lines.filter(line => !!line))
     })).then(lists => lists.flat())
 }
