@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { readLines } from '../include/lib/readUtil.js';
+import { readLinesAsync } from '../include/lib/readUtil.js';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
 
 let {rankingsFilename, rankingSize, outputFile, tiers} = new ArgumentsManager()
@@ -12,7 +12,7 @@ let {rankingsFilename, rankingSize, outputFile, tiers} = new ArgumentsManager()
 
     .parseProcessArguments();
 
-var lines = readLines(rankingsFilename);
+var lines = await readLinesAsync(rankingsFilename);
 
 function mean(vals){
     return vals.reduce((prev, current) => prev + current) / vals.length
