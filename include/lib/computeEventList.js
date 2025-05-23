@@ -1,6 +1,6 @@
 
 import { Parser, parseArguments, argsLeft, ArgumentsManager } from "@twilcynder/arguments-parser";
-import { splitWhitespace } from "./jsUtil.js";
+import { splitWhitespace } from "./util.js";
 import { extractSlug } from "./tournamentUtil.js";
 import { readLinesInFiles } from "./readUtil.js";
 
