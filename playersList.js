@@ -1,9 +1,9 @@
 import { ArgumentsManager, parseArguments } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper-node";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { unmuteStdout, muteStdout, readJSONInput } from "./include/lib/jsUtil.js";
+import { unmuteStdout, muteStdout, readJSONInput } from "startgg-helper-node";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";

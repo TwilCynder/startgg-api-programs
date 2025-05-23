@@ -4,7 +4,7 @@ import { getAttendanceFromEvents } from "./include/getAttendance.js";
 import { addEventParsers, EventListParser, readEventLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper-node";
 import { output } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 

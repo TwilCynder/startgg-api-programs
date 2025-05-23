@@ -1,7 +1,7 @@
 
 import { Parser, parseArguments, argsLeft, ArgumentsManager } from "@twilcynder/arguments-parser";
 import { splitWhitespace } from "./util.js";
-import { extractSlug } from "./tournamentUtil.js";
+import { extractSlug } from "startgg-helper-node";
 import { readLinesInFiles } from "./readUtil.js";
 
 //tout ça reste ici

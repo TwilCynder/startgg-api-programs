@@ -1,4 +1,4 @@
-import { Query } from "./lib/query.js";
+import { Query } from "startgg-helper-node";
 import { readSchema } from './lib/util.js';
 import { deep_get } from './lib/jsUtil.js';
 

@@ -1,5 +1,5 @@
 import { Head2Head, getHead2HeadFromConfirmedSet } from "./head2head.js"
-import { deep_get } from "./lib/jsUtil.js";
+import { deep_get } from "startgg-helper-node";
 import { User } from "./user.js";
 
 /**

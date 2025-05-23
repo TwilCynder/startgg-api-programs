@@ -3,8 +3,8 @@ import { addInputParams, addOutputParamsCustom, doWeLog, isSilent } from "./incl
 import { outputText, outputTextLazy, readMultimodalInput, readUsersFile } from "./include/lib/util.js";
 import { getUsersInfoExtended } from "./include/getUserInfoExtended.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
-import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 let {userSlugs, file, inputfile, stdinput, outputfile, printdata, silent, logdata, slug} = new ArgumentsManager()
     .addMultiParameter("userSlugs")

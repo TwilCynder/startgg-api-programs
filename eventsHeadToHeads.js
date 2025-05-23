@@ -7,7 +7,7 @@ import { EventListParser, computeEventList } from "./include/lib/computeEventLis
 import { getSortedAttendanceOverLeague } from "./include/getAttendance.js";
 import { OutputModeParser, parseArguments } from "@twilcynder/arguments-parser";
 import {  getEventsInfo } from "./include/getEventInfo.js";
-import { StartGGQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGQueryLimiter } from "startgg-helper-node";
 import { leagueHeadToHead } from "./include/leagueHead2Head.js";
 
 try {

@@ -1,9 +1,9 @@
 import { GraphQLClient } from "graphql-request";
 import { readUsersFile } from "./lib/util.js";
-import { TimedQuerySemaphore } from "./lib/queryLimiter.js";
+import { TimedQuerySemaphore } from "startgg-helper-node";
 import { getStandingsFromUsers } from "./getStandingsFromUser.js";
 import { loadGames } from "./loadGames.js";
-import { toUNIXTimestamp } from "./lib/jsUtil.js";
+import { toUNIXTimestamp } from "startgg-helper-node";
 import { getEventsFromUsers } from "./getEventsFromUser.js";
 
 /**

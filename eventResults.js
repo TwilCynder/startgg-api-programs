@@ -1,12 +1,12 @@
 import { getEventsResults } from "./include/getEventResults.js";
 import {client} from "./include/lib/client.js";
-import { muteStdout, splitWhitespace, unmuteStdout } from "./include/lib/jsUtil.js"
-import { extractSlugs } from "./include/lib/tournamentUtil.js"
+import { muteStdout, unmuteStdout } from "startgg-helper-node"
+import { extractSlugs } from "startgg-helper-node"
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper-node";
 import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { output } from "./include/lib/util.js";
+import { output, splitWhitespace } from "./include/lib/util.js";
 import { readLines } from "./include/lib/readUtil.js";
 
 let {replacementsFile, eventsSlugs, outputFormat, outputfile, logdata, printdata, silent, eventName} = new ArgumentsManager()

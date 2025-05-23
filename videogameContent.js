@@ -4,7 +4,7 @@ import fs from 'fs'
 import { addOutputParamsBasic, addOutputParamsText, doWeLog } from "./include/lib/paramConfig.js";
 import { loadVideogameContent } from "./include/loadVideogameContent.js";
 import { outputText, outputTextLazy } from "./include/lib/util.js";
-import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 let {game, filename, characters, stages, outputfile, printdata, silent, logdata} = new ArgumentsManager()
     .apply(addOutputParamsText)
