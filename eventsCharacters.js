@@ -8,9 +8,15 @@ import { output, readMultimodalInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from './include/lib/queryLimiter.js';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
 import { muteStdout, unmuteStdout } from './include/lib/jsUtil.js';
+import { getGamesNbInSets } from './include/getGamesNbInSets.js';
+import { cFormat, yellow } from './include/lib/consoleUtil.js';
 
 try {
-    let {charactersInfoFilename, gameSlug, processSets, processPlayers, minGamesPlayer, eventSlugs, eventsFilenames, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+    let {charactersInfoFilename, gameSlug, 
+        processSets, processPlayers, minGamesPlayer, percentages,
+        eventSlugs, eventsFilenames, inputfile, stdinput, 
+        outputFormat, outputfile, logdata, printdata, silent
+    } = new ArgumentsManager()
         .apply(addEventParsers)
         .apply(addInputParams)
         .apply(addOutputParams)
@@ -22,11 +28,11 @@ try {
             description: "Slug of the videogame to pull character info from. You need to specify either this or charactersInfoFilename.",
             dest: "gameSlug"
         })
-        .addSwitch(["--sets"], {
+        .addSwitch(["-e", "--sets"], {
             description: "Process character stats for sets as well as games",
             dest: "processSets"
         })
-        .addSwitch(["--players"], {
+        .addSwitch(["-P", "--players"], {
             description: "Process character stats for individual players",
             dest: "processPlayers"
         })
@@ -34,6 +40,9 @@ try {
             description: "Minimum number of games for a player to be included in the output",
             dest: "minGamesPlayer",
             type: "number"
+        })
+        .addSwitch(["-r", "--percentages"], {
+            description: "Compute percentages of total games/sets",
         })
         .enableHelpParameter()
         .parseProcessArguments();
@@ -62,25 +71,31 @@ try {
 
     let charStats = getCharsStatsInSets(data, getUpdateFunction(processSets, processPlayers));
 
+    let gamesN = percentages ? getGamesNbInSets(data) : null;
+    let setsN = data.length;
+
     //-----------------------------------
 
-    const finalizeCharDataBase = (charID) => ({name: charNames[charID], games: charStats[charID]})
-    const finalizeCharDataSets = (charID) => ({name: charNames[charID], games: charStats[charID].games, sets: charStats[charID].sets})
-    const finalizeCharDataPlayers = (charID) => ({name: charNames[charID], games: charStats[charID].games, players: Object.values(charStats[charID].players).filter(player => !minGamesPlayer || player.games >= minGamesPlayer).sort((a, b) => b.games - a.games)})
+    const ratio = (val, total) => percentages ? (val / total) : null;
+    const dp = (n) => yellow((n * 100).toFixed(2));
+
+    const finalizeCharDataBase = (charID) => ({name: charNames[charID], games: charStats[charID].games, gamesRatio: ratio(charStats[charID].games, gamesN)});
+    const finalizeCharDataSets = (charID) => ({name: charNames[charID], games: charStats[charID].games, sets: charStats[charID].sets, gamesRatio: ratio(charStats[charID].games, gamesN), setsRatio: ratio(charStats[charID].sets, setsN)});
+    const finalizeCharDataPlayers = (charID) => ({name: charNames[charID], games: charStats[charID].games, gamesRatio: ratio(charStats[charID].games, gamesN), sets: charStats[charID].sets, setsRatio: ratio(charStats[charID].sets, setsN), players: Object.values(charStats[charID].players).filter(player => !minGamesPlayer || player.games >= minGamesPlayer).map(player => Object.assign(player, {gamesRatio: ratio(player.games, charStats[charID].games), setsRatio: ratio(player.sets, charStats[charID].sets)})).sort((a, b) => b.games - a.games)})
     const finalizeCharDataPlayersSets = finalizeCharDataPlayers;
 
-    const logDataBase = (char) => {console.log(char.name, ":", char.games)};
-    const logDataSets = (char) => {console.log(char.name, ":", char.games, "in", char.sets, "sets")};
+    const logDataBase = (char) => {console.log(char.name, ":", yellow(char.games) + (percentages ? ` (${dp(char.gamesRatio)}%)` : ""))};
+    const logDataSets = (char) => {console.log(char.name, ":", percentages ? `${yellow(char.games)} (${dp(char.gamesRatio)}%) in ${yellow(char.sets)} sets (${dp(char.setsRatio)}%)` : cFormat(char.games, " in ", char.sets, " sets"))};
     const logDataPlayers = (char) => {
-        console.log(char.name, ":", char.games)
+        console.log(char.name, ":", yellow(char.games) + (percentages ? `(${dp(char.gamesRatio)}%)` : ""));
         for (let player of char.players){
-            console.log(" -", player.name, ":", player.games);
+            console.log(char.name, ":", yellow(player.games) + (percentages ? `(${dp(player.gamesRatio)}%)` : ""));
         }
     }
     const logDataPlayersSets = (char) => {
-        console.log(char.name, ":", char.games)
+        console.log(char.name, ":", percentages ? `${yellow(char.games)} (${dp(char.gamesRatio)}%) in ${yellow(char.sets)} (${dp(char.setsRatio)}%)` : cFormat(char.games, " in ", char.sets, " sets"));
         for (let player of char.players){
-            console.log(" -", player.name, ":", player.games, "games ;", player.sets, "sets");
+            console.log(" -", player.name, ":",percentages ? `${yellow(player.games)} (${dp(player.gamesRatio)}%) in ${yellow(player.sets)} (${dp(player.setsRatio)}%)` : cFormat(player.games, " in ", player.sets, " sets"));
         }
     }
 
