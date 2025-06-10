@@ -1,3 +1,4 @@
+- Utiliser selections.character instead of selectionValue
 - système de cache pour les infos des jeux
 - Généraliser l'utilisation de extract slugs (events, users, jeux)
 - Mieux séparer les fichiers util (jsUtil/fileUtil/startggUtil/scriptsUtil/tournamentUtil ?)
