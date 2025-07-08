@@ -162,7 +162,7 @@ export function isSilent(printdata, silent){
  * @param {boolean} printdata 
  * @param {string} outputfile 
  * @param {boolean} silent 
- * @returns 
+ * @returns [logdata, silent]
  */
 export function doWeLog(logdata, printdata, outputfile, silent){
     return [

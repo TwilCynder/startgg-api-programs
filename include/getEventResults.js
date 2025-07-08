@@ -44,7 +44,7 @@ export async function getEventResults(client, slug, numEntrants = 192, limiter =
  */
 export function getEventsResults(client, slugs, numEntrants = 192, limiter = null){
     return Promise.all(slugs.map((slug) => getEventResults(client, slug, numEntrants, limiter)
-        .catch((err) => console.log("Slug", slug, "kaput : ", err))
+        .catch((err) => console.warn("Slug", slug, "kaput : ", err))
         .then(data => Object.assign(data, {slug}))
     ));
 }

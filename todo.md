@@ -5,6 +5,7 @@
 - Utiliser @twilcynder/startgg-helper
 - - Trouver un moyen de factoriser les getXXX qui font des trucs simples
 - généraliser l'utilisation de readMultimodalInput
+- potetre : moderniser getEventResults
 - Harmoniser les formats de data (arrays de standings etc, assurer une constance sur les données quand applicable)
 - Moderniser le truc de events for videogames
 - Faire la version de leaguehead2head qui prend des dates
