@@ -3,7 +3,8 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser"
 //ça ça reste ici
 
 /**
- * Added dests : outputfile, printdata, silent
+ * Added dests : outputfile, printdata, silent  
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent  
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsBasic(argumentsManager){
@@ -22,7 +23,8 @@ export function addOutputParamsBasic(argumentsManager){
 }
 
 /**
- * Added dests : outputfile, printdata, silent, prettyjson
+ * Added dests : outputfile, printdata, silent, prettyjson  
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [r]eadable-json  
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsJSON(argumentsManager){
@@ -46,8 +48,9 @@ function addFormatParameter(argumentsManager){
 }
 
 /**
- * For scripts that can only output processed text.
- * Added dests : outputfile, printdata, silent, logdata
+ * For scripts that can only output processed text.  
+ * Added dests : outputfile, printdata, silent, logdata  
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [l]og-data  
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsText(argumentsManager){
@@ -56,8 +59,11 @@ export function addOutputParamsText(argumentsManager){
 }
 
 /**
- * Returns a function to pass to .apply  
- * Potential dests : outputfile, printdata, silent, logdata, outputFormat
+ * Returns a function to pass to .apply    
+ * Added dests : outputfile, printdata, silent  
+ * Potential dests : logdata, outputFormat  
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent  
+ * Potential switchs : [l]og-data, format  
  * @param {boolean} log 
  * @param {boolean} format 
  * @returns 
@@ -71,7 +77,8 @@ export function addOutputParamsCustom(log, format){
 }
 
 /**
- * Added dests : outputFormat, outputfile, logdata, printdata, silent
+ * Added dests : outputFormat, outputfile, logdata, printdata, silent  
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [p]rint-output, format
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParams(argumentsManager){
@@ -81,7 +88,8 @@ export function addOutputParams(argumentsManager){
 }
 
 /**
- * Dests added : inputfile, stdinput
+ * Dests added : inputfile, stdinput  
+ * Added switchs : [i]nput-file, [S]/stdin-input
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addInputParams(argumentsManager){
@@ -91,7 +99,8 @@ export function addInputParams(argumentsManager){
 }
 
 /**
- * Dests added : games, minEntrants, startDate, endDate
+ * Dests added : games, minEntrants, startDate, endDate  
+ * Switchs added : start-date, end-date, [g]ames, [m]in-entrants
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventQueryFilterParams(argumentsManager){
@@ -110,6 +119,7 @@ export function addEventQueryFilterParams(argumentsManager){
 
 /**
  * Dests added : exclude_expression, filter
+ * Added switchs : [R]/exclude_expression, [b]/filter, [O]/offline
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventPropertiesFilterParams(argumentsManager){
@@ -121,6 +131,7 @@ export function addEventPropertiesFilterParams(argumentsManager){
 
 /**
  * Dests added : games, minEntrants, exclude_expression, filter, startDate, endDate
+ * Added switchs : [R]/exclude_expression, [b]/filter, [O]/offline, start-date, end-date, [g]ames, [m]in-entrants
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventFilterParams(argumentsManager){
@@ -130,6 +141,7 @@ export function addEventFilterParams(argumentsManager){
 
 /**
  * Dests added : userSlugs, filename, userDataFile
+ * start-date, [f]ilename, [D]/user-data-file
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addUsersParams(argumentsManager){
