@@ -1,5 +1,5 @@
-import { Query } from './lib/query.js';
-import { ClockQueryLimiter, StartGGClockQueryLimiter, StartGGDelayQueryLimiter } from './lib/queryLimiter.js';
+import { Query } from 'startgg-helper';
+import { ClockQueryLimiter, StartGGDelayQueryLimiter } from 'startgg-helper';
 
 /**
  * Fetches all sets in the given event with the given query, which must have a "event(slug) { sets { nodes { ANYTHING } } }" schema.  
@@ -21,14 +21,14 @@ export async function getSetsInEvent(client, query, slug, limiter){
 }
 
 export async function getSetsInEvents(client, query, slugs, limiter, noLimit = false) {
-    limiter = limiter || (noLimit ? null : new StartGGClockQueryLimiter);
+    limiter = limiter || (noLimit ? null : new StartGGDelayQueryLimiter);
 
     return Promise.all(slugs.map( (slug) => getSetsInEvent(client, query, slug, limiter).catch((err) => console.log("Slug", slug, "kaput : ", err))))
         .then( (arr) => arr.reduce( (accumulator, currentArray, i) => (currentArray ? accumulator.concat(currentArray) : (console.warn(`Slug ${slugs[i]} returned nothing`), accumulator)) , []));
 }
 
 export async function getSetsInEventsHashmap(client, query, slugs, limiter, noLimit = false){
-    limiter = limiter || (noLimit ? null : new StartGGClockQueryLimiter);
+    limiter = limiter || (noLimit ? null : new StartGGDelayQueryLimiter);
 
     let events = {}
     await Promise.all( slugs.map( async slug => {

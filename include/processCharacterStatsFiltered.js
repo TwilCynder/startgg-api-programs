@@ -1,4 +1,4 @@
-import { deep_get } from "startgg-helper-node";
+import { deep_get } from "startgg-helper-node/util";
 
 export class PlayerUserFilter {
     constructor(userID, playerID){

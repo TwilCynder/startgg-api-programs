@@ -1,4 +1,4 @@
-import { Query } from './lib/query.js';
+import { Query } from 'startgg-helper';
 import { getSetsInEvent, getSetsInEvents, getSetsInEventsHashmap} from './getSetsInEvents.js';
 import { readSchema } from './lib/util.js';
 

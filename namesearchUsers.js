@@ -1,11 +1,11 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import fs from "fs/promises"
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { readJSONInput, readLinesAsync } from "./include/lib/readUtil.js";
 import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
-import { createClient } from "./include/lib/common.js";
+import { createClient } from "startgg-helper-node";
 import { addInputParams } from "./include/lib/paramConfig.js";
-import { addEventParsers, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { readMultimodalInputWrapper } from "./include/lib/util.js";
 
 let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, userDataFile, outputfile, outputFormat} = new ArgumentsManager()

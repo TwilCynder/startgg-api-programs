@@ -1,7 +1,7 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { muteStdout, unmuteStdout } from "startgg-helper-node";
+import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 import { client } from "../include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helpers";
 import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
 import { addEventQueryFilterParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { readJSONFromStdin } from './readUtil.js';
-import { toJSON } from './jsUtil.js';
+import { toJSON } from 'startgg-helper-node/util';
 import { readJSONInput, readLinesAsync } from './readUtil.js';
 import { relurl } from "./dirname.js"
 

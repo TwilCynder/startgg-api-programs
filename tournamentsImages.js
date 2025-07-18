@@ -1,11 +1,10 @@
 import { EventListParser } from "./include/lib/computeEventList.js";
-import { OutputModeParser, SingleOptionParser, parseArguments } from "@twilcynder/arguments-parser"; 
+import { parseArguments } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 
-import fs from 'fs';
-import { getTournamentImage, getTournamentLogo } from "./include/getTournamentImage.js";
+import { getTournamentLogo } from "./include/getTournamentImage.js";
 
 let [slugs] = parseArguments(process.argv.slice(2), 
     new EventListParser()

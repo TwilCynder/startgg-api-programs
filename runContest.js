@@ -5,7 +5,7 @@ import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { columnsln, output, readMultimodalInput } from "./include/lib/util.js";
 import { getEventsSetsBasicHashmap } from "./include/getEventsSets.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 //TODO : ajouter un système de range comme pour les upsets
 let {eventSlugs, eventsFilenames, loserOnly, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()

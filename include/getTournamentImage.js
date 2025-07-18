@@ -1,9 +1,9 @@
 import { relurl } from './lib/dirname.js';
 import { readFileSync } from 'fs';
-import { Query } from "startgg-helper-node"
+import { Query } from "startgg-helper"
 import { GraphQLClient } from "graphql-request";
-import { TimedQuerySemaphore } from "startgg-helper-node";
-import { deep_get } from './lib/jsUtil.js';
+import { TimedQuerySemaphore } from "startgg-helper";
+import { deep_get } from 'startgg-helper-node/util';
 
 const schemaFilename = "./GraphQLSchemas/TournamentImage.gql";
 

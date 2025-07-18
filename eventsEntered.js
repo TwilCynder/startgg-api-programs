@@ -2,7 +2,7 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventFilterParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { output, readUsersFile } from "./include/lib/util.js";
 import { fetchUserEvents } from "./include/fetchUserEvents.js";
 import { filterEvents } from "./include/filterEvents.js";

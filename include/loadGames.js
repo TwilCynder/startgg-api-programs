@@ -1,5 +1,5 @@
 import { getVideogameID } from "./getVideogameID.js";
-import { extractSlug } from "startgg-helper-node";
+import { extractSlug } from "startgg-helper";
 
 export async function loadGames(client, games, limiter){
     let gamesID = null;

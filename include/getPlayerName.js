@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js';
-import { deep_get } from 'startgg-helper-node';
+import { deep_get } from 'startgg-helper-node/util';
 
 /**
  * Returns the player name ("gamertag") associated with a user slug

@@ -1,10 +1,10 @@
 import { getEventsResults } from "./include/getEventResults.js";
 import {client} from "./include/lib/client.js";
-import { muteStdout, unmuteStdout } from "startgg-helper-node"
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js"
 import { extractSlugs } from "startgg-helper-node"
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { output, splitWhitespace } from "./include/lib/util.js";
 import { readLines } from "./include/lib/readUtil.js";

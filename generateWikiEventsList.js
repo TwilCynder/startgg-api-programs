@@ -1,13 +1,12 @@
-import fs from "fs";
 import { client } from "./include/lib/client.js";
 import { EventListParser } from "./include/lib/computeEventList.js";
-import { ArgumentsManager, OutputModeParser, parseArguments } from "@twilcynder/arguments-parser";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { ArgumentsManager } from "@twilcynder/arguments-parser";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getEventsResults} from "./include/getEventResults.js"
 import { getDateString } from "./include/dateString.js";
 import { outputText, readMultimodalInput } from './include/lib/util.js'
-import { addInputParams, addOutputParams, addOutputParamsBasic, isSilent } from "./include/lib/paramConfig.js";
-import { extractSlugs } from "startgg-helper-node";
+import { addInputParams, addOutputParamsBasic, isSilent } from "./include/lib/paramConfig.js";
+import { extractSlugs } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 let {slugs, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()

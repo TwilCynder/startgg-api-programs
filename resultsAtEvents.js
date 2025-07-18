@@ -1,13 +1,14 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventFilterParams, addInputParams, addOutputParams, addUsersParams, doWeLog } from "./include/lib/paramConfig.js";
-import { deep_get, muteStdout, unmuteStdout } from "startgg-helper-node";
+import { deep_get } from "startgg-helper-node/util";
+import { unmuteStdout, muteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
-import { fetchUsersStandings, tryReadUsersFile } from "./include/fetchUserEvents.js";
+import { fetchUsersStandings } from "./include/fetchUserEvents.js";
 import { filterEvents } from "./include/filterEvents.js";
 
 //========== CONFIGURING PARAMETERS ==============

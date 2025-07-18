@@ -4,7 +4,7 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";

@@ -1,4 +1,4 @@
-import { Query } from "startgg-helper-node";
+import { Query } from "startgg-helper";
 import { readSchema } from './lib/util.js';
 
 let schema = readSchema(import.meta.url, "./GraphQLSchemas/VideogameContent.gql");

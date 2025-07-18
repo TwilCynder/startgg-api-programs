@@ -1,7 +1,7 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getOtherEventsFromEvents } from "./include/getOtherEvents.js";
 import { client } from "./include/lib/client.js";

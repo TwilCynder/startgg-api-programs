@@ -1,9 +1,9 @@
-import { ArgumentsManager, parseArguments } from "@twilcynder/arguments-parser";
+import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { unmuteStdout, muteStdout, readJSONInput } from "startgg-helper-node";
+import { unmuteStdout, muteStdout } from "./include/lib/fileUtil.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
@@ -12,7 +12,6 @@ import { getUserSetsChars } from "./include/getUserSetsChars.js";
 import { processMain } from "./include/getMain.js";
 import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
-import { getVideogameContent } from "./include/getVideogameContent.js";
 import { loadCharactersInfo } from "./include/loadVideogameContent.js";
 
 let {list, extended, mains, minimum, game, gamefile, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()

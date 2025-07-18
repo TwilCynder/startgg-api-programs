@@ -1,9 +1,9 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addInputParams, addOutputParamsCustom, doWeLog, isSilent } from "./include/lib/paramConfig.js";
-import { outputText, outputTextLazy, readMultimodalInput, readUsersFile } from "./include/lib/util.js";
+import { addInputParams, addOutputParamsCustom, doWeLog } from "./include/lib/paramConfig.js";
+import { outputTextLazy, readMultimodalInput, readUsersFile } from "./include/lib/util.js";
 import { getUsersInfoExtended } from "./include/getUserInfoExtended.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper-node";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 let {userSlugs, file, inputfile, stdinput, outputfile, printdata, silent, logdata, slug} = new ArgumentsManager()
