@@ -11,13 +11,11 @@ let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, stdinput, ou
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
-    .addSwitch(["-S", "--side-events"], {description: "Exclude the specified events, only include the other events in the tournaments", dest: "sideEvents"})
+    .addSwitch(["-V", "--side-events"], {description: "Exclude the specified events, only include the other events in the tournaments", dest: "sideEvents"})
     .addMultiOption(["-b", "--blacklist"], {description: "Exclude events containing this word"})
     .enableHelpParameter()
     .parseProcessArguments()
     
-console.log(blacklist);
-
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
@@ -27,8 +25,6 @@ let events = await readEventLists(eventSlugs, eventsFilenames);
 let limiter = new StartGGDelayQueryLimiter();
 let data = await readMultimodalInput(inputfile, stdinput, getOtherEventsFromEvents(client, events, limiter));
 limiter.stop();
-
-console.log("IAJNZFLNKLJKJBKJB")
 
 data = data.filter(v => !!v).map(tournament => {
     if (sideEvents){
@@ -45,12 +41,11 @@ data = data.filter(v => !!v).map(tournament => {
     return tournament;
 })
 
-console.log("JBHVBQVKJBSVKJBKJB")
-
 if (silent_) unmuteStdout();
 
 if (logdata_){
     for (let tournament of data){
+        if (tournament.events.length < 1) continue
         console.log(tournament.tournament.name);
         for (let event of tournament.events){
             console.log("-", event.name);
@@ -65,4 +60,5 @@ output(outputFormat, outputfile, printdata, data, data => {
             res += event.slug + '\n';
         }
     }
+    return res;
 })

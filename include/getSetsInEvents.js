@@ -12,6 +12,11 @@ import { ClockQueryLimiter, StartGGClockQueryLimiter, StartGGDelayQueryLimiter }
  */
 export async function getSetsInEvent(client, query, slug, limiter){
     let sets = await query.executePaginated(client, {slug}, "event.sets.nodes", limiter, {perPage: 50});
+    if (!sets) {
+        console.warn("Coulnd't fetch sets for event slug", slug);
+        return null;
+    }
+    console.log("Fetched sets for event slug", slug);
     return sets; 
 }
 

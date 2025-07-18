@@ -18,9 +18,11 @@ query EventStandingsQuery($slug: String!, $numEntrants: Int) {
         entrant {
           id
           name
+          initialSeedNum
           participants {
             user {
               id
+              discriminator
             }
             player {
               gamerTag

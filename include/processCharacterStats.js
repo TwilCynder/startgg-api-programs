@@ -8,8 +8,8 @@ function updateCharsGamesCount(chars, set){
             let char = selection.selectionValue;
             if (!(typeof char == "number")) continue; //REMOVE ONE DAY WHEN WE HANDLE TEAMS 
 
-            if (!chars[char]) chars[char] = 0;
-            chars[char]++;
+            if (!chars[char]) chars[char] = {games: 0};
+            chars[char].games++;
         }
     }
     return chars;

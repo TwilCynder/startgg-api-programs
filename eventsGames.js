@@ -6,6 +6,7 @@ import { output, readMultimodalInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from './include/lib/queryLimiter.js';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
 import { muteStdout, unmuteStdout } from './include/lib/jsUtil.js';
+import { getGamesNbInSets } from './include/getGamesNbInSets.js';
 
 try {
     let {eventSlugs, eventsFilenames, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
@@ -27,12 +28,7 @@ try {
     limiter.stop();
 
     let sets = data.length
-    let games = 0;
-    for (let set of data){
-        if (set.games){
-            games += set.games.length;
-        }
-    }
+    let games = getGamesNbInSets(data);
     
     if (silent_) unmuteStdout();
  

@@ -47,15 +47,6 @@ export async function readJSONFromStdin(){
 }
 
 /**
- * Reads all lines of a file into an array
- * @param {string} filename 
- * @returns {string[]}
- */
-export function readLines(filename){
-    return fs.readFileSync(filename).toString('utf-8').replaceAll(/\r/g, '').split('\n');
-}
-
-/**
  * Reads all line of a file into an array
  * @param {string} filename 
  */
