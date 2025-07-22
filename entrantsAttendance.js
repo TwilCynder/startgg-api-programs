@@ -1,12 +1,12 @@
-import fs from "fs";
 import { client } from "./include/lib/client.js";
 import { getAttendanceFromEvents } from "./include/getAttendance.js";
-import { addEventParsers, EventListParser, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { output } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addEventParsers)

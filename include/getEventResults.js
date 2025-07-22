@@ -1,7 +1,7 @@
-import { Query } from './lib/query.js';
+import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
 import { GraphQLClient } from 'graphql-request';
-import { TimedQuerySemaphore } from './lib/queryLimiter.js';
+import { TimedQuerySemaphore } from 'startgg-helper';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventStanding.gql");
 const query = new Query(schema, 3);

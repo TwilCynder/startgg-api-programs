@@ -1,10 +1,9 @@
 import { client } from "./include/lib/client.js";
-import {Parser, parseArguments, OutputModeParser, ArgumentsManager} from '@twilcynder/arguments-parser'
-import fs from 'fs'
-import { addOutputParamsBasic, addOutputParamsText, doWeLog } from "./include/lib/paramConfig.js";
+import {ArgumentsManager} from '@twilcynder/arguments-parser'
+import { addOutputParamsText, doWeLog } from "./include/lib/paramConfig.js";
 import { loadVideogameContent } from "./include/loadVideogameContent.js";
-import { outputText, outputTextLazy } from "./include/lib/util.js";
-import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { outputTextLazy } from "./include/lib/util.js";
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 let {game, filename, characters, stages, outputfile, printdata, silent, logdata} = new ArgumentsManager()
     .apply(addOutputParamsText)

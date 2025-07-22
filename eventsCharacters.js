@@ -1,13 +1,13 @@
-import { addEventParsers, EventListParser, readEventLists } from './include/lib/computeEventList.js'
+import { addEventParsers, readEventLists } from './include/lib/computeEventList.js'
 import { getSetsCharsDetailedInEvents } from './include/getCharactersInEventsDetailed.js';
 import { getCharsStatsInSets, getUpdateFunction } from './include/processCharacterStats.js';
 import { client } from './include/lib/client.js';
 import { loadCharactersInfo } from './include/loadVideogameContent.js';
 import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
 import { output, readMultimodalInput } from './include/lib/util.js';
-import { StartGGDelayQueryLimiter } from './include/lib/queryLimiter.js';
+import { StartGGDelayQueryLimiter } from 'startgg-helper';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
-import { muteStdout, unmuteStdout } from './include/lib/jsUtil.js';
+import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
 import { getGamesNbInSets } from './include/getGamesNbInSets.js';
 import { cFormat, yellow } from './include/lib/consoleUtil.js';
 

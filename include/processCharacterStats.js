@@ -1,4 +1,4 @@
-import { deep_get } from "./lib/jsUtil.js";
+import { deep_get } from "startgg-helper-node/util";
 
 function updateCharsGamesCount(chars, set){
     if (!set.games) return chars;

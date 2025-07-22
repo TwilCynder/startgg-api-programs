@@ -3,7 +3,7 @@ import { addEventPropertiesFilterParams, addInputParams, addOutputParamsJSON, is
 import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
 import { outputJSON, readInputData } from "../include/lib/util.js";
 import { filterEvents } from "../include/filterEvents.js";
-import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
+import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
 let {inputfile, stdinput, eventSlugs, eventsFilenames, exclude_expression, filter, outputfile, printdata, silent, prettyjson, blacklistMode, offline} = new ArgumentsManager() 
     .setAbstract("Applies various filters to an array of events (with or without standings). See options to see all awailable filters. Keep in mind that if any events is specified, only these events will be kept ; -B reverses this.")

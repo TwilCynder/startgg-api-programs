@@ -1,6 +1,6 @@
-import { Query } from './lib/query.js';
+import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
-import { deep_get } from './lib/jsUtil.js';
+import { deep_get } from 'startgg-helper-node/util';
 
 const DEFAULT_COUNT = 20;
 

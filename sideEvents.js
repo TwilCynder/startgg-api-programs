@@ -1,11 +1,11 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getOtherEventsFromEvents } from "./include/getOtherEvents.js";
 import { client } from "./include/lib/client.js";
-import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addEventParsers)

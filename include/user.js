@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
-import { TimedQuerySemaphore } from './lib/queryLimiter.js';
+import { TimedQuerySemaphore } from 'startgg-helper';
 import { aggregateDataPromises } from './lib/util.js';
 import { readJSONInput } from './lib/readUtil.js';
 import { tryReadUsersFile } from './fetchUserEvents.js';

@@ -3,12 +3,12 @@ import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
-import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
+import { createClient  } from "startgg-helper-node";
 
 import { getPlayerName } from "./include/getPlayerName.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
@@ -29,6 +29,7 @@ if (silent_) muteStdout();
 
 eventSlugs = await readEventLists(eventSlugs, eventsFilenames)
 
+let client = createClient();
 let limiter = new StartGGDelayQueryLimiter();
 
 let data = await readMultimodalInput(inputfile, stdinput, 

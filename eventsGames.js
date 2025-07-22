@@ -3,9 +3,9 @@ import { getSetsCharsInEvents } from './include/getCharactersInEvent.js';
 import { client } from './include/lib/client.js';
 import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
 import { output, readMultimodalInput } from './include/lib/util.js';
-import { StartGGDelayQueryLimiter } from './include/lib/queryLimiter.js';
+import { StartGGDelayQueryLimiter } from 'startgg-helper';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
-import { muteStdout, unmuteStdout } from './include/lib/jsUtil.js';
+import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
 import { getGamesNbInSets } from './include/getGamesNbInSets.js';
 
 try {
