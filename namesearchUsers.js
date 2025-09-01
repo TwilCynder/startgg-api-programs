@@ -6,7 +6,7 @@ import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "startgg-helper-node";
 import { addInputParams } from "./include/lib/paramConfig.js";
 import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
-import { readMultimodalInputWrapper } from "./include/lib/util.js";
+import { readMultimodalArrayInputWrapper } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js"
  
 let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, userDataFile, outputfile, outputFormat} = new ArgumentsManager()
@@ -23,7 +23,7 @@ let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, userDat
 let list = await readEventLists(eventSlugs, eventsFilenames);
 
 let [results, userData] = await Promise.all([
-    readMultimodalInputWrapper(inputfile, stdinput, async () => {
+    readMultimodalArrayInputWrapper(inputfile, stdinput, async () => {
         if (list && list.length > 0){
             let client = createClient();
             let limiter = new StartGGDelayQueryLimiter;

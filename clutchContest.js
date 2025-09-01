@@ -9,7 +9,7 @@ import { createClient  } from "startgg-helper-node";
 import { getPlayerName } from "./include/getPlayerName.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { output, readMultimodalInput } from "./include/lib/util.js";
+import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
 let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, names, top, min_sets} = new ArgumentsManager()
@@ -32,7 +32,7 @@ eventSlugs = await readEventLists(eventSlugs, eventsFilenames)
 let client = createClient();
 let limiter = new StartGGDelayQueryLimiter();
 
-let data = await readMultimodalInput(inputfile, stdinput, 
+let data = await readMultimodalArrayInput(inputfile, stdinput, 
     eventSlugs.length > 0 ? getEventsSetsBasic(client, eventSlugs, limiter): null
 )
 

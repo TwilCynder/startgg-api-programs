@@ -4,7 +4,7 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { unmuteStdout, muteStdout } from "./include/lib/fileUtil.js";
-import { output, readMultimodalInput } from "./include/lib/util.js";
+import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
@@ -26,7 +26,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
-let entrants = await readMultimodalInput(inputfile, stdinput, 
+let entrants = await readMultimodalArrayInput(inputfile, stdinput, 
     getEntrantsBasicForEvents(client, eventSlugs)
 );
 limiter.stop();

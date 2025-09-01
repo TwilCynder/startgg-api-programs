@@ -8,7 +8,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getDoubleEliminationUpsetFactorFromSet } from "startgg-helper";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { columns, output, readMultimodalInput } from "./include/lib/util.js";
+import { columns, output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
 let {eventSlugs, eventsFilenames, top, min_sets, sprRange, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
@@ -29,7 +29,7 @@ if (silent_) muteStdout();
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await readMultimodalInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter));
+let data = await readMultimodalArrayInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter));
 limiter.stop();
 
 console.log(`Data fetched, ${data.length} sets`);

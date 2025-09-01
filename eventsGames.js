@@ -2,7 +2,7 @@ import { addEventParsers, EventListParser, readEventLists } from './include/lib/
 import { getSetsCharsInEvents } from './include/getCharactersInEvent.js';
 import { client } from './include/lib/client.js';
 import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
-import { output, readMultimodalInput } from './include/lib/util.js';
+import { output, readMultimodalArrayInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from 'startgg-helper';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
 import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
@@ -23,7 +23,7 @@ try {
     let limiter = new StartGGDelayQueryLimiter();
 
     let events = await readEventLists(eventSlugs, eventsFilenames);
-    let data = await readMultimodalInput(inputfile, stdinput, getSetsCharsInEvents(client, events, limiter))
+    let data = await readMultimodalArrayInput(inputfile, stdinput, getSetsCharsInEvents(client, events, limiter))
 
     limiter.stop();
 

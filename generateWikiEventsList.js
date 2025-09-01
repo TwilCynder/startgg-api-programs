@@ -4,7 +4,7 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getEventsResults} from "./include/getEventResults.js"
 import { getDateString } from "./include/dateString.js";
-import { outputText, readMultimodalInput } from './include/lib/util.js'
+import { outputText, readMultimodalArrayInput } from './include/lib/util.js'
 import { addInputParams, addOutputParamsBasic, isSilent } from "./include/lib/paramConfig.js";
 import { extractSlugs } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
@@ -23,7 +23,7 @@ if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
 
-let data = await readMultimodalInput(inputfile, stdinput, getEventsResults(client, extractSlugs(slugs), 2, limiter));
+let data = await readMultimodalArrayInput(inputfile, stdinput, getEventsResults(client, extractSlugs(slugs), 2, limiter));
 limiter.stop();
 
 data = data.filter((ev) => !!ev);

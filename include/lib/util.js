@@ -126,7 +126,7 @@ export async function readUsersFile(filename, existingArray){
  * @param {string} inputfile 
  * @param {boolean} stdinput 
  */
-function readInputText(inputfile, stdinput){
+export function readInputText(inputfile, stdinput){
     return [
         inputfile ? readJSONInput(inputfile).catch(err => {
             console.warn(`Could not open file ${inputfile} : ${err}`)
@@ -141,7 +141,7 @@ function readInputText(inputfile, stdinput){
  * @template T
  * @param {(Promise<T[]>?)[]} promises 
  */
-export function aggregateDataPromises(promises){
+export function aggregateArrayDataPromises(promises){
     return Promise.all(promises).then(results => 
         results
             .map(elt => {
@@ -160,7 +160,7 @@ export function aggregateDataPromises(promises){
  * @param {boolean} stdinput 
  */
 export function readInputData(inputfile, stdinput){
-    return aggregateDataPromises(readInputText(inputfile, stdinput));
+    return aggregateArrayDataPromises(readInputText(inputfile, stdinput));
 }
 
 /**
@@ -169,8 +169,8 @@ export function readInputData(inputfile, stdinput){
  * @param {Promise<any>} APIPromise 
  * @returns 
  */
-export function readMultimodalInput(inputfile, stdinput, APIPromise){
-    return aggregateDataPromises(readInputText(inputfile, stdinput).concat(APIPromise));
+export function readMultimodalArrayInput(inputfile, stdinput, APIPromise){
+    return aggregateArrayDataPromises(readInputText(inputfile, stdinput).concat(APIPromise));
 }
 
 /**
@@ -178,6 +178,6 @@ export function readMultimodalInput(inputfile, stdinput, APIPromise){
  * @param {boolean} stdinput 
  * @param {() => Promise<any[]>} APIFetcher 
  */
-export function readMultimodalInputWrapper(inputfile, stdinput, APIFetcher){
-    return readMultimodalInput(inputfile, stdinput, APIFetcher());
+export function readMultimodalArrayInputWrapper(inputfile, stdinput, APIFetcher){
+    return readMultimodalArrayInput(inputfile, stdinput, APIFetcher());
 }

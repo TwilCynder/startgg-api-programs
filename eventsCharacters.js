@@ -4,7 +4,7 @@ import { getCharsStatsInSets, getUpdateFunction } from './include/processCharact
 import { client } from './include/lib/client.js';
 import { loadCharactersInfo } from './include/loadVideogameContent.js';
 import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
-import { output, readMultimodalInput } from './include/lib/util.js';
+import { output, readMultimodalArrayInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from 'startgg-helper';
 import { ArgumentsManager } from '@twilcynder/arguments-parser';
 import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
@@ -62,7 +62,7 @@ try {
     let limiter = new StartGGDelayQueryLimiter();
 
     let [data, charNames] = await Promise.all([
-        readMultimodalInput(inputfile, stdinput, getSetsCharsDetailedInEvents(client, events, limiter)),
+        readMultimodalArrayInput(inputfile, stdinput, getSetsCharsDetailedInEvents(client, events, limiter)),
         loadCharactersInfo(charactersInfoFilename, client, limiter, gameSlug, true)
     ])
 

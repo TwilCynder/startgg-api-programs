@@ -1,7 +1,7 @@
 import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
 import { TimedQuerySemaphore } from 'startgg-helper';
-import { aggregateDataPromises } from './lib/util.js';
+import { aggregateArrayDataPromises } from './lib/util.js';
 import { readJSONInput } from './lib/readUtil.js';
 import { tryReadUsersFile } from './fetchUserEvents.js';
 
@@ -52,7 +52,7 @@ export class User {
      * @returns {Promise<User[]>}
      */
     static createUsersMultimodal(client, limiter, slugs, slugsFile, datafile){
-        return aggregateDataPromises([
+        return aggregateArrayDataPromises([
             (async () => {
                 return this.createUsers(client, await tryReadUsersFile(slugsFile, slugs), limiter)
             })(),

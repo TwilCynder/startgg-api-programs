@@ -6,7 +6,7 @@ import { addEventParsersSwitchable, readEventLists } from "./include/lib/compute
 import { deep_get} from "startgg-helper-node/util";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js"
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readMultimodalInput } from "./include/lib/util.js";
+import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
 
@@ -33,7 +33,7 @@ let limiter = new StartGGDelayQueryLimiter;
 let [users, world, sets] = await Promise.all([
     User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
     readLinesAsync(worldUsersFilename),
-    readMultimodalInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter)),
+    readMultimodalArrayInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter)),
 ])
 
 limiter.stop();

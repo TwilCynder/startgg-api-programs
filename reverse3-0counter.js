@@ -4,7 +4,7 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
-import { output, readMultimodalInput } from "./include/lib/util.js";
+import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsGames } from "./include/getEventsSetsGames.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
@@ -29,7 +29,7 @@ if (silent_) muteStdout();
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await readMultimodalInput(inputfile, stdinput, getEventsSetsGames(client, events, limiter));
+let data = await readMultimodalArrayInput(inputfile, stdinput, getEventsSetsGames(client, events, limiter));
 limiter.stop();
 
 function detectReverse(games){

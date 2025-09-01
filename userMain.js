@@ -2,7 +2,7 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { getUsersSetsChars } from "./include/getUserSetsChars.js";
 import { client } from "./include/lib/client.js";
-import { output, readMultimodalInput } from "./include/lib/util.js";
+import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { processMain } from "./include/getMain.js";
 import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
@@ -30,7 +30,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter()
-let users = await readMultimodalInput(inputfile, stdinput, getUsersSetsChars(client, slugs, null, {max, includeWholeQuery: true}));
+let users = await readMultimodalArrayInput(inputfile, stdinput, getUsersSetsChars(client, slugs, null, {max, includeWholeQuery: true}));
 let characters = loadCharactersInfo(gamefile, client, limiter, game);
 limiter.stop();
 

@@ -2,7 +2,7 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { columnsln, output, readMultimodalInput } from "./include/lib/util.js";
+import { columnsln, output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsBasicHashmap } from "./include/getEventsSets.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
@@ -23,7 +23,7 @@ if (silent_) muteStdout()
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter()
-let data = await readMultimodalInput(inputfile, stdinput, getEventsSetsBasicHashmap(client, events, limiter))
+let data = await readMultimodalArrayInput(inputfile, stdinput, getEventsSetsBasicHashmap(client, events, limiter))
 limiter.stop();
 
 let best = {maxLength: 0, runs: []}

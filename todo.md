@@ -1,13 +1,13 @@
 - Faire un package NPM
+- généraliser le système de --display de leaguehead2head, pour utiliser uniquement la partie transformation en texte d'un script
 - Utiliser selections.character instead of selectionValue
 - permettre à namesearchusers de sortir un JSON -> database globale ?
 - système de cache pour les infos des jeux
 - Généraliser l'utilisation de extract slugs (events, users, jeux)
 - généraliser l'utilisation de columns et yellow
 - Trouver un moyen de factoriser les getXXX qui font des trucs simples
-- généraliser l'utilisation de readMultimodalInput
+- généraliser l'utilisation de readMultimodalArrayInput
 - potetre : moderniser getEventResults
-- Harmoniser les formats de data (arrays de standings etc, assurer une constance sur les données quand applicable)
 - Faire la version de leaguehead2head qui prend des dates
 - Infos + approfondies sur qui joue les persos
 - Harmoniser le comportement si un event/user n'est pas trouvé 
