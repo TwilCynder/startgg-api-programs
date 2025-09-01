@@ -14,7 +14,7 @@ let {eventSlugs, eventsFilenames, userSlugs, filename, total, userDataFile, outp
     .apply(addEventParsersSwitchable)
     .apply(addOutputParamsCustom(false, true))
     .apply(addInputParams)
-    .addSwitch(["-t", "--total"])
+    .addSwitch(["-t", "--total"], {description: "Add the sum of all head to heads at the end of each player's line"})
     .enableHelpParameter()
     .setMissingArgumentBehavior("Missing argument", 1, false)
     .parseProcessArguments();

@@ -1,19 +1,16 @@
+- Faire un package NPM
 - Utiliser selections.character instead of selectionValue
+- permettre à namesearchusers de sortir un JSON -> database globale ?
 - système de cache pour les infos des jeux
 - Généraliser l'utilisation de extract slugs (events, users, jeux)
-- Mieux séparer les fichiers util (jsUtil/fileUtil/startggUtil/scriptsUtil/tournamentUtil ?)
-  - package : jsUtil, startGGUtil, tournamentUtil
-  - local : fileUtil, scriptsUtil, readutil
 - généraliser l'utilisation de columns et yellow
-- Utiliser @twilcynder/startgg-helper
-- - Trouver un moyen de factoriser les getXXX qui font des trucs simples
+- Trouver un moyen de factoriser les getXXX qui font des trucs simples
 - généraliser l'utilisation de readMultimodalInput
 - potetre : moderniser getEventResults
 - Harmoniser les formats de data (arrays de standings etc, assurer une constance sur les données quand applicable)
-- Moderniser le truc de events for videogames
 - Faire la version de leaguehead2head qui prend des dates
 - Infos + approfondies sur qui joue les persos
-- Harmonizer le comportement si un event/user n'est pas trouvé 
+- Harmoniser le comportement si un event/user n'est pas trouvé 
   - A priori suivre getEntrantsCount.js
 - readme (en cours)
 - ajouter un mode users à stagesStats

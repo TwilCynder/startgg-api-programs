@@ -98,7 +98,7 @@ async function processPage(client, slug, limiter, currentList, page, config = {}
  */
 export async function getEventsFromUser(client, slug, limiter, config = {}){
   if (!config.startDate && !config.endDate){ //we don't have to check each page, we can go for a simple paginated query
-    return query.executePaginated(client, {slug, games: config.games, minEntrants: config.minEntrants}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
+    return query.executePaginated(client, {slug, games: config.games, minEntrants: config.minEntrants}, "user.events", limiter, {pageParamName: "eventsPage"});
   } else {
     let result = [];
 

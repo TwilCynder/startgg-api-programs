@@ -11,7 +11,7 @@ import { ClockQueryLimiter, StartGGDelayQueryLimiter } from 'startgg-helper';
  * @returns {Promise<object[]>}
  */
 export async function getSetsInEvent(client, query, slug, limiter){
-    let sets = await query.executePaginated(client, {slug}, "event.sets.nodes", limiter, {perPage: 50});
+    let sets = await query.executePaginated(client, {slug}, "event.sets", limiter, {perPage: 50});
     if (!sets) {
         console.warn("Coulnd't fetch sets for event slug", slug);
         return null;

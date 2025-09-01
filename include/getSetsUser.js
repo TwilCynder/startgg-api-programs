@@ -10,7 +10,7 @@ query.log = {
 }
 
 export async function getUserSets(client, slug, limiter, after, until){
-    let sets = await query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter);
+    let sets = await query.executePaginated(client, {slug, after}, "user.player.sets", limiter);
     return sets ? sets.filter(set => !until || set.completedAt < until) : sets;
 }
 

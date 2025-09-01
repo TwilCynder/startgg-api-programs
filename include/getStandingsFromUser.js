@@ -83,7 +83,7 @@ async function processStandingsPage(client, slug, limiter, currentList, page, co
  */
 export async function getStandingsFromUser(client, slug, limiter, config){
   if (!config.startDate && !config.startDate){ //we don't have to check each page, we can go for a simple paginated query
-    return query.executePaginated(client, {slug, standingsPerPage: STANDINGS_PER_PAGE, standingsPage: 1, games: config.games, minEntrants: config.minEntrants}, "user.events.nodes", limiter, {pageParamName: "eventsPage"});
+    return query.executePaginated(client, {slug, standingsPerPage: STANDINGS_PER_PAGE, standingsPage: 1, games: config.games, minEntrants: config.minEntrants}, "user.events", limiter, {pageParamName: "eventsPage"});
   } else {
     let result = [];
 

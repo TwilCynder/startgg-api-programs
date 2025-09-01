@@ -16,11 +16,11 @@ function getIWQMode(iwq){
 }
 
 async function runQueryWithSlug(client, slug, limiter, max, after, includeWholeQuery){
-    return {slug, data: await query.executePaginated(client, {slug, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 30, includeWholeQuery: getIWQMode(includeWholeQuery)})};
+    return {slug, data: await query.executePaginated(client, {slug, after}, "user.player.sets", limiter, {maxElements: max, perPage: 30, includeWholeQuery: getIWQMode(includeWholeQuery)})};
 }
 
 async function runQueryWithID(client, id, limiter, max, after, includeWholeQuery){
-    return {id, data: await query.executePaginated(client, {id, after}, "user.player.sets.nodes", limiter, {maxElements: max, perPage: 30, includeWholeQuery: getIWQMode(includeWholeQuery)})};
+    return {id, data: await query.executePaginated(client, {id, after}, "user.player.sets", limiter, {maxElements: max, perPage: 30, includeWholeQuery: getIWQMode(includeWholeQuery)})};
 }
 
 function getRunF(slugOrID){
