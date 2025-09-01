@@ -4,9 +4,9 @@ import { addEventParsers, EventListParser, readEventLists } from "../include/lib
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "../include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "../include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 
-import { muteStdout, unmuteStdout } from "../include/lib/jsUtil.js";
+import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
 import { getUniqueUsersBasicOverLeague } from "../include/getEntrantsBasic.js";

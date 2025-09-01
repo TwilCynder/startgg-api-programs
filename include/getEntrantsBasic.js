@@ -1,5 +1,5 @@
 import { getEntrants, getEntrantsForEvents, getUniqueUsersOverLeague } from './getEntrantsGeneric.js';
-import { Query } from './lib/query.js';
+import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventEntrants.gql");

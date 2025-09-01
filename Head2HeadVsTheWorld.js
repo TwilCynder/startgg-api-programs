@@ -3,8 +3,9 @@ import { User } from "./include/user.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addInputParams, addOutputParams, addUsersParams, doWeLog } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
-import { deep_get, muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { deep_get} from "startgg-helper-node/util";
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js"
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";

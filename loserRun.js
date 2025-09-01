@@ -4,10 +4,9 @@ import { EventListParser } from "./include/lib/computeEventList.js";
 import { OutputModeParser, SingleOptionParser, parseArguments } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import fs from 'fs';
-import { getPlayerName } from "./include/getPlayerName.js";
 
 let [outputMode, inputFile, slugs] = parseArguments(process.argv.slice(2), 
     new OutputModeParser("log", "casseur2bracket"),

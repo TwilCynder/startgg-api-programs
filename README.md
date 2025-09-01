@@ -1,6 +1,7 @@
 # start.gg API Programs
 
-A collection of scripts pulling and presenting data from the start.gg API, with a focus on code factorization making the actual scripts pretty small and easy to expand.    
+A collection of scripts pulling and presenting data from the start.gg API, with a focus on code factorization making the actual scripts pretty small and easy to expand.  
+Notably, most of the data-pulling is done by functions exported by scripts in the `include` directory, which you can use own projects, by including the whole SGGAP project in it (for example as a git submodule). This is not a very standard way to use a Node package, and you will need your project to have all of SGGAP's dependencies included in its own, but hey maybe one day I'll make a proper NPM package. 
 
 Each script has a -h/--help option that can be used to get more information about its usage  
 

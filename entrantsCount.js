@@ -1,4 +1,3 @@
-import fs from "fs";
 import { client } from "./include/lib/client.js";
 import { getEntrantsCountOverLeague } from "./include/getEntrantsCount.js";
 import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";

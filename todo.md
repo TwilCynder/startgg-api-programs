@@ -1,6 +1,9 @@
+- Utiliser selections.character instead of selectionValue
 - système de cache pour les infos des jeux
 - Généraliser l'utilisation de extract slugs (events, users, jeux)
 - Mieux séparer les fichiers util (jsUtil/fileUtil/startggUtil/scriptsUtil/tournamentUtil ?)
+  - package : jsUtil, startGGUtil, tournamentUtil
+  - local : fileUtil, scriptsUtil, readutil
 - généraliser l'utilisation de columns et yellow
 - Utiliser @twilcynder/startgg-helper
 - - Trouver un moyen de factoriser les getXXX qui font des trucs simples

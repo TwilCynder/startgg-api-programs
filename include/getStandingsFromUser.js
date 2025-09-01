@@ -1,8 +1,8 @@
-import { Query } from './lib/query.js';
+import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
-import { deep_get } from './lib/jsUtil.js';
+import { deep_get } from 'startgg-helper-node/util';
 import { GraphQLClient } from 'graphql-request';
-import { TimedQuerySemaphore } from './lib/queryLimiter.js';
+import { TimedQuerySemaphore } from 'startgg-helper';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.gql");
 const query = new Query(schema, 3);

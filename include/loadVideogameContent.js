@@ -1,8 +1,8 @@
 import { readJSONInput, stat } from './lib/readUtil.js';
 import { getVideogameContent } from './getVideogameContent.js';
-import { existsSync, writeFile } from 'fs';
+import { writeFile } from 'fs';
 import { GraphQLClient } from 'graphql-request';
-import { TimedQuerySemaphore } from './lib/queryLimiter.js';
+import { TimedQuerySemaphore } from 'startgg-helper';
 
 function convert(list){
     let res = {}

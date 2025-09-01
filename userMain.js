@@ -5,9 +5,9 @@ import { client } from "./include/lib/client.js";
 import { output, readMultimodalInput } from "./include/lib/util.js";
 import { processMain } from "./include/getMain.js";
 import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
-import { muteStdout, unmuteStdout } from "./include/lib/jsUtil.js";
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { loadCharactersInfo } from "./include/loadVideogameContent.js";
-import { StartGGDelayQueryLimiter } from "./include/lib/queryLimiter.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 let {slugs, inputfile, stdinput, number, game, gamefile, percentages, outputFormat, outputfile, logdata, printdata, silent, all} = new ArgumentsManager()
     .setAbstract("Data expected as input : result of downloadUserSetsChars -i")
