@@ -17,7 +17,7 @@ export function computeEventList(argList){
 
 /**
  * Added dests : eventsFilenames
- * Added switchs : [E]/events-file
+ * Added switchs : [F]/events-file
  * @param {ArgumentsManager} am 
  */
 export function addFileEventListParser(am){

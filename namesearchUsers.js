@@ -7,7 +7,8 @@ import { createClient } from "./include/lib/common.js";
 import { addInputParams } from "./include/lib/paramConfig.js";
 import { addEventParsers, readEventLists, SwitchableEventListParser } from "./include/lib/computeEventList.js";
 import { readMultimodalInputWrapper } from "./include/lib/util.js";
-
+import { yellow } from "./include/lib/consoleUtil.js"
+ 
 let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, userDataFile, outputfile, outputFormat} = new ArgumentsManager()
     .apply(addEventParsers)
     .addMultiParameter("names")
@@ -59,7 +60,7 @@ let result = names.map( (name, i) => {
             return {slug: user.slug, name};
         }
     }
-    console.warn("Could not find a slug for player", name, i);
+    console.warn("Could not find a slug for player", yellow(name), "n°", yellow(i + 1));
     return {slug: null, name: name}
 })
 

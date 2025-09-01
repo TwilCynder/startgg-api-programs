@@ -20,6 +20,6 @@ Each script has a -h/--help option that can be used to get more information abou
 - `eventsCharacters.js` : Computes statistics about characters picked at set of events
 
 ### Event slug lists (SLL format)
-Files read as event slug lists (passed to some scripts using the -E/--events-file option) will be read according to the SLL format : 
+Files read as event slug lists (passed to some scripts using the -F/--events-file option) will be read according to the SLL format : 
 - One slug per line
 - If a slug contains the character "%", and is followed by two integers, it will be *expanded* by replacing the "%" with all integers between the two specified (inclusive on both sides)
