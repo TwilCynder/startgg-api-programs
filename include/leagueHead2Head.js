@@ -23,7 +23,7 @@ export function leagueHeadHeadToHeadFromSetsArray(sets, users){
         /** @type {Head2Head[]} */
         let line = []
         for (let j = i + 1; j < users.length; j++){
-            let h2h = new Head2Head(users[i], users[j]);
+            let h2h = new Head2Head(i, j);
             line.push(h2h);
         }
         res.push(line);

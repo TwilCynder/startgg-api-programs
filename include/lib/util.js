@@ -126,7 +126,7 @@ export async function readUsersFile(filename, existingArray){
  * @param {string} inputfile 
  * @param {boolean} stdinput 
  */
-export function readInputText(inputfile, stdinput){
+function readInputText_(inputfile, stdinput){
     return [
         inputfile ? readJSONInput(inputfile).catch(err => {
             console.warn(`Could not open file ${inputfile} : ${err}`)
@@ -135,6 +135,15 @@ export function readInputText(inputfile, stdinput){
     
         stdinput ? readJSONFromStdin() : null,
     ]
+}
+
+/**
+ * 
+ * @param {string} inputfile 
+ * @param {boolean} stdinput 
+ */
+export function readInputText(inputfile, stdinput){
+    return Promise.all(readInputText_(inputfile, stdinput))
 }
 
 /**
@@ -159,8 +168,8 @@ export function aggregateArrayDataPromises(promises){
  * @param {string} inputfile 
  * @param {boolean} stdinput 
  */
-export function readInputData(inputfile, stdinput){
-    return aggregateArrayDataPromises(readInputText(inputfile, stdinput));
+export function readArrayInputData(inputfile, stdinput){
+    return aggregateArrayDataPromises(readInputText_(inputfile, stdinput));
 }
 
 /**
@@ -170,7 +179,7 @@ export function readInputData(inputfile, stdinput){
  * @returns 
  */
 export function readMultimodalArrayInput(inputfile, stdinput, APIPromise){
-    return aggregateArrayDataPromises(readInputText(inputfile, stdinput).concat(APIPromise));
+    return aggregateArrayDataPromises(readInputText_(inputfile, stdinput).concat(APIPromise));
 }
 
 /**

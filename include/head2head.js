@@ -15,10 +15,6 @@ export class Head2Head extends Array {
         this[user].score++;
     }
 
-    toString(){
-        return "" + this[0].user.name + " " + this[0].score + " - " + this[1].score + " " + this[1].user.name;
-    }
-
     getScore(){
         return "" + this[0].score + " - " + this[1].score;
     }

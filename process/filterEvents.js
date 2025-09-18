@@ -1,7 +1,7 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventPropertiesFilterParams, addInputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
-import { outputJSON, readInputData } from "../include/lib/util.js";
+import { outputJSON, readArrayInputData } from "../include/lib/util.js";
 import { filterEvents } from "../include/filterEvents.js";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
@@ -20,7 +20,7 @@ let silent_ = isSilent(printdata, silent);
 if (silent_) muteStdout();
 
 let [data, events] = await Promise.all([
-    readInputData(inputfile, stdinput),
+    readArrayInputData(inputfile, stdinput),
     readEventLists(eventSlugs, eventsFilenames)
 ]);
 

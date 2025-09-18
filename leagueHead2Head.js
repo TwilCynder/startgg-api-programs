@@ -5,16 +5,17 @@ import { addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from 
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readMultimodalInput } from "./include/lib/util.js";
+import { output, readInputText, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
 
-let {eventSlugs, eventsFilenames, userSlugs, filename, total, userDataFile, outputFormat, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, userSlugs, filename, total, userDataFile, outputFormat, outputfile, printdata, silent, inputfile, stdinput, display} = new ArgumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
     .apply(addOutputParamsCustom(false, true))
     .apply(addInputParams)
     .addSwitch(["-t", "--total"], {description: "Add the sum of all head to heads at the end of each player's line"})
+    .addSwitch(["-d", "--display"], {description: "Do not compute data, treat input data as an already computed result of this script and only use the display functionality"})
     .enableHelpParameter()
     .setMissingArgumentBehavior("Missing argument", 1, false)
     .parseProcessArguments();
@@ -24,24 +25,35 @@ let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
 
-let events = await readEventLists(eventSlugs, eventsFilenames);
+let data;
+if (display){
+    let [fileinput, stdinput_] = await readInputText(inputfile, stdinput);
+    data = stdinput_ || fileinput;
+    if (!data){
+        console.error("No input data");
+        process.exit(1);
+    }
+} else {
+    let events = await readEventLists(eventSlugs, eventsFilenames);
 
-let limiter = new StartGGDelayQueryLimiter;
+    let limiter = new StartGGDelayQueryLimiter;
+    let [users, sets] = await Promise.all([
+        User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
+        readMultimodalArrayInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter)),
+    ])
+    limiter.stop();
 
-let [users, sets] = await Promise.all([
-    User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
-    readMultimodalInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter)),
-])
+    console.log(sets);
 
-limiter.stop();
-
-console.log(sets);
-
-let matrix = leagueHeadHeadToHeadFromSetsArray(sets, users);
+    let matrix = leagueHeadHeadToHeadFromSetsArray(sets, users);
+    data = {matrix, users};
+}
 
 if (silent_) unmuteStdout();
 
-output(outputFormat, outputfile, printdata, matrix, (matrix) => {
+output(outputFormat, outputfile, printdata, data, (data) => {
+    let {matrix, users} = data;
+
     let result = "\\\\\\";
     for (let user of users){
         result += '\t' + user.name;

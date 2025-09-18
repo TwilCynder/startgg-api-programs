@@ -10,12 +10,13 @@ import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
 
-let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, worldUsersFilename, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, worldUsersFilename, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, scoreonly} = new ArgumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
     .apply(addOutputParams)
     .apply(addInputParams)
     .addParameter("worldUsersFilename")
+    .addSwitch(["-c", "--score-only"], {dest: "scoreonly", description: "Only display the score"})
     //.addSwitch(["-t", "--total"]) currently the only option
     .enableHelpParameter()
     .setMissingArgumentBehavior("Missing argument", 1, false)
@@ -90,15 +91,28 @@ for (let set of sets){
 if (silent_) unmuteStdout();
 
 if (logdata_){
-    for (let user of users){
-        console.log(user.name, `${user.w}-${user.l}`);
+    if (scoreonly){
+        for (let user of users){
+            console.log(`${user.w}-${user.l}`);
+        }
+    } else {
+        for (let user of users){
+            console.log(user.name, `${user.w}-${user.l}`);
+        }
     }
+
 }
 
 output(outputFormat, outputfile, printdata, users, (users) => {
-    let result = "\\\\\\";
-    for (let user of users){
-        res += user.name + '\t' + user.w + '\t' + user.l + '\n';
+    if (scoreonly){
+        for (let user of users){
+            res += user.w + '\t' + user.l + '\n';
+        }
+    } else {
+        for (let user of users){
+            res += user.name + '\t' + user.w + '\t' + user.l + '\n';
+        }
     }
+
     return result;
 })
