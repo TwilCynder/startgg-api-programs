@@ -24,7 +24,7 @@ function readFromStdin(){
 }
 
 /**
- * Fetches a text input either from the given file or the standard input
+ * Fetches a text input either from the given file or the standard input if the filename is "@stdin"
  * @param {string} inputFile
  */
 export async function readText(inputFile){
