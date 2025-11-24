@@ -4,7 +4,7 @@
  */
 
 /**
- * For a given list of tournaments with CP stream info and final standings, returns the sum of Cashprizes earned by each participant over all tournaments
+ * For a given list of tournaments with CP spread info and final standings, returns the sum of Cashprizes earned by each participant over all tournaments
  * @param {TournamentData[]} tournaments 
  */
 export function sumCashprizes(tournaments){
