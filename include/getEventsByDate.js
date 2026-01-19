@@ -1,20 +1,27 @@
 import { deep_get, Query } from 'startgg-helper';
-import { readSchema } from './lib/util.js';
+import { dateText, readSchema } from './lib/util.js';
 
 const baseQuery = new Query(readSchema(import.meta.url, "./GraphQLSchemas/EventsByDate.gql"), 3);
 const detailedQuery = new Query(readSchema(import.meta.url, "./GraphQLSchemas/EventsByDateDetailed.gql"), 3);
 
-function describeParams(params){
-    return `events between dates ${params.afterDate} and ${params.beforeDate} (page ${params.page}, ${params.perPage} per page${params.games ? (", with games " + params.games) :""}${params.minEntrants ? `, minimum ${params.minEntrants} entrants` :""}${params.countryCode ? ", in country " + params.countryCode :""})`;
+function describeParams(params, startDateText, endDateText){
+    return (params_) => `events between dates ${startDateText} and ${endDateText} (page ${params_.page}, ${params.perPage} per page${params.games ? (", with games " + params.games) :""}${params.minEntrants ? `, minimum ${params.minEntrants} entrants` :""}${params.countryCode ? ", in country " + params.countryCode :""})`;
 }
 
-const logConfig = {
-  query: params => "Fetching " + describeParams(params),
-  error: params => `Failed to fetch ` + describeParams(params)
+const logConfig = (params) => {
+  const startDateText = dateText(new Date(params.afterDate * 1000));
+  const endDateText = dateText(new Date(params.beforeDate * 1000));
+
+  const log = describeParams(params, startDateText, endDateText);
+
+  return {
+    query: params_ => "Fetching " + log(params_),
+    error: params_ => `Failed to fetch ` + log(params_)
+  }
 };
 
-baseQuery.log = logConfig;
-detailedQuery.log = logConfig;
+baseQuery.paginatedLog = logConfig;
+detailedQuery.paginatedLog = logConfig;
 
 /**
  * @param {number} startDate 

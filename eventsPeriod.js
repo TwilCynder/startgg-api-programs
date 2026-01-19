@@ -40,8 +40,6 @@ if (silent) muteStdout();
 const client = await createClientAuto();
 let limiter = new StartGGDelayQueryLimiter;
 
-console.log(games);
-
 //---- Processing input
 games = await processGameListString(client, games, limiter);
 startDate = toUNIXTimestamp(startDate);
@@ -67,6 +65,7 @@ if (logdata){
             console.log(event.slug);
         }
     }
+    console.log(data.length, "total.");
 }
 
 output(outputFormat, outputfile, printdata, data, data => {

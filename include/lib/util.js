@@ -41,6 +41,14 @@ export function readSchema(source, filename){
     return fs.readFileSync(relurl(source, filename), {encoding: "utf-8"});
 }
 
+/**
+ * 
+ * @param {Date} date 
+ */
+export function dateText(date){
+    return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} - ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+}
+
 export function columns(...text){
     return text.join('\t');
 }
