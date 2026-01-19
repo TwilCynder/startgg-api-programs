@@ -136,24 +136,11 @@ export async function readUsersFile(filename, existingArray){
  * @param {string} inputfile 
  * @param {boolean} stdinput 
  */
-function readInputText_(inputfile, stdinput){
-    return [
-        inputfile ? readJSONInput(inputfile).catch(err => {
-            console.warn(`Could not open file ${inputfile} : ${err}`)
-            return [];
-        }) : null,
-    
-        stdinput ? readJSONFromStdin() : null,
-    ]
-}
-
-/**
- * 
- * @param {string} inputfile 
- * @param {boolean} stdinput 
- */
-export function readInputText(inputfile, stdinput){
-    return Promise.all(readInputText_(inputfile, stdinput))
+export function tryReadJSONInput(inputfile){
+    return inputfile ? readJSONInput(inputfile).catch(err => {
+        console.warn(`Could not open file ${inputfile} : ${err}`)
+        return [];
+    }) : null
 }
 
 /**
@@ -174,22 +161,13 @@ export function aggregateArrayDataPromises(promises){
 }
 
 /**
- * 
- * @param {string} inputfile 
- * @param {boolean} stdinput 
- */
-export function readArrayInputData(inputfile, stdinput){
-    return aggregateArrayDataPromises(readInputText_(inputfile, stdinput));
-}
-
-/**
  * @param {string} inputfile 
  * @param {boolean} stdinput 
  * @param {Promise<any>} APIPromise 
  * @returns 
  */
-export function readMultimodalArrayInput(inputfile, stdinput, APIPromise){
-    return aggregateArrayDataPromises(readInputText_(inputfile, stdinput).concat(APIPromise));
+export function readMultimodalArrayInput(inputfile, APIPromise){
+    return aggregateArrayDataPromises([tryReadJSONInput(inputfile), APIPromise]);
 }
 
 /**
@@ -197,6 +175,6 @@ export function readMultimodalArrayInput(inputfile, stdinput, APIPromise){
  * @param {boolean} stdinput 
  * @param {() => Promise<any[]>} APIFetcher 
  */
-export function readMultimodalArrayInputWrapper(inputfile, stdinput, APIFetcher){
-    return readMultimodalArrayInput(inputfile, stdinput, APIFetcher());
+export function readMultimodalArrayInputWrapper(inputfile, APIFetcher){
+    return readMultimodalArrayInput(inputfile, APIFetcher());
 }

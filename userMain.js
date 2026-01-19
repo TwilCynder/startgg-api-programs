@@ -9,7 +9,7 @@ import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { loadCharactersInfo } from "./include/loadVideogameContent.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
-let {slugs, inputfile, stdinput, number, game, gamefile, percentages, outputFormat, outputfile, logdata, printdata, silent, all} = new ArgumentsManager()
+let {slugs, inputfile, number, game, gamefile, percentages, outputFormat, outputfile, logdata, printdata, silent, all} = new ArgumentsManager()
     .setAbstract("Data expected as input : result of downloadUserSetsChars -i")
     .addMultiParameter("slugs")
     .addOption(["-g", "--game"], {description: "Videogame slug", default: "game/ultimate"})
@@ -30,7 +30,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter()
-let users = await readMultimodalArrayInput(inputfile, stdinput, getUsersSetsChars(client, slugs, null, {max, includeWholeQuery: true}));
+let users = await readMultimodalArrayInput(inputfile, getUsersSetsChars(client, slugs, null, {max, includeWholeQuery: true}));
 let characters = loadCharactersInfo(gamefile, client, limiter, game);
 limiter.stop();
 

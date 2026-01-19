@@ -9,7 +9,7 @@ import { addInputParams, addOutputParamsBasic, isSilent } from "./include/lib/pa
 import { extractSlugs } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {slugs, outputfile, printdata, silent, inputfile, stdinput} = new ArgumentsManager()
+let {slugs, outputfile, printdata, silent, inputfile} = new ArgumentsManager()
     .apply(addOutputParamsBasic)
     .apply(addInputParams)
     .addCustomParser(new EventListParser, "slugs")
@@ -23,7 +23,7 @@ if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
 
-let data = await readMultimodalArrayInput(inputfile, stdinput, getEventsResults(client, extractSlugs(slugs), 2, limiter));
+let data = await readMultimodalArrayInput(inputfile, getEventsResults(client, extractSlugs(slugs), 2, limiter));
 limiter.stop();
 
 data = data.filter((ev) => !!ev);

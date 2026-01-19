@@ -9,7 +9,7 @@ import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
 import { getGamesNbInSets } from './include/getGamesNbInSets.js';
 
 try {
-    let {eventSlugs, eventsFilenames, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+    let {eventSlugs, eventsFilenames, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
         .apply(addEventParsers)
         .apply(addInputParams)
         .apply(addOutputParams)
@@ -23,7 +23,7 @@ try {
     let limiter = new StartGGDelayQueryLimiter();
 
     let events = await readEventLists(eventSlugs, eventsFilenames);
-    let data = await readMultimodalArrayInput(inputfile, stdinput, getSetsCharsInEvents(client, events, limiter))
+    let data = await readMultimodalArrayInput(inputfile, getSetsCharsInEvents(client, events, limiter))
 
     limiter.stop();
 

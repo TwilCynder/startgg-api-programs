@@ -9,7 +9,7 @@ import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 
-let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -26,9 +26,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
-let entrants = await readMultimodalArrayInput(inputfile, stdinput, 
-    getEntrantsBasicForEvents(client, eventSlugs)
-);
+let entrants = await readMultimodalArrayInput(inputfile, getEntrantsBasicForEvents(client, eventSlugs));
 limiter.stop();
 
 let users = minimum ? 

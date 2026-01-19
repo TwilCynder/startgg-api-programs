@@ -9,7 +9,7 @@ import { addEventParsers, readEventLists } from "./include/lib/computeEventList.
 import { readMultimodalArrayInputWrapper } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js"
  
-let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, userDataFile, outputfile, outputFormat} = new ArgumentsManager()
+let {inputfile, eventSlugs, eventsFilenames, names, namesfile, userDataFile, outputfile, outputFormat} = new ArgumentsManager()
     .apply(addEventParsers)
     .addMultiParameter("names")
     .addOption(["-f", "--names-file"], {dest: "namesfile"})
@@ -23,7 +23,7 @@ let {inputfile, stdinput, eventSlugs, eventsFilenames, names, namesfile, userDat
 let list = await readEventLists(eventSlugs, eventsFilenames);
 
 let [results, userData] = await Promise.all([
-    readMultimodalArrayInputWrapper(inputfile, stdinput, async () => {
+    readMultimodalArrayInputWrapper(inputfile, async () => {
         if (list && list.length > 0){
             let client = createClient();
             let limiter = new StartGGDelayQueryLimiter;

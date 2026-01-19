@@ -14,7 +14,7 @@ import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 import { loadCharactersInfo } from "./include/loadVideogameContent.js";
 
-let {list, extended, mains, minimum, game, gamefile, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {list, extended, mains, minimum, game, gamefile, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .addCustomParser(new EventListParser, "list")
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -31,7 +31,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
-let entrants = await readMultimodalArrayInput(inputfile, stdinput, 
+let entrants = await readMultimodalArrayInput(inputfile, 
     (extended && !mains) ? getEntrantsExtendedForEvents(client, list, limiter) : getEntrantsBasicForEvents(client, list, limiter)
 );
 

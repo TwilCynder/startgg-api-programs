@@ -8,7 +8,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { loadStagesInfo } from "./include/loadVideogameContent.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {eventSlugs, eventsFilenames, inputfile, stdinput, game, stagesfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, inputfile, game, stagesfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .addMultiParameter("eventSlugs")
     .addOption("--stages-filename", {dest: "stagesFile"})
     .addOption(["-g", "--game"])
@@ -26,7 +26,7 @@ if (silent_) muteStdout();
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await readMultimodalArrayInput(inputfile, stdinput, getSetsCharsInEvents(client, events, limiter));
+let data = await readMultimodalArrayInput(inputfile, getSetsCharsInEvents(client, events, limiter));
 let stages = await loadStagesInfo(stagesfile, client, limiter, game, true);
 limiter.stop();
 

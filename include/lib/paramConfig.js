@@ -87,16 +87,29 @@ export function addOutputParams(argumentsManager){
     addFormatParameter(argumentsManager);
 }
 
+function addInputParams_(argumentsManager, mandatory){
+    argumentsManager
+        .addOption(["-i", "--input-file"], {dest: "inputfile", description: "A file containing pre-downloaded data"}, !mandatory)
+}
+
 /**
- * Dests added : inputfile, stdinput  
- * Added switchs : [i]nput-file, [S]/stdin-input
+ * Dests added : inputfile
+ * Added switchs : [i]nput-file
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addInputParams(argumentsManager){
-    argumentsManager
-        .addOption(["-i", "--input-file"], {dest: "inputfile", description: "A file containing pre-downloaded data"})
-        .addSwitch(["-S", "--stdin-input"], {dest: "stdinput", description: "Enable reading start.gg data from stdin (downloaded by another script)"})
+    addInputParams_(argumentsManager, false)
 }
+
+/**
+ * Dests added : inputfile
+ * Added switchs : [i]nput-file (mandatory)
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addInputParamsMandatory(argumentsManager){
+    addInputParams_(argumentsManager, true)
+}
+
 
 /**
  * Dests added : startDate, endDate  

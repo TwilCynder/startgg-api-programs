@@ -18,7 +18,7 @@ let {
     eventSlugs, eventsFilenames, 
     games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, offline, online,
     outputFormat, outputfile, logdata, printdata, silent, eventName, outSlug,
-    inputfile, stdinput, 
+    inputfile, 
 } = new ArgumentsManager()
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments. You can use preexisting standings data as fetched by download/downloadStandingsFromUsers.js or by download/downloadEventsStandings.js, or ")
     .apply(addOutputParams)
@@ -49,7 +49,7 @@ let limiter = new StartGGDelayQueryLimiter;
 
 let [users, data] = await Promise.all([
     User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
-    readMultimodalArrayInput(inputfile, stdinput, 
+    readMultimodalArrayInput(inputfile, 
         (async()=>{
             if (startDate || endDate){
                 return await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, minEntrants, games});

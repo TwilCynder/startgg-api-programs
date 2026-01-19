@@ -8,7 +8,7 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 //TODO : ajouter un système de range comme pour les upsets
-let {eventSlugs, eventsFilenames, loserOnly, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, loserOnly, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addInputParams)
     .apply(addOutputParams)
     .apply(addEventParsers)
@@ -23,7 +23,7 @@ if (silent_) muteStdout()
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter()
-let data = await readMultimodalArrayInput(inputfile, stdinput, getEventsSetsBasicHashmap(client, events, limiter))
+let data = await readMultimodalArrayInput(inputfile, getEventsSetsBasicHashmap(client, events, limiter))
 limiter.stop();
 
 let best = {maxLength: 0, runs: []}

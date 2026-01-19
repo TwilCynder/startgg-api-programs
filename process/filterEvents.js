@@ -1,13 +1,13 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventFilterParams, addEventGenericFilterParams, addEventOnlineFilterParams, addEventPropertiesFilterParams, addInputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
+import { addEventGenericFilterParams, addEventOnlineFilterParams, addInputParams, addInputParamsMandatory, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
-import { outputJSON, readArrayInputData } from "../include/lib/util.js";
-import { filterEvents, filterEventsFromTournament } from "../include/filterEvents.js";
+import { outputJSON, tryReadJSONInput } from "../include/lib/util.js";
+import { filterEventsFromTournament } from "../include/filterEvents.js";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
-let {inputfile, stdinput, eventSlugs, eventsFilenames, exclude_expression, filter, outputfile, printdata, silent, prettyjson, blacklistMode, offline, online, minEntrants} = new ArgumentsManager() 
+let {inputfile, eventSlugs, eventsFilenames, exclude_expression, filter, outputfile, printdata, silent, prettyjson, blacklistMode, offline, online, minEntrants} = new ArgumentsManager() 
     .setAbstract("Applies various filters to an array of events (with or without standings). See options to see all awailable filters. Keep in mind that if any events is specified, only these events will be kept ; -B reverses this.")
-    .apply(addInputParams)
+    .apply(addInputParamsMandatory)
     .apply(addEventParsers)
     .addSwitch(["-B", "--blacklist-mode"], {dest: "blacklistMode", description: "Treat events as blacklist instead of whitelist"})
     .apply(addEventGenericFilterParams)
@@ -21,7 +21,7 @@ let silent_ = isSilent(printdata, silent);
 if (silent_) muteStdout();
 
 let [data, events] = await Promise.all([
-    readArrayInputData(inputfile, stdinput),
+    tryReadJSONInput(inputfile),
     readEventLists(eventSlugs, eventsFilenames)
 ]);
 

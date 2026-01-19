@@ -5,12 +5,13 @@ import { addInputParams, addOutputParamsCustom, addUsersParams, doWeLog, isSilen
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readInputText, readMultimodalArrayInput } from "./include/lib/util.js";
+import { output, readInputJSON, readMultimodalArrayInput, tryReadJSONInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
 import { yellow } from "./include/lib/consoleUtil.js";
+import { readText } from "./include/lib/readUtil.js";
 
-let {eventSlugs, eventsFilenames, userSlugs, filename, total, count, userDataFile, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, display} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, userSlugs, filename, total, count, userDataFile, outputFormat, outputfile, logdata, printdata, silent, inputfile, display} = new ArgumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
     .apply(addOutputParamsCustom(true, true))
@@ -28,8 +29,7 @@ if (silent_) muteStdout();
 
 let data;
 if (display){
-    let [fileinput, stdinput_] = await readInputText(inputfile, stdinput);
-    data = stdinput_ || fileinput;
+    data = await tryReadJSONInput(inputfile);
     if (!data){
         console.error("No input data");
         process.exit(1);
@@ -40,7 +40,7 @@ if (display){
     let limiter = new StartGGDelayQueryLimiter;
     let [users, sets] = await Promise.all([
         User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
-        readMultimodalArrayInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter)),
+        readMultimodalArrayInput(inputfile, getEventsSetsBasic(client, events, limiter)),
     ])
     limiter.stop();
 

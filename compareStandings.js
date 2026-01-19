@@ -14,7 +14,7 @@ import { fetchUsersStandings } from "./include/fetchUserEvents.js";
 let {
     eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, 
     games, minEntrants, startDate, endDate, exclude_expression, filter, offline, online,
-    outputFormat, outputfile, printdata, silent, inputfile, stdinput
+    outputFormat, outputfile, printdata, silent, inputfile
 } = new ArgumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
@@ -36,7 +36,7 @@ let limiter = new StartGGDelayQueryLimiter;
 
 let [users, eventsStandings] = await Promise.all([
     User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
-    readMultimodalArrayInput(inputfile, stdinput, 
+    readMultimodalArrayInput(inputfile, 
         (startDate || endDate) ? 
         fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, games, minEntrants}) :
         getEventsResults(client, events, undefined, limiter)

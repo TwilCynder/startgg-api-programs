@@ -6,7 +6,7 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {userSlugs, file, inputfile, stdinput, outputfile, printdata, silent, logdata, slug} = new ArgumentsManager()
+let {userSlugs, file, inputfile, outputfile, printdata, silent, logdata, slug} = new ArgumentsManager()
     .addMultiParameter("userSlugs")
     .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"})
     .addSwitch(["-u", "--slug"], {description: "Include slug in output"})
@@ -21,7 +21,7 @@ if (silent_) muteStdout();
 
 userSlugs = await readUsersFile(file, userSlugs);
 
-let users = await readMultimodalArrayInput(inputfile, stdinput, (async()=>{
+let users = await readMultimodalArrayInputWrapper(inputfile, (async()=>{
     if (userSlugs){
         let limiter = new StartGGDelayQueryLimiter;
         let data = await getUsersInfoExtended(client, userSlugs, limiter);
@@ -29,7 +29,7 @@ let users = await readMultimodalArrayInput(inputfile, stdinput, (async()=>{
         return data;
     }
     return [];
-})());
+}));
 
 function locationString(location){
     return location ? [location.city, location.state, location.country].filter(e=>e).join(", ") : ""

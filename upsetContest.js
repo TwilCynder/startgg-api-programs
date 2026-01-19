@@ -11,7 +11,7 @@ import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { columns, output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
-let {eventSlugs, eventsFilenames, top, min_sets, sprRange, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, top, min_sets, sprRange, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addOutputParams)
     .apply(addInputParams)
     .apply(addEventParsers)
@@ -29,7 +29,7 @@ if (silent_) muteStdout();
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await readMultimodalArrayInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter));
+let data = await readMultimodalArrayInput(inputfile, getEventsSetsBasic(client, events, limiter));
 limiter.stop();
 
 console.log(`Data fetched, ${data.length} sets`);

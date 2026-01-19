@@ -14,7 +14,7 @@ import { cFormat, yellow } from './include/lib/consoleUtil.js';
 try {
     let {charactersInfoFilename, gameSlug, 
         processSets, processPlayers, minGamesPlayer, percentages,
-        eventSlugs, eventsFilenames, inputfile, stdinput, 
+        eventSlugs, eventsFilenames, inputfile, 
         outputFormat, outputfile, logdata, printdata, silent
     } = new ArgumentsManager()
         .apply(addEventParsers)
@@ -62,7 +62,7 @@ try {
     let limiter = new StartGGDelayQueryLimiter();
 
     let [data, charNames] = await Promise.all([
-        readMultimodalArrayInput(inputfile, stdinput, getSetsCharsDetailedInEvents(client, events, limiter)),
+        readMultimodalArrayInput(inputfile, getSetsCharsDetailedInEvents(client, events, limiter)),
         loadCharactersInfo(charactersInfoFilename, client, limiter, gameSlug, true)
     ])
 

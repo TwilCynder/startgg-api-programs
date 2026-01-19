@@ -1,12 +1,16 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addInputParams } from "../include/lib/paramConfig.js";
-import { readArrayInputData } from "../include/lib/util.js";
+import { addInputParamsMandatory } from "../include/lib/paramConfig.js";
+import { tryReadJSONInput } from "../include/lib/util.js";
 
-let {inputfile, stdinput} = new ArgumentsManager()
+let {inputfile} = new ArgumentsManager()
     .setAbstract("Returns the number of elements in a JSON array")
-    .apply(addInputParams)
+    .apply(addInputParamsMandatory)
     .parseProcessArguments()
 
-let data = await readArrayInputData(inputfile, stdinput);
+let data = await tryReadJSONInput(inputfile);
+if (!data) {
+    console.error("No input");
+    process.exit(1);
+}
 
 console.log(data.length);

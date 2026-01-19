@@ -7,7 +7,7 @@ import { getOtherEventsFromEvents } from "./include/getOtherEvents.js";
 import { client } from "./include/lib/client.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, stdinput, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -23,7 +23,7 @@ if (silent_) muteStdout();
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await readMultimodalArrayInput(inputfile, stdinput, getOtherEventsFromEvents(client, events, limiter));
+let data = await readMultimodalArrayInput(inputfile, getOtherEventsFromEvents(client, events, limiter));
 limiter.stop();
 
 data = data.filter(v => !!v).map(tournament => {

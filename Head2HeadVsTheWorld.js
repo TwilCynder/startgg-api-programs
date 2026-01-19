@@ -10,7 +10,7 @@ import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
 
-let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, worldUsersFilename, outputFormat, outputfile, logdata, printdata, silent, inputfile, stdinput, scoreonly} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, worldUsersFilename, outputFormat, outputfile, logdata, printdata, silent, inputfile, scoreonly} = new ArgumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
     .apply(addOutputParams)
@@ -34,7 +34,7 @@ let limiter = new StartGGDelayQueryLimiter;
 let [users, world, sets] = await Promise.all([
     User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
     readLinesAsync(worldUsersFilename),
-    readMultimodalArrayInput(inputfile, stdinput, getEventsSetsBasic(client, events, limiter)),
+    readMultimodalArrayInput(inputfile, getEventsSetsBasic(client, events, limiter)),
 ])
 
 limiter.stop();

@@ -10,7 +10,7 @@ import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
-let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, stdinput, silent, top, min_sets} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, silent, top, min_sets} = new ArgumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -29,7 +29,7 @@ if (silent_) muteStdout();
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await readMultimodalArrayInput(inputfile, stdinput, getEventsSetsGames(client, events, limiter));
+let data = await readMultimodalArrayInput(inputfile, getEventsSetsGames(client, events, limiter));
 limiter.stop();
 
 function detectReverse(games){
