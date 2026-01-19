@@ -24,6 +24,12 @@ function convert(list){
  */
 export async function loadVideogameContent(filename, client, limiter, slug, writeIfNeeded = true){
     //INSERT BETTER CACHE SYSTEM HERE
+    
+    if (!slug){
+        console.error("Tried to load game content into but no game slug was specified");
+        return null;
+    }
+
     let data;
     if (filename){
         let s = await stat(filename);
@@ -44,6 +50,8 @@ export async function loadVideogameContent(filename, client, limiter, slug, writ
     } 
     
     if (client && slug){
+        if (!slug.includes("game/")) slug = "game/"+slug;
+
         data = await getVideogameContent(client, slug, limiter);
         if (data){
             if (data.characters) data.characters = convert(data.characters);
