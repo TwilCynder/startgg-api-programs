@@ -1,0 +1,32 @@
+query EventsByDate($page: Int!, $perPage: Int, $afterDate : Timestamp!, $beforeDate : Timestamp!, $countryCode: String, $games: [ID], $online: Boolean, $teamType: [Int]){
+  tournaments(query:{
+    perPage: $perPage
+    page: $page
+    sort: endAt
+    filter:{
+      afterDate: $afterDate
+      beforeDate: $beforeDate
+      countryCode: $countryCode
+      hasOnlineEvents: $online
+      videogameIds: $games
+    }
+  }){
+    pageInfo {
+      totalPages
+    }
+    nodes{
+      events(filter:{
+        videogameId: $games
+        type: $teamType
+      }){
+        isOnline
+        numEntrants
+        name
+        state
+        slug
+      }
+      slug
+      name
+    }
+  }  
+}

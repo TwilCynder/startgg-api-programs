@@ -172,10 +172,12 @@ export function addEventFilterParams(argumentsManager){
  * Switches potentially added : [R]/exclude_expression, [b]/filter, [O]/offline, start-date, end-date, [g]ames, [m]in-entrants
  * @param {ArgumentsManager} argumentsManager 
  */
-export function addEventFilterParamsExcept(argumentsManager, ...exclude){
+export function addEventFilterParamsExcept(...exclude){
     exclude = exclude.flat();
-    for (const f of eventFilterParamFunctions){
-        if (!exclude.includes(f)) f(argumentsManager);
+    return (argumentsManager) => {
+        for (const f of eventFilterParamFunctions){
+            if (!exclude.includes(f)) f(argumentsManager);
+        }
     }
 }
 

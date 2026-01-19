@@ -19,6 +19,8 @@ export function splitWhitespace(text){
     return text.split(/\s+/g).filter(s=>s);
 }
 
+
+
 /**
  * Reads a CSV text into an array of arrays. 
  * Does not even try to handle edge cases, use a real csv package if you need to read complicated/weird CSVs
