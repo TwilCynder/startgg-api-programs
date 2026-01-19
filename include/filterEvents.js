@@ -4,8 +4,10 @@
  * @param {Object[]} events 
  * @param {string[]} exclude_expression 
  * @param {string[]} exclude_words 
+ * @param {boolean} offline 
+ * @param {boolean} online 
  */
-export function filterEvents(events, exclude_expression, exclude_words, offline){
+export function filterEvents(events, exclude_expression, exclude_words, offline, online){
 
     if (exclude_expression){
         let exclude_regex = exclude_expression.map(exp => new RegExp(exp));
@@ -28,9 +30,24 @@ export function filterEvents(events, exclude_expression, exclude_words, offline)
         })
     }
 
-    if (typeof offline == "boolean"){
-        events = events.filter(event => event.isOnline != offline)
+    if (offline == online){
+        events = events.filter(event => event.isOnline == online)
     }
 
     return events;
+}
+
+/**
+ * Additional minEntrants filters for events pulled from a tournament since the tournament.events query doesn't have the minEntrants filter built-in
+ * @param {Object[]} events 
+ * @param {string[]} exclude_expression 
+ * @param {string[]} exclude_words 
+ * @param {number} minEntrants 
+ * @param {boolean} offline 
+ * @param {boolean} online
+ */
+export function filterEventsFromTournament(events, exclude_expression, exclude_words, minEntrants, offline, online){
+    events = filterEvents(events, exclude_expression, exclude_words, offline, online);
+
+    return minEntrants ? events.filter(event => event.numEntrants >= minEntrants) : events;
 }

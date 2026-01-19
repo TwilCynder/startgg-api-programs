@@ -1,3 +1,7 @@
+- Refaire getEventsFromUser, en utilisant les filter afterDate et beforeDate directement dans la query ? jsp si c'est possible enft
+- Fix tous les scripts pétés suite aux changements de addEvent*Parameters, filterEvents, minEntrants, loadGames
+- Implémenter un QueryManager, avec un tryLoad, pour les fonctions qui peuvent utiliser plusieurs queries *ou pas*
+- Ajouter le système de gestion de game content à sgg-helper (et pk pas la fincalisation de dates)
 - Faire un package NPM
 - généraliser le système de --display de leaguehead2head, pour utiliser uniquement la partie transformation en texte d'un script
 - Utiliser selections.character instead of selectionValue

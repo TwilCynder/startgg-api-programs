@@ -99,11 +99,11 @@ export function addInputParams(argumentsManager){
 }
 
 /**
- * Dests added : games, minEntrants, startDate, endDate  
- * Switchs added : start-date, end-date, [g]ames, [m]in-entrants
+ * Dests added : startDate, endDate  
+ * Switchs added : start-date, end-date
  * @param {ArgumentsManager} argumentsManager 
  */
-export function addEventQueryFilterParams(argumentsManager){
+export function addEventDateFilterParams(argumentsManager){
     argumentsManager
         .addOption("--start-date", {
             dest: "startDate",
@@ -113,30 +113,70 @@ export function addEventQueryFilterParams(argumentsManager){
             dest: "endDate",
             description: "Only count tournaments before this UNIX date"
         })
-        .addOption(["-g", "--games"], {description: "Comma-separated list of videogames to limit search to. Can be start.gg game slugs or numerical IDs"})
-        .addOption(["-m", "--min-entrants"], {dest: "minEntrants", type: "number", description: "Only count events with at least this number of entrants"})
 }
 
 /**
- * Dests added : exclude_expression, filter
- * Added switchs : [R]/exclude_expression, [b]/filter, [O]/offline
+ * Dests added : games
+ * Switchs added : [g]ames
  * @param {ArgumentsManager} argumentsManager 
  */
-export function addEventPropertiesFilterParams(argumentsManager){
+export function addEventGameFilterParams(argumentsManager){
+    argumentsManager
+        .addOption(["-g", "--games"], {description: "Comma-separated list of videogames to limit search to. Can be start.gg game slugs or numerical IDs"})
+}
+
+/**
+ * Dests added : offline, online
+ * Switchs added : [O]ffline, o[N]line 
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addEventOnlineFilterParams(argumentsManager){
+    argumentsManager
+        .addSwitch(["-O", "--offline"], {description: "Only keep offline events"})
+        .addSwitch(["-N", "--online"], {description: "Only keep online events"})
+}
+
+/**
+ * Dests added : exclude_expression, filter, minEntrants
+ * Added switchs : [R]/exclude_expression, [b]/filter, [m]in-entrants
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addEventGenericFilterParams(argumentsManager){
     argumentsManager
         .addMultiOption(["-R", "--exclude_expression"], {description: "Regular expressions that will remove events they match with"})
         .addMultiOption(["-b", "--filter"], {description: "Add a word filter. Events containing one of these words will be ignored"})
-        .addSwitch(["-O", "--offline"], {description: "Only keep offline event"})
+        .addOption(["-m", "--min-entrants"], {dest: "minEntrants", type: "number", description: "Only count events with at least this number of entrants"})
 }
 
+const eventFilterParamFunctions = [
+    addEventDateFilterParams,
+    addEventGameFilterParams,
+    addEventOnlineFilterParams,
+    addEventGenericFilterParams
+]
+
 /**
- * Dests added : games, minEntrants, exclude_expression, filter, startDate, endDate
+ * Dests added : games, minEntrants, exclude_expression, filter, startDate, endDate, offline
  * Added switchs : [R]/exclude_expression, [b]/filter, [O]/offline, start-date, end-date, [g]ames, [m]in-entrants
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventFilterParams(argumentsManager){
-    addEventQueryFilterParams(argumentsManager);
-    addEventPropertiesFilterParams(argumentsManager);
+    for (const f of eventFilterParamFunctions){
+        f(argumentsManager);
+    }
+}
+
+/**
+ * Adds event filter parameters except if the corresponding function is included in this function's arguments
+ * Dests potentially added : games, minEntrants, exclude_expression, filter, startDate, endDate, offline
+ * Switches potentially added : [R]/exclude_expression, [b]/filter, [O]/offline, start-date, end-date, [g]ames, [m]in-entrants
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addEventFilterParamsExcept(argumentsManager, ...exclude){
+    exclude = exclude.flat();
+    for (const f of eventFilterParamFunctions){
+        if (!exclude.includes(f)) f(argumentsManager);
+    }
 }
 
 /**

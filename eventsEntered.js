@@ -9,7 +9,7 @@ import { filterEvents } from "./include/filterEvents.js";
 
 let {
     userSlugs, filename, 
-    games, minEntrants, exclude_expression, filter, startDate, endDate, offline, 
+    games, minEntrants, exclude_expression, filter, startDate, endDate, offline, online,
     outputFormat, outputfile, logdata, printdata, silent, slugOnly
 } = new ArgumentsManager()
     .apply(addOutputParams)
@@ -36,7 +36,7 @@ let data = await fetchUserEvents(client, userSlugs, limiter, {
 });
 limiter.stop();
 
-data = filterEvents(data, exclude_expression, filter, offline);
+data = filterEvents(data, exclude_expression, filter, offline, online);
 
 if (silent_) unmuteStdout();
 

@@ -2,7 +2,7 @@ import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
+import { addEventDateParams, addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
@@ -13,7 +13,7 @@ import { fetchUsersStandings } from "./include/fetchUserEvents.js";
 
 let {
     eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, 
-    games, minEntrants, startDate, endDate, exclude_expression, filter, offline, 
+    games, minEntrants, startDate, endDate, exclude_expression, filter, offline, online,
     outputFormat, outputfile, printdata, silent, inputfile, stdinput
 } = new ArgumentsManager()
     .apply(addUsersParams)
@@ -45,7 +45,7 @@ let [users, eventsStandings] = await Promise.all([
 
 limiter.stop();
 
-eventsStandings = filterEvents(eventsStandings, exclude_expression, filter, offline);
+eventsStandings = filterEvents(eventsStandings, exclude_expression, filter, offline, online);
 
 //console.log(users, eventsStandings);
 

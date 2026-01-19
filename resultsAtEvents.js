@@ -16,7 +16,7 @@ import { filterEvents } from "./include/filterEvents.js";
 let {
     userSlugs, filename, userDataFile, 
     eventSlugs, eventsFilenames, 
-    games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, offline,
+    games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, offline, online,
     outputFormat, outputfile, logdata, printdata, silent, eventName, outSlug,
     inputfile, stdinput, 
 } = new ArgumentsManager()
@@ -75,7 +75,7 @@ data = data.filter(event => {
     }
     return true;
 });
-data = filterEvents(data, exclude_expression, filter, offline);
+data = filterEvents(data, exclude_expression, filter, offline, online);
 
 for (let event of data){
     if (!event || !event.standings){

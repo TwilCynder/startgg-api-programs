@@ -2,7 +2,7 @@ import { GraphQLClient } from "graphql-request";
 import { readUsersFile } from "./lib/util.js";
 import { TimedQuerySemaphore } from "startgg-helper";
 import { getStandingsFromUsers } from "./getStandingsFromUser.js";
-import { loadGames } from "./loadGames.js";
+import { loadGames, processGameListString } from "./loadGames.js";
 import { toUNIXTimestamp } from "startgg-helper-node/util";
 import { getEventsFromUsers } from "./getEventsFromUser.js";
 
@@ -11,9 +11,7 @@ import { getEventsFromUsers } from "./getEventsFromUser.js";
  * @param {import("./getEventsFromUser.js").GEFUConfig} config 
  */
 async function finalizeConfig(config, client, limiter){
-    if (config.games && config.games.length && (typeof config.games[0] != "number")){
-        config.games = await loadGames(client, config.games, limiter);
-    }
+    config.games = await processGameListString(client, config.games, limiter);
     config.startDate = toUNIXTimestamp(config.startDate);
     config.endDate = toUNIXTimestamp(config.endDate);
 }
