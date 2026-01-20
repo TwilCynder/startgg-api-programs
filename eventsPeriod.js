@@ -58,7 +58,7 @@ if (silent) unmuteStdout();
 if (logdata){
     if (detailed){
         for (const event of data){
-            console.log(event.slug, bgreen(event.tournamentName + "-" + event.name), event.numEntrants, "entrants, ", event.isOnline ? "online" : "offline");
+            console.log(event.slug, bgreen(event.tournament.name + " - " + event.name), event.numEntrants, "entrants,", event.isOnline ? "online" : `offline (${event.tournament.city})`);
         }
     } else {
         for (const event of data){

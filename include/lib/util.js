@@ -19,7 +19,19 @@ export function splitWhitespace(text){
     return text.split(/\s+/g).filter(s=>s);
 }
 
+export function keepProperties(obj, ...properties){
+    properties = properties.flat();
+    let res = {};
+    for (const key of properties){
+        res[key] = obj[key];
+    }
+    return res;
+}
 
+export function excludeProperties(obj, ...properties){
+    properties = properties.flat();
+    return Object.fromEntries(Object.entries(obj).filter(([k, _]) => !properties.includes(k)))
+}
 
 /**
  * Reads a CSV text into an array of arrays. 

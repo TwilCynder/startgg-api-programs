@@ -1,5 +1,5 @@
 import { deep_get, Query } from 'startgg-helper';
-import { dateText, readSchema } from './lib/util.js';
+import { dateText, excludeProperties, keepProperties, readSchema } from './lib/util.js';
 
 const baseQuery = new Query(readSchema(import.meta.url, "./GraphQLSchemas/EventsByDate.gql"), 3);
 const detailedQuery = new Query(readSchema(import.meta.url, "./GraphQLSchemas/EventsByDateDetailed.gql"), 3);
@@ -41,7 +41,7 @@ export async function getEventsByDate(client, limiter, startDate, endDate, confi
 
     let result = [];
     if (detailed){
-      result = data.map(tournament => (tournament.events ?? []).map(event => Object.assign(event, {tournamentName: tournament.name}))).flat();
+      result = data.map(tournament => (tournament.events ?? []).map(event => Object.assign(event, {tournament: excludeProperties(tournament, "events")}))).flat();
       if (config.minEntrants) result = result.filter(event => event.numEntrants >= config.minEntrants);
     } else {
       result = data.map(tournament => (tournament.events ?? [])).flat();
