@@ -9,7 +9,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 import { addInputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { aggregateArrayDataPromises, outputJSON, tryReadJSONInput } from "../include/lib/util.js";
-import { getEventsResults, getEventsResultsFromObjects } from "../include/getEventResults.js";
+import { getEventsResultsBare, getEventsResultsBareFromObjects } from "../include/getEventResultsBare.js";
 
 let {eventSlugs, eventsFilenames, inputfile, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .apply(addEventParsers) 
@@ -29,7 +29,7 @@ let limiter = new StartGGDelayQueryLimiter();
 
 let eventObjects = await tryReadJSONInput(inputfile);
 
-let data = await aggregateArrayDataPromises([getEventsResults(client, events, undefined, limiter), eventObjects ? getEventsResultsFromObjects(client, eventObjects, undefined, limiter) : []]);
+let data = await aggregateArrayDataPromises([getEventsResultsBare(client, events, undefined, limiter), eventObjects ? getEventsResultsBareFromObjects(client, eventObjects, undefined, limiter) : []]);
 
 limiter.stop();
 

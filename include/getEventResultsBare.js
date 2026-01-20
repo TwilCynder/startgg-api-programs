@@ -3,7 +3,7 @@ import { readSchema } from './lib/util.js';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from 'startgg-helper';
 
-const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventStanding.gql");
+const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventStandingsBare.gql");
 const query = new Query(schema, 3);
 
 query.log = {
@@ -19,18 +19,14 @@ query.log = {
  * @param {TimedQuerySemaphore} limiter 
  * @returns {Promise<{}>}
  */
-export async function getEventResults(client, slug, numEntrants = 192, limiter = null){
+export async function getEventResultsBare(client, slug, perPage = 192, limiter = null){
     console.log("Getting standings from event : ", slug);
 
-    let res = await query.execute(client, {slug, numEntrants}, limiter);
-    if (!res.event) {
-        console.warn("Couldn't fetch resuls for event", slug);
-        return {slug};
-    }
+    let res = await query.executePaginated(client, {slug}, "event.standings", limiter, {perPage});
 
     console.log("Fetched results for event", slug);
 
-    return res.event;
+    return res;
 }
 
 /**
@@ -41,8 +37,8 @@ export async function getEventResults(client, slug, numEntrants = 192, limiter =
  * @param {TimedQuerySemaphore} limiter 
  * @returns {Promise<{}[]>}
  */
-export function getEventsResults(client, slugs, numEntrants = 192, limiter = null){
-    return Promise.all(slugs.map((slug) => getEventResults(client, slug, numEntrants, limiter)
+export function getEventsResultsBare(client, slugs, perPage = 192, limiter = null){
+    return Promise.all(slugs.map((slug) => getEventResultsBare(client, slug, numEntrants, limiter)
         .catch((err) => console.warn("Slug", slug, "kaput : ", err))
         .then(data => Object.assign(data, {slug}))
     ));
@@ -55,14 +51,14 @@ export function getEventsResults(client, slugs, numEntrants = 192, limiter = nul
  * @param {number} numEntrants 
  * @param {TimedQuerySemaphore} limiter 
  */
-export function getEventsResultsFromObjects(client, events, numEntrants, limiter){
+export function getEventsResultsBareFromObjects(client, events, numEntrants, limiter){
     return Promise.all(events.map(async event => {
         if (!event.slug) {
             console.error("Event object with no slug :", event);
             return event;
         }
-        const data = await getEventResults(client, event.slug, numEntrants, limiter);
-        Object.assign(data, event);
-        return data;
+        const data = await getEventResultsBare(client, event.slug, numEntrants, limiter);
+        Object.assign(event, {standings: data});
+        return event;
     }))
 }
