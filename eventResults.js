@@ -5,16 +5,18 @@ import { extractSlugs } from "startgg-helper-node"
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { output, splitWhitespace } from "./include/lib/util.js";
-import { readLines } from "./include/lib/readUtil.js";
+import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { dateText, output, readMultimodalArrayInput, splitWhitespace } from "./include/lib/util.js";
+import { readLinesAsync } from "./include/lib/readUtil.js";
 
-let {replacementsFile, eventsSlugs, outputFormat, outputfile, logdata, printdata, silent, eventName} = new ArgumentsManager()
+let {replacementsFile, eventsSlugs, sorted, inputfile, outputFormat, outputfile, logdata, printdata, silent, eventName} = new ArgumentsManager()
+    .apply(addInputParams)
     .apply(addOutputParams)
     .addOption(["-r", "--replacementsFile"])
     .addSwitch("--eventName", {
         description: "Include each event's name in the result (aside from the tournament's name)"
     })
+    .addSwitch(["-s", "--sorted"], {description: "Sort by start time"})
     .addCustomParser(new EventListParser, "eventsSlugs")
     .enableHelpParameter()
 
@@ -25,17 +27,22 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
-let events = await getEventsResults(client, extractSlugs(eventsSlugs), undefined);
+let events = await readMultimodalArrayInput(inputfile, getEventsResults(client, extractSlugs(eventsSlugs), undefined, limiter))  ;
 limiter.stop()
 
 console.log(events.length);
 
-events = events.filter(ev => !!ev).sort((a, b) => a.startAt - b.startAt);
+function getEventStartTime(event){
+    return event.startAt ?? event.tournament.startAt;
+}
+
+events = events.filter(ev => !!ev)
+if (sorted) events = events.sort((a, b) => getEventStartTime(a) - getEventStartTime(b));
 
 let namesReplacements = {}
 if (replacementsFile){
     try {
-        readLines(replacementsFile).forEach(line => {
+        await readLinesAsync(replacementsFile).forEach(line => {
             let [name, replacement] = splitWhitespace(line);
             if (replacement){
                 namesReplacements[name] = replacement;
@@ -56,11 +63,9 @@ function substituteName(name){
 }
 
 function generateLine(event){
-    let date = new Date(event.startAt * 1000)
-    let dateString = "d/m/Y"
-        .replace('Y', date.getFullYear())
-        .replace('m', date.getMonth()+1)
-        .replace('d', date.getDate());
+    const timestamp = event.startAt ?? event.tournament.startAt;
+    let date = new Date(timestamp * 1000)
+    let dateString = dateText(date);
     let result = `${dateString}\t${event.tournament.name}\t${eventName ? event.name + "\t" : ""}TLS\t${event.standings.nodes.length}`;
 
     for (const s of event.standings.nodes){

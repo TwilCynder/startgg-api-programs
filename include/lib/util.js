@@ -54,11 +54,31 @@ export function readSchema(source, filename){
 }
 
 /**
- * 
  * @param {Date} date 
  */
 export function dateText(date){
-    return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} - ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+    return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
+}
+
+/**
+ * @param {Date} date 
+ */
+export function timeText(date){
+    return `${dateText(date)} - ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+}
+
+/**
+ * @param {Date} date 
+ * @param {string} format 
+ */
+export function timeTextFormat(date, format){
+    return format
+        .replace('y', date.getFullYear)
+        .replace('m', date.getMonth()+1)
+        .replace('d', date.getDate())
+        .replace('h', date.getHours())
+        .replace('M', date.getMinutes())
+        .replace('s', date.getSeconds())
 }
 
 export function columns(...text){

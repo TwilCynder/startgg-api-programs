@@ -24,6 +24,7 @@ query EventsByDate($page: Int!, $perPage: Int, $afterDate : Timestamp!, $beforeD
         name
         state
         slug
+        id
       }
       name
       city

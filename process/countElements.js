@@ -4,7 +4,7 @@ import { tryReadJSONInput } from "../include/lib/util.js";
 
 let {inputfile} = new ArgumentsManager()
     .setAbstract("Returns the number of elements in a JSON array")
-    .apply(addInputParamsMandatory)
+    .addParameter("inputfile", {}, false)
     .parseProcessArguments()
 
 let data = await tryReadJSONInput(inputfile);
