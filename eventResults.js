@@ -66,7 +66,7 @@ function generateLine(event){
     const timestamp = event.startAt ?? event.tournament.startAt;
     let date = new Date(timestamp * 1000)
     let dateString = dateText(date);
-    let result = `${dateString}\t${event.tournament.name}\t${eventName ? event.name + "\t" : ""}TLS\t${event.standings.nodes.length}`;
+    let result = `${dateString}\t${event.tournament.name}\t${eventName ? event.name + "\t" : ""}${event.standings.nodes.length}`;
 
     for (const s of event.standings.nodes){
         let name = s.entrant.name;
