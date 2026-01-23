@@ -8,15 +8,19 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { dateText, output, readMultimodalArrayInput, splitWhitespace } from "./include/lib/util.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
+import { getMostRelevantName } from "./include/getMostRelevantName.js";
 
-let {replacementsFile, eventsSlugs, sorted, inputfile, outputFormat, outputfile, logdata, printdata, silent, eventName} = new ArgumentsManager()
+let {replacementsFile, eventsSlugs, sorted, line_format, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+    .setParameters({guessLowDashes: true})
     .apply(addInputParams)
     .apply(addOutputParams)
     .addOption(["-r", "--replacementsFile"])
-    .addSwitch("--eventName", {
+    /*.addSwitch("--eventName", {
         description: "Include each event's name in the result (aside from the tournament's name)"
-    })
+    })*/
     .addSwitch(["-s", "--sorted"], {description: "Sort by start time"})
+    //.addSwitch(["-u", "--output-slug"], {dest: "outSlug", description: "Include event slugs in the csv output"})
+    .addOption(["-F", "--line-format"], {description: 'String describing the format of each line. It should contain words separated by spaces ; words should be "date", "eventName", "tournamentName", "name", "slug", "size", "blank" and "results". "results" is added automatically at the end if not present.'})
     .addCustomParser(new EventListParser, "eventsSlugs")
     .enableHelpParameter()
 
@@ -62,26 +66,48 @@ function substituteName(name){
     return name;
 }
 
-function generateLine(event){
-    const timestamp = event.startAt ?? event.tournament.startAt;
-    let date = new Date(timestamp * 1000)
-    let dateString = dateText(date);
-    let result = `${dateString}\t${event.tournament.name}\t${eventName ? event.name + "\t" : ""}${event.standings.nodes.length}`;
-
-    for (const s of event.standings.nodes){
-        let name = s.entrant.name;
-        name = name.substring(name.lastIndexOf('|')+1).trim();
-        name = substituteName(name);
-        result += '\t' + name;
-    }
-
-    return result;
-}
-
 if (silent_) unmuteStdout();
 
-printdata = printdata || logdata_;
+console.log(line_format)
 
+const default_format = "date name size results";
+const textFunctions = {
+    date: (event) => dateText(new Date((event.startAt ?? event.tournament.startAt) * 1000)),
+    eventName: (event) => event.name,
+    tournamentName: (event) => event.tournament.name,
+    name: (event) => "" + event.tournament.name + " - " + event.name,
+    slug: (event) => event.slug,
+    size: (event) => event.standings.nodes.length,
+    results: (event) => event.standings.nodes.map(standing => {
+        let name = getMostRelevantName(standing.entrant);
+        name = substituteName(name);
+        return name;
+    }).join("\t")
+}
+
+/** @type {(typeof textFunctions.date)[]} */
+let lineFunctions = [];
+line_format = line_format ?? default_format;
+
+let resultsUsed = false;
+for (const word of line_format.split(/\s+/g)){
+    const f = textFunctions[word];
+    if (f == textFunctions.results) resultsUsed = true;
+    if (f) lineFunctions.push(f);
+}
+
+if (!resultsUsed) lineFunctions.push(textFunctions.results);
+
+function generateLine(event){
+    let line = "";
+    for (const f of lineFunctions){
+        line += f(event) + '\t'
+    }
+
+    return line.replace(/\t+$/g, "");
+}
+
+printdata = printdata || logdata_;
 output(outputFormat, outputfile, printdata, events, (events) => {
     let resultString = "";
     for (let event of events){
