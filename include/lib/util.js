@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { readJSONFromStdin } from './readUtil.js';
+import { readJSONFromStdin, readLinesInFiles } from './readUtil.js';
 import { toJSON } from 'startgg-helper-node/util';
 import { readJSONInput, readLinesAsync } from './readUtil.js';
 import { relurl } from "./dirname.js"
@@ -209,4 +209,24 @@ export function readMultimodalArrayInput(inputfile, APIPromise){
  */
 export function readMultimodalArrayInputWrapper(inputfile, APIFetcher){
     return readMultimodalArrayInput(inputfile, APIFetcher());
+}
+
+/**
+ * 
+ * @param {string[]} filter_words 
+ * @param {string[]} filter_word_files 
+ */
+export async function readEventFilterWords(filter_words, filter_word_files){
+    let filters = (await readLinesInFiles(filter_word_files, false))
+        .filter(v => !!v)
+        .map(filter_line => {
+            const fields = filter_line.trim().split(/\s+/g);
+            if (fields.length > 1){
+                return {filter_word: fields[0], exceptions: fields.slice(1)}
+            } else {
+                return filter_line;
+            }
+        })
+
+    return filters.concat(filter_words).flat();
 }

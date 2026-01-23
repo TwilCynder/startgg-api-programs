@@ -150,14 +150,15 @@ export function addEventOnlineFilterParams(argumentsManager){
 }
 
 /**
- * Dests added : exclude_expression, filter, minEntrants
- * Added switchs : [R]/exclude_expression, [b]/filter, [m]in-entrants
+ * Dests added : exclude_expression, filter, minEntrants, filterFiles
+ * Added switchs : [R]/exclude_expression, [b]/filter, [m]in-entrants, filter-file
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventGenericFilterParams(argumentsManager){
     argumentsManager
         .addMultiOption(["-R", "--exclude_expression"], {description: "Regular expressions that will remove events they match with"})
         .addMultiOption(["-b", "--filter"], {description: "Add a word filter. Events containing one of these words will be ignored"})
+        .addMultiOption(["--filter-file"], {dest: "filterFiles", description: "File containing a list of word filters (one filter per line)"})
         .addOption(["-m", "--min-entrants"], {dest: "minEntrants", type: "number", description: "Only count events with at least this number of entrants"})
 }
 
@@ -169,8 +170,8 @@ const eventFilterParamFunctions = [
 ]
 
 /**
- * Dests added : games, minEntrants, exclude_expression, filter, startDate, endDate, offline
- * Added switchs : [R]/exclude_expression, [b]/filter, [O]/offline, start-date, end-date, [g]ames, [m]in-entrants
+ * Dests added : games, minEntrants, exclude_expression, filter, startDate, endDate, offline, filterFiles
+ * Added switchs : [R]/exclude_expression, [b]/filter, [O]/offline, start-date, end-date, [g]ames, [m]in-entrants, filter-file
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventFilterParams(argumentsManager){

@@ -4,7 +4,7 @@ import { deep_get } from "startgg-helper-node/util";
 import { unmuteStdout, muteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { output, readEventFilterWords, readMultimodalArrayInput } from "./include/lib/util.js";
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
@@ -16,7 +16,7 @@ import { filterEvents } from "./include/filterEvents.js";
 let {
     userSlugs, filename, userDataFile, 
     eventSlugs, eventsFilenames, 
-    games, minEntrants, filter, exclude_expression, startDate, endDate, minimumIn, offline, online,
+    games, minEntrants, filter, filterFiles , exclude_expression, startDate, endDate, minimumIn, offline, online,
     outputFormat, outputfile, logdata, printdata, silent, eventName, outSlug,
     inputfile, 
 } = new ArgumentsManager()
@@ -47,7 +47,7 @@ let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
 
-let [users, data] = await Promise.all([
+let [users, data, filters] = await Promise.all([
     User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
     readMultimodalArrayInput(inputfile, 
         (async()=>{
@@ -57,7 +57,8 @@ let [users, data] = await Promise.all([
                 return await getEventsResults(client, events, undefined, limiter);
             }
         })()
-    )
+    ),
+    readEventFilterWords(filter, filterFiles)
 ])
 
 limiter.stop();
@@ -75,7 +76,7 @@ data = data.filter(event => {
     }
     return true;
 });
-data = filterEvents(data, exclude_expression, filter, offline, online);
+data = filterEvents(data, exclude_expression, filters, offline, online);
 
 for (let event of data){
     if (!event || !event.standings){

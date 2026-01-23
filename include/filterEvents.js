@@ -1,9 +1,8 @@
-
 /**
  * 
  * @param {Object[]} events 
  * @param {string[]} exclude_expression 
- * @param {string[]} exclude_words 
+ * @param {Awaited<ReturnType<import("./lib/util.js").readEventFilterWords>>} exclude_words 
  * @param {boolean} offline 
  * @param {boolean} online 
  */
@@ -24,7 +23,11 @@ export function filterEvents(events, exclude_expression, exclude_words, offline,
     if (exclude_words && exclude_words.length){
         events = events.filter(event => {
             for (let word of exclude_words){
-                if (event.slug.includes(word)) return false
+                if (typeof word == "string"){
+                    if (event.slug.includes(word)) return false
+                } else {
+                    if (event.slug.includes(word.filter_word) && word.exceptions.every(exception => !event.slug.includes(exception))) return false;
+                }
             }
             return true;
         })

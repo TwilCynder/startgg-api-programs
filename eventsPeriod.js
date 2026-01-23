@@ -5,11 +5,11 @@ import { StartGGDelayQueryLimiter, toUNIXTimestamp } from "startgg-helper-node";
 import { getEventsByDate } from "./include/getEventsByDate.js";
 import { filterEventsFromTournament } from "./include/filterEvents.js";
 import { createClientAuto } from "./include/lib/createClient.js";
-import { output } from "./include/lib/util.js";
+import { output, readEventFilterWords } from "./include/lib/util.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { bgreen } from "./include/lib/consoleUtil.js";
 
-let {games, minEntrants, exclude_expression, filter, future, singles_only, startDate, endDate, countryCode, online, offline, detailed, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {games, minEntrants, exclude_expression, filter, filterFiles, future, singles_only, startDate, endDate, countryCode, online, offline, detailed, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .setParameters({guessLowDashes: true})
     .addParameter("startDate", {description: "Starting date, can be a UNIX timestamp or a Javascript Date String", type: "number"})
     .addParameter("endDate", {description: "End date, can be a UNIX timestamp or a Javascript Date String", type: "number"})
@@ -47,9 +47,11 @@ endDate = toUNIXTimestamp(endDate);
 
 console.log("Games :", games);
 
-let data = await getEventsByDate(client, limiter, startDate, endDate, {games, minEntrants, countryCode, future, online, singles_only}, detailed);
-
-data = filterEventsFromTournament(data, exclude_expression, filter, minEntrants, offline, online);
+let [data, filters] = await Promise.all([
+    getEventsByDate(client, limiter, startDate, endDate, {games, minEntrants, countryCode, future, online, singles_only}, detailed),
+    readEventFilterWords(filter, filterFiles)
+]);
+data = filterEventsFromTournament(data, exclude_expression, filters, minEntrants, offline, online);
 
 limiter.stop();
 
