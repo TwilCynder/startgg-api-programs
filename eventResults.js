@@ -18,7 +18,7 @@ let {replacementsFile, eventsSlugs, sorted, line_format, inputfile, outputFormat
     /*.addSwitch("--eventName", {
         description: "Include each event's name in the result (aside from the tournament's name)"
     })*/
-    .addSwitch(["-s", "--sorted"], {description: "Sort by start time"})
+    .addSwitch(["-S", "--sorted"], {description: "Sort by start time"})
     //.addSwitch(["-u", "--output-slug"], {dest: "outSlug", description: "Include event slugs in the csv output"})
     .addOption(["-F", "--line-format"], {description: 'String describing the format of each line. It should contain words separated by spaces ; words should be "date", "eventName", "tournamentName", "name", "slug", "size", "blank" and "results". "results" is added automatically at the end if not present.'})
     .addCustomParser(new EventListParser, "eventsSlugs")
@@ -68,8 +68,6 @@ function substituteName(name){
 
 if (silent_) unmuteStdout();
 
-console.log(line_format)
-
 const default_format = "date name size results";
 const textFunctions = {
     date: (event) => dateText(new Date((event.startAt ?? event.tournament.startAt) * 1000)),
@@ -82,7 +80,8 @@ const textFunctions = {
         let name = getMostRelevantName(standing.entrant);
         name = substituteName(name);
         return name;
-    }).join("\t")
+    }).join("\t"),
+    weekly: (event) => event.isWeekly ? "TRUE" : "FALSE"
 }
 
 /** @type {(typeof textFunctions.date)[]} */
