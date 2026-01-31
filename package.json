@@ -9,7 +9,7 @@
   "license": "ISC",
   "dependencies": {
     "@twilcynder/arguments-parser": "<=2.0.0",
-    "startgg-helper-node": "^2.4.0",
+    "startgg-helper-node": "^2.4.1",
     "timezone": "^1.0.23"
   },
   "type": "module"
