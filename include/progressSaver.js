@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import fs, { readFile } from "fs/promises"
-import { PageResult } from "startgg-helper-node";
-import { readJSONInput } from "./lib/readUtil";
+import { PageResult, Query, TimedQuerySemaphore } from "startgg-helper-node";
+import { readJSONInput } from "./lib/readUtil.js";
 
 const DEFAULT_WRITE_THRESHOLD = 16;
 
@@ -16,6 +16,10 @@ class SaveManager {
     _filepath;
     #writeThreshold;
     
+    /**
+     * @param {string} path 
+     * @param {number} writeThreshold 
+     */
     constructor(path, writeThreshold = DEFAULT_WRITE_THRESHOLD){
         this._filepath = path;
         this.#writeThreshold = writeThreshold;
@@ -25,6 +29,7 @@ class SaveManager {
         this.#count++;
         if (this.#count >= this.#writeThreshold){
             await this._write();
+            this.#count = 0;
         }
     }
 
@@ -33,6 +38,7 @@ class SaveManager {
     }
 } 
 
+
 function initPaginatedProgressObject(){
     return {
         data: [],
@@ -40,17 +46,28 @@ function initPaginatedProgressObject(){
     }
 }
 
+/** @typedef {ReturnType<initPaginatedProgressObject>} PaginatedProgressObject */
+
 function isPaginatedProgressObject(obj){
     return (obj instanceof Object && !!obj.data && !!obj.lastPage);
 }
 
 class SinglePaginatedExecutionSaver extends SaveManager {
+    /**@type {PaginatedProgressObject}*/
     #progress;
 
+    /**
+     * @param {string} path
+     * @param {number} writeThreshold 
+     */
     constructor(path, writeThreshold){
         super(path, writeThreshold);
     }
 
+    /**
+     * @param {boolean} force 
+     * @returns 
+     */
     async _load(force){
         if (existsSync(this._filepath)){
             const savedObject = await fs.readFile(this._filepath).then(buf => JSON.parse(buf.toString()));
@@ -84,6 +101,7 @@ class PaginatedProgressManager {
 
     /** 
      * @param {SaveManager} saveManager 
+     * @param {PaginatedProgressObject} progressObject 
      */
     constructor(saveManager, progressObject){
         this.#saveManager = saveManager
@@ -113,7 +131,18 @@ class PaginatedProgressManager {
         this.lastPage = -1;
     }
 
-    async query(client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries){
+    /**
+     * @param {Query} query 
+     * @param {*} client 
+     * @param {Parameters<Query["executePaginated"]>[1]} params 
+     * @param {Parameters<Query["executePaginated"]>[2]} connectionPathInQuery 
+     * @param {Parameters<Query["executePaginated"]>[3]} limiter 
+     * @param {Parameters<Query["executePaginated"]>[4]} config 
+     * @param {Parameters<Query["executePaginated"]>[5]} silentErrors 
+     * @param {Parameters<Query["executePaginated"]>[6]} maxTries 
+     * @returns 
+     */
+    async query(query, client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries){
         if (this.#progress.lastPage < 0){ //means "completed"
             return this.#progress.data;
         }
@@ -122,7 +151,7 @@ class PaginatedProgressManager {
         config.initialData = this.getCurrentData();
         config.callback = this.getCallback();
 
-        await this.query.executePaginated(client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries);
+        await query.executePaginated(client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries);
     }
 
     toJSON(){
@@ -133,18 +162,27 @@ class PaginatedProgressManager {
     }
 }
 
-export function paginatedExecutionProgress(path, writeThreshold, force){
+/**
+ * @param {string} path 
+ * @param {number} writeThreshold 
+ * @param {boolean} force 
+ * @returns 
+ */
+export function paginatedProgressManager(path, writeThreshold, force){
     const sm = new SinglePaginatedExecutionSaver(path, writeThreshold);
     return sm._load(force);
 }
 
-export class ExecutionProgressManager extends SaveManager {
+export class QueriesProgressManager extends SaveManager {
     #data = {};
-    #nameFunction;
 
+    /**
+     * 
+     * @param {string} path 
+     * @param {{writeThreshold: number, nameFunction: (key: any)=>string}} config 
+     */
     constructor(path, config = {}){
         super(path, config.writeThreshold)
-        this.#nameFunction = config.nameFunction;
     }
 
     async load(){
@@ -154,24 +192,28 @@ export class ExecutionProgressManager extends SaveManager {
     }
 
     async _write(){
+        console.log("---- Writing to file ----");
         return fs.writeFile(this._filepath, JSON.stringify(this.#data))
     }
 
-    #getActualKey(key){
-        return this.#nameFunction ? this.#nameFunction(key) : toString(key);
-    }
-
+    /**
+     * @param {string} key 
+     * @returns 
+     */
     getSavedResult(key){
-        const key = this.#getActualKey(key);
         return this.#data[key];
     }
 
+    /**
+     * @param {string} key 
+     * @param {boolean} force 
+     * @returns 
+     */
     getSavedPaginatedProgress(key, force){
-        const key = this.#getActualKey(key);
         const object = this.#data[key];
         if (!isPaginatedProgressObject(object)){
             if (force){
-                object = {};
+                object = initPaginatedProgressObject();
                 this.#data[key] = object;
             } else {
                 throw new SavedProgressError("Saved data for key " + key + " was not a paginated execution progress"); 
@@ -180,22 +222,100 @@ export class ExecutionProgressManager extends SaveManager {
         return new PaginatedProgressManager(this, object);
     }
 
+    /**
+     * @param {string} key 
+     * @param {any} value 
+     */
     saveResult(key, value){
-        const key = this.#getActualKey(key);
-        data[key] = value;
+        console.log("Saving data for key", key, ":", value)
+        this.#data[key] = value;
         this.tick();
     }
 
+    /**
+     * 
+     * @param {string} key 
+     * @param {() => ReturnType<Query["execute"]>} queryFunction 
+     * @returns 
+     */
     async queryWithFunction(key, queryFunction){
         let result = this.getSavedResult(key);
         if (!result){
             result = await queryFunction();
-            this.saveResult(result);
+            console.log("Fetched result :", result)
+            this.saveResult(key, result);
+        } else {
+            console.log("Found saved data for key", key, ":", result);
         }
         return result;
     }
 
-    query(key, client, params, limiter, silentErrors, maxTries, logsOverride){
-        return this.queryWithFunction(key, ()=>this.query.execute(client, params, limiter, silentErrors, maxTries, logsOverride));
+    /**
+     * 
+     * @param {string} key 
+     * @param {Query} query 
+     * @param {Parameters<Query["execute"]>[0]} client 
+     * @param {Parameters<Query["execute"]>[1]} params 
+     * @param {Parameters<Query["execute"]>[2]} limiter 
+     * @param {Parameters<Query["execute"]>[3]} silentErrors 
+     * @param {Parameters<Query["execute"]>[4]} maxTries 
+     * @param {Parameters<Query["execute"]>[5]} logsOverride 
+     * @returns 
+     */
+    query(key, query, client, params, limiter, silentErrors, maxTries, logsOverride){
+        return this.queryWithFunction(key, ()=>query.execute(client, params, limiter, silentErrors, maxTries, logsOverride));
     }
+}
+
+/**
+ * 
+ * @param {QueriesProgressManager | string?} arg 
+ * @param {string} key 
+ * @returns 
+ */
+export async function getPaginatedProgressManagerFrom(arg, key){
+    if (arg instanceof QueriesProgressManager){
+        return arg.getSavedPaginatedProgress(key, true);
+    } else if (typeof arg == "string") {
+        return await paginatedProgressManager(arg, undefined, true);
+    } else {
+        return null;
+    }
+}
+
+
+/**
+ * @param {Query} query 
+ * @param {QueriesProgressManager} progressSaveManager 
+ * @param {string} key 
+ * @param {Parameters<Query["execute"]>[0]} client 
+ * @param {Parameters<Query["execute"]>[1]} params 
+ * @param {Parameters<Query["execute"]>[2]} limiter 
+ * @param {Parameters<Query["execute"]>[3]} silentErrors 
+ * @param {Parameters<Query["execute"]>[4]} maxTries 
+ * @param {Parameters<Query["execute"]>[5]} logsOverride 
+ * @returns 
+ */
+export async function executeWithSaveManager(query, progressSaveManager, key, client, params, limiter, silentErrors, maxTries, logsOverride){
+    return progressSaveManager ? 
+        progressSaveManager.query(key, query, client, params, limiter, silentErrors, maxTries, logsOverride) :
+        query.execute(client, params, limiter, silentErrors, maxTries, logsOverride);
+}
+
+/**
+ * 
+ * @param {Query} query 
+ * @param {PaginatedProgressManager} paginatedProgressManager 
+ * @param {Parameters<Query["executePaginated"]>[0]} client 
+ * @param {Parameters<Query["executePaginated"]>[1]} params 
+ * @param {Parameters<Query["executePaginated"]>[2]} connectionPathInQuery 
+ * @param {Parameters<Query["executePaginated"]>[3]} limiter 
+ * @param {Parameters<Query["executePaginated"]>[4]} config 
+ * @param {Parameters<Query["executePaginated"]>[5]} silentErrors 
+ * @param {Parameters<Query["executePaginated"]>[6]} maxTries 
+ */
+export async function executePaginatedWithSaveManager(query, paginatedProgressManager, client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries){
+    return paginatedProgressManager ?
+        paginatedProgressManager.query(query, client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries) :
+        query.executePaginated(client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries);
 }
