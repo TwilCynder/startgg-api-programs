@@ -1,5 +1,6 @@
 import { Query } from 'startgg-helper';
 import { ClockQueryLimiter, StartGGDelayQueryLimiter } from 'startgg-helper';
+import { executePaginatedWithSaveManager, getPaginatedProgressManagerFrom, QueriesProgressManager } from './progressSaver';
 
 /**
  * Fetches all sets in the given event with the given query, which must have a "event(slug) { sets { nodes { ANYTHING } } }" schema.  
@@ -8,10 +9,13 @@ import { ClockQueryLimiter, StartGGDelayQueryLimiter } from 'startgg-helper';
  * @param {Query} query 
  * @param {string} slug 
  * @param {ClockQueryLimiter} limiter 
+ * @param {Parameters<getPaginatedProgressManagerFrom>[0]} progressManager 
  * @returns {Promise<object[]>}
  */
-export async function getSetsInEvent(client, query, slug, limiter){
-    let sets = await query.executePaginated(client, {slug}, "event.sets", limiter, {perPage: 50});
+export async function getSetsInEvent(client, query, slug, limiter, progressManager){
+    progressManager = getPaginatedProgressManagerFrom(progressManager);
+    let sets = await executePaginatedWithSaveManager(query, progressManager, client, {slug}, "evebt.sets", limiter, {perPage: 200})
+    //let sets = await query.executePaginated(client, {slug}, "event.sets", limiter, {perPage: 50});
     if (!sets) {
         console.warn("Coulnd't fetch sets for event slug", slug);
         return null;

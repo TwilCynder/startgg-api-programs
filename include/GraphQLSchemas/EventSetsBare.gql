@@ -1,0 +1,22 @@
+query EventSetsBare($slug: String!, $page: Int, $perPage: Int) {
+    event(slug: $slug) {
+        sets  (page: $page, perPage: $perPage)  {
+            nodes {
+                round
+                slots{
+                    entrant {
+                        participants {
+                            player {
+                                id
+                            }
+                        }
+                        initialSeedNum
+                    }
+                  	standing {
+                        placement
+                    }
+                }
+            }
+        }
+    }
+}
