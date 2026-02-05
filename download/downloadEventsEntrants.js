@@ -8,10 +8,10 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { outputJSON } from "../include/lib/util.js";
-import { getEntrantsForEvents } from "../include/getEntrants.js";
+import { outputJSON, tryReadJSONInput } from "../include/lib/util.js";
+import { getEntrantsBasicForEvents, getEntrantsBasicFromObjects } from "../include/getEntrantsBasic.js";
 
-let {eventSlugs, eventsFilenames, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, inputfile, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
     .apply(addEventParsers)
     .apply(addOutputParamsJSON)
     .enableHelpParameter()
@@ -22,10 +22,12 @@ let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
 
-let events = await readEventLists(eventSlugs, eventsFilenames);
+let [events, eventObjects] = await Promise.all([readEventLists(eventSlugs, eventsFilenames), tryReadJSONInput(inputfile)]);
 
 let limiter = new StartGGDelayQueryLimiter();
-let data = await getEntrantsForEvents(client, events, limiter);
+
+let data = await aggregateArrayDataPromises([getEntrantsBasicForEvents(client, events, undefined, limiter), eventObjects ? getEntrantsBasicFromObjects(client, eventObjects, undefined, limiter) : []]);
+
 limiter.stop();
 
 if (silent_){

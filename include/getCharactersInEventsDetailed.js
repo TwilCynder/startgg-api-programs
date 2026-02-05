@@ -1,6 +1,6 @@
 import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
-import { getSetsInEvent, getSetsInEvents, reduceSetsInEvents } from './getSetsInEvents.js';
+import { getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, reduceSetsInEvents } from './getSetsInEvents.js';
 import { processSets } from './processCharacterStats.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacter.gql");
@@ -11,12 +11,24 @@ query.log = {
     error: params => `Request failed for event ${params.slug}, page ${params.page} (${params.perPage} entries per page) ...`
 }
 
-export async function getSetsCharsDetailedInEvent(client, slug, limiter){
-    return await getSetsInEvent(client, query, slug, limiter);
+export function getSetsCharsDetailedInEvent(client, slug, limiter){
+    return getSetsInEvent(client, query, slug, limiter);
 }
 
-export async function getSetsCharsDetailedInEvents(client, slugs, limiter){
-    return await getSetsInEvents(client, query, slugs, limiter);
+export function getSetsCharsDetailedInEvents(client, slugs, limiter){
+    return getSetsInEvents(client, query, slugs, limiter);
+}
+
+export function getSetsCharsDetailedInEventsSeparated(client, slugs, limiter){
+    return getSetsInEventsSeparated(client, query, slugs, limiter);
+}
+
+export function getSetsCharsDetailedInEventsHashMap(client, slugs, limiter){
+    return getSetsInEventsHashmap(client, query, slugs, limiter);
+}
+
+export function getSetsCharsDetailedInEventsFromObjects(client, events, limiter){
+    return getSetsInEventsFromObjects(client, query, events, limiter);
 }
 
 export async function getCharsDetailedInEvent(client, slug, limiter, updateFunction){

@@ -1,5 +1,5 @@
 import { Query } from 'startgg-helper';
-import { getSetsInEvent, getSetsInEvents, getSetsInEventsHashmap} from './getSetsInEvents.js';
+import { getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap, getSetsInEventsSeparated} from './getSetsInEvents.js';
 import { readSchema } from './lib/util.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsBare.gql");
@@ -18,10 +18,14 @@ export function getEventsSetsBare(client, slugs, limiter, progressManager){
     return getSetsInEvents(client, query, slugs, limiter, progressManager);
 }
 
-export function getEventsSetsBareSeparated(client, slugs, limiter){
-    return Promise.all(slugs.map(slug => getEventSetsBare(client, slug, limiter)))
+export function getEventsSetsBasicSeparated(client, slugs, limiter){
+    return getSetsInEventsSeparated(client, query, slugs, limiter);
 }
 
-export async function getEventsSetsBareHashmap(client, slugs, limiter){
-    return getSetsInEventsHashmap(client, query, slugs, limiter);
+export async function getEventsSetsBareHashmap(client, slugs, limiter, progressManager){
+    return getSetsInEventsHashmap(client, query, slugs, limiter, progressManager);
+}
+
+export function getEventsSetsBareFromObjects(client, events, limiter, progressManager){
+    return getSetsInEventsFromObjects(client, query, events, limiter, progressManager);
 }

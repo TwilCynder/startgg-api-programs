@@ -1,13 +1,6 @@
 query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp) {
     user(slug: $slug, id: $id){
         slug
-        id
-        genderPronoun
-        location {
-            city
-            country
-            state
-        }
         player {
             gamerTag
             sets(perPage: $perPage, page: $page, filters : {

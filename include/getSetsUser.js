@@ -1,5 +1,6 @@
 import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
+import { getUserSetsGeneric, getUsersSetsGeneric } from './getUserSetsGeneric.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/UserSets.gql");
 const query = new Query(schema, 3);
@@ -10,10 +11,9 @@ query.log = {
 }
 
 export async function getUserSets(client, slug, limiter, after, until){
-    let sets = await query.executePaginated(client, {slug, after}, "user.player.sets", limiter);
-    return sets ? sets.filter(set => !until || set.completedAt < until) : sets;
+    return getUserSetsGeneric(query, client, slug, limiter, {after, until});
 }
 
 export function getUsersSets(client, slugs, limiter, after, until){
-    return Promise.all(slugs.map(slug => getUserSets(client, slug, limiter, after, until).catch((err) => console.log("Slug", slug, "kaput : ", err))));
+    return getUsersSetsGeneric(query, client, slugs, limiter, {after, until});
 }

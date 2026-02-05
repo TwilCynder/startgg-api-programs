@@ -53,6 +53,18 @@ export function getEntrantsForEvents(query, client, slugs, limiter, silentErrors
     })));
 }
 
+export function getEntrantsFromObjects(query, client, events, limiter, silentError = false){
+    return Promise.all(events.map( async event => {
+        if (!event.slug) {
+            console.error("Event object with no slug :", event);
+            return event;
+        }
+        const entrants = await getEntrants(query, client, event.slug, limiter, silentError);
+        event.entrants = entrants;
+        return event;
+    }));
+}
+
 export async function getUniqueUsersOverLeague(query, client, slugs, limiter, silentErrors = false){
     let data = (await getEntrantsForEvents(query, client, slugs, limiter, silentErrors))
 

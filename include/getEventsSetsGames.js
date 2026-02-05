@@ -1,5 +1,5 @@
 import { Query } from 'startgg-helper';
-import { getSetsInEvent, getSetsInEvents, getSetsInEventsHashmap} from './getSetsInEvents.js';
+import { getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap} from './getSetsInEvents.js';
 import { readSchema } from './lib/util.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsGames.gql");
@@ -16,6 +16,10 @@ export function getEventSetsGames(client, slug, limiter){
 
 export function getEventsSetsGames(client, slugs, limiter){
     return getSetsInEvents(client, query, slugs, limiter);
+}
+
+export function getEventsSetsGamesFromObjects(client, events, limiter){
+    return getSetsInEventsFromObjects(client, query, events, limiter);
 }
 
 export function getEventsSetsGamesSeparated(client, slugs, limiter){

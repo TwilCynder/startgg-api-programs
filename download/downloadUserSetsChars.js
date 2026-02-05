@@ -5,15 +5,16 @@ import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
-import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
+import { addInputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { outputJSON } from "../include/lib/util.js";
-import { getUsersSetsChars } from "../include/getUserSetsChars.js";
+import { getUsersSetsChars, getUserSetsCharsFromObjects } from "../include/getUserSetsChars.js";
 
-let {slugs, setscount, includeWholeQuery, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
-    .addMultiParameter("slugs")
+let {userSlugs, file, inputfile, setscount, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
+    .addMultiParameter("userSlugs")
+    .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"})
+    .apply(addInputParams)
     .apply(addOutputParamsJSON)
-    .addSwitch(["-i", "--include-whole-query"], {description: "Include the whole query hierarchy in the result and not just the sets array. Result will include slug, id, pronouns and location info for the user", dest: "includeWholeQuery"})
-    .addOption(["-S", "--sets-count"], {description: "How many sets to fecth for each user (always take most recent, by default takes all)", dest: "setscount", type: "number"})
+    .addOption(["-S", "--sets-count"], {description: "How many sets to fetch for each user (always take most recent, by default takes all)", dest: "setscount", type: "number"})
     .enableHelpParameter()
     .parseProcessArguments();
 
@@ -22,8 +23,10 @@ let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
 
+let [users, userObjects] = await Promise.all([readUsersFile(file, userSlugs), tryReadJSONInput(inputfile)])
+
 let limiter = new StartGGDelayQueryLimiter();
-let data = await getUsersSetsChars(client, slugs, limiter, {max: setscount, includeWholeQuery});
+let data = await aggregateArrayDataPromises([getUsersSetsChars(client, users, limiter), getUserSetsCharsFromObjects(client, userObjects, limiter)]);
 limiter.stop();
 
 if (silent_){

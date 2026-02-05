@@ -1,5 +1,5 @@
 import { Query } from 'startgg-helper';
-import { getSetsInEvent, getSetsInEvents, getSetsInEventsHashmap} from './getSetsInEvents.js';
+import { getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap, getSetsInEventsSeparated} from './getSetsInEvents.js';
 import { readSchema } from './lib/util.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSets.gql");
@@ -19,9 +19,13 @@ export function getEventsSetsBasic(client, slugs, limiter){
 }
 
 export function getEventsSetsBasicSeparated(client, slugs, limiter){
-    return Promise.all(slugs.map(slug => getEventSetsBasic(client, slug, limiter)))
+    return getSetsInEventsSeparated(client, query, slugs, limiter);
 }
 
-export async function getEventsSetsBasicHashmap(client, slugs, limiter){
+export function getEventsSetsBasicHashmap(client, slugs, limiter){
     return getSetsInEventsHashmap(client, query, slugs, limiter);
+}
+
+export function getEventsSetsBasicFromObjects(client, events, limiter){
+    return getSetsInEventsFromObjects(client, query, events, limiter);
 }
