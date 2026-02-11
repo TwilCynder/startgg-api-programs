@@ -28,8 +28,8 @@ class SaveManager {
     async tick(){
         this.#count++;
         if (this.#count >= this.#writeThreshold){
-            await this._write();
             this.#count = 0;
+            await this._write();
         }
     }
 
@@ -120,6 +120,7 @@ class PaginatedProgressManager {
         return (localResult, currentResult, i) => {
             this.#progress.lastPage = i;
             currentResult = currentResult.concat(localResult);
+            console.log("Callback called")
             this.#progress.data = currentResult;
             this.#saveManager.tick();
 
@@ -128,7 +129,7 @@ class PaginatedProgressManager {
     }
 
     markCompleted(){
-        this.lastPage = -1;
+        this.#progress.lastPage = -1;
     }
 
     /**
@@ -144,6 +145,7 @@ class PaginatedProgressManager {
      */
     async query(query, client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries){
         if (this.#progress.lastPage < 0){ //means "completed"
+            console.log("Querying with Progress Manager - Found completed data, returning.");
             return this.#progress.data;
         }
 
@@ -151,7 +153,15 @@ class PaginatedProgressManager {
         config.initialData = this.getCurrentData();
         config.callback = this.getCallback();
 
-        await query.executePaginated(client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries);
+        console.log("Querying with Progress Manager - Saved page :", config.startingPage);
+
+        let res = await query.executePaginated(client, params, connectionPathInQuery, limiter, config, silentErrors, maxTries);
+
+        this.markCompleted();
+
+        console.log("Finished querying with Progress Manager");
+
+        return res;
     }
 
     toJSON(){
@@ -210,7 +220,7 @@ export class QueriesProgressManager extends SaveManager {
      * @returns 
      */
     getSavedPaginatedProgress(key, force){
-        const object = this.#data[key];
+        let object = this.#data[key];
         if (!isPaginatedProgressObject(object)){
             if (force){
                 object = initPaginatedProgressObject();
@@ -269,15 +279,26 @@ export class QueriesProgressManager extends SaveManager {
 
 /**
  * 
+ * @param {string} path 
+ * @param {{writeThreshold: number, nameFunction: (key: any)=>string}} config 
+ */
+export async function queriesProgressManager(path, config){
+    const m = new QueriesProgressManager(path, config);
+    await m.load();
+    return m;
+}
+
+/**
+ * 
  * @param {QueriesProgressManager | string?} arg 
  * @param {string} key 
  * @returns 
  */
-export async function getPaginatedProgressManagerFrom(arg, key){
+export async function getPaginatedProgressManagerFrom(arg, key, writeThreshold){
     if (arg instanceof QueriesProgressManager){
         return arg.getSavedPaginatedProgress(key, true);
     } else if (typeof arg == "string") {
-        return await paginatedProgressManager(arg, undefined, true);
+        return await paginatedProgressManager(arg, writeThreshold, true);
     } else {
         return null;
     }
