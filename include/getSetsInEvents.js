@@ -1,6 +1,7 @@
 import { Query, TimedQuerySemaphore } from 'startgg-helper';
 import { ClockQueryLimiter } from 'startgg-helper';
 import { executePaginatedWithSaveManager, getPaginatedProgressManagerFrom, QueriesProgressManager } from './progressSaver.js';
+import { yellow } from './lib/consoleUtil.js';
 
 /**
  * Fetches all sets in the given event with the given query, which must have a "event(slug) { sets { nodes { ANYTHING } } }" schema.  
@@ -13,8 +14,8 @@ import { executePaginatedWithSaveManager, getPaginatedProgressManagerFrom, Queri
  * @returns {Promise<object[]>}
  */
 export async function getSetsInEvent(client, query, slug, limiter, progressManager){
-    progressManager = getPaginatedProgressManagerFrom(progressManager);
-    let sets = await executePaginatedWithSaveManager(query, progressManager, client, {slug}, "evebt.sets", limiter, {perPage: 200})
+    progressManager = await getPaginatedProgressManagerFrom(progressManager, slug);
+    let sets = await executePaginatedWithSaveManager(query, progressManager, client, {slug}, "event.sets", limiter, {perPage: 200})
     //let sets = await query.executePaginated(client, {slug}, "event.sets", limiter, {perPage: 50});
     if (!sets) {
         console.warn("Coulnd't fetch sets for event slug", slug);
@@ -72,14 +73,27 @@ export async function reduceSetsInEvents(client, query, slugs, callback, initVal
  * @param {QueriesProgressManager | string?} progressManager 
  * @returns 
  */
-export async function getSetsInEventsFromObjects(client, query, events, limiter, progressManager){
+export function getSetsInEventsFromObjects(client, query, events, limiter, progressManager){
     return Promise.all(events.map(async event => {
+
         if (!event.slug) {
             console.error("Event object with no slug :", event);
             return event;
         }
         const data = await getSetsInEvent(client, query, event.slug, limiter, progressManager);
         event.sets = data;
-        return events;
+        return event;
     }))
+}
+
+const defaultLogConfig = {
+    query: params => `Fetching sets from event ${params.slug}, page ${yellow(params.page)} (${params.perPage} per page)`,
+    error: params => `Request failed for sets from event ${params.slug}, page ${yellow(params.page)} (${params.perPage} per page)`,
+}
+export function getQueryLogConfig(name){
+    return name ? {
+        query: params => `Fetching sets (${name}) from event ${params.slug}, page ${yellow(params.page)} (${params.perPage} per page)`,
+        error: params => `Request failed for sets (${name}) from event ${params.slug}, page ${yellow(params.page)} (${params.perPage} per page)`,
+    } : defaultLogConfig
+
 }

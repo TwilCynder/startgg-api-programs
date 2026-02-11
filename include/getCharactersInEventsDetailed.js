@@ -6,10 +6,7 @@ import { processSets } from './processCharacterStats.js';
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacter.gql");
 const query = new Query(schema, 3);
 
-query.log = {
-    query: params => `Fetching sets from event ${params.slug} with character info and detailed player info, page ${params.page} (${params.perPage} entries per page) ...`,
-    error: params => `Request failed for event ${params.slug}, page ${params.page} (${params.perPage} entries per page) ...`
-}
+query.log = getQueryLogConfig("with characters (detailed)");
 
 export function getSetsCharsDetailedInEvent(client, slug, limiter){
     return getSetsInEvent(client, query, slug, limiter);
