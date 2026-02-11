@@ -1,4 +1,7 @@
-- Généraliser le système de format string
+- Généraliser l'utilsation du saveManager (à partir de downloadSetsFromEventsBare)
+  - Commencer par propager aux autres downloadSetsFromEvents, puis aux autres downloads
+- Généraliser l'utilisation du output fragment quand pertinent (juste passer le paramètre aux fonctions output quand on sort un tableau)
+- Généraliser le système de format string (voir --line-format)
 - Implémenter un QueryManager, avec un tryLoad, pour les fonctions qui peuvent utiliser plusieurs queries *ou pas*
 - Ajouter le système de gestion de game content à sgg-helper (et pk pas la finalisation de dates)
 - Faire un package NPM

@@ -6,7 +6,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 import { addInputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { outputJSON } from "../include/lib/util.js";
+import { outputJSON, tryReadJSONArray } from "../include/lib/util.js";
 import { getUsersSetsChars, getUserSetsCharsFromObjects } from "../include/getUserSetsChars.js";
 
 let {userSlugs, file, inputfile, setscount, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
@@ -23,7 +23,7 @@ let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
 
-let [users, userObjects] = await Promise.all([readUsersFile(file, userSlugs), tryReadJSONInput(inputfile)])
+let [users, userObjects] = await Promise.all([readUsersFile(file, userSlugs), tryReadJSONArray(inputfile)])
 
 let limiter = new StartGGDelayQueryLimiter();
 let data = await aggregateArrayDataPromises([getUsersSetsChars(client, users, limiter), getUserSetsCharsFromObjects(client, userObjects, limiter)]);

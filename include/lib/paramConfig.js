@@ -22,16 +22,6 @@ export function addOutputParamsBasic(argumentsManager){
         })
 }
 
-/**
- * Added dests : outputfile, printdata, silent, prettyjson  
- * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [r]eadable-json  
- * @param {ArgumentsManager} argumentsManager 
- */
-export function addOutputParamsJSON(argumentsManager){
-    addOutputParamsBasic(argumentsManager);
-    argumentsManager.addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson"})
-}
-
 function addLogParameter(argumentsManager){
     argumentsManager.addSwitch(["-l", "--log-data"], {
         dest: "logdata",
@@ -47,6 +37,15 @@ function addFormatParameter(argumentsManager){
     })
 }
 
+function addFragmentParameter(argumentsManager){
+    argumentsManager.addOption(["-X", "--fragment-output"], {
+        dest: "fragmentOutput",
+        default: null,
+        description: "Use this option to fragment the JSON output for array data into multiple files. Each file will contain at most the number of elements specified.",
+        type: "number"
+    })
+}
+
 /**
  * For scripts that can only output processed text.  
  * Added dests : outputfile, printdata, silent, logdata  
@@ -59,32 +58,46 @@ export function addOutputParamsText(argumentsManager){
 }
 
 /**
+ * Added dests : outputfile, printdata, silent, prettyjson, fragmentOutput
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [r]eadable-json, [X]/fragment-output  
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addOutputParamsJSON(argumentsManager){
+    addOutputParamsBasic(argumentsManager);
+    addFragmentParameter(argumentsManager);
+    argumentsManager
+        .addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson"})
+}
+
+/**
  * Returns a function to pass to .apply    
  * Added dests : outputfile, printdata, silent  
- * Potential dests : logdata, outputFormat  
+ * Potential dests : logdata, outputFormat, fragmentOutput
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent  
- * Potential switchs : [l]og-data, format  
+ * Potential switchs : [l]og-data, format, [X]/fragment-output  
  * @param {boolean} log 
  * @param {boolean} format 
  * @returns 
  */
-export function addOutputParamsCustom(log, format){
+export function addOutputParamsCustom(log, format, fragment){
     return argumentsManager => {
         addOutputParamsBasic(argumentsManager);
         if (log) addLogParameter(argumentsManager);
         if (format) addFormatParameter(argumentsManager);
+        if (fragment) addFragmentParameter(argumentsManager);
     }
 }
 
 /**
- * Added dests : outputFormat, outputfile, logdata, printdata, silent  
- * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [p]rint-output, format
+ * Added dests : outputFormat, outputfile, logdata, printdata, silent, fragmentOutput
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [p]rint-output, format, [X]/fragment-output  
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParams(argumentsManager){
     addOutputParamsBasic(argumentsManager);
     addLogParameter(argumentsManager);
     addFormatParameter(argumentsManager);
+    addFragmentParameter(argumentsManager);
 }
 
 function addInputParams_(argumentsManager, mandatory){

@@ -100,6 +100,56 @@ function output_(filename, printdata, resultString){
 }
 
 /**
+ * @param {string} filename 
+ * @param {number} i 
+ */
+function getFragmentFilenameFunction(filename){
+    if (filename.includes("%")) return i => filename.replace(/%/g, i);
+    
+    let extension, name;
+    const lastPointIndex = filename.lastIndexOf(".");
+    if (lastPointIndex < 0 || lastPointIndex >= filename.length - 1){
+        extension = "";
+        name = filename;
+    } else {
+        extension = filename.slice(lastPointIndex)
+        name = filename.slice(0, lastPointIndex);
+    }
+
+    return i => name + "-" + i + extension;
+}
+
+function writeJSON(filename, data, prettyJSON){
+    fs.writeFileSync(filename, toJSON(data, prettyJSON), {encoding: "utf-8"}); 
+}
+
+function saveJSON(data, filename, prettyJSON, fragmentSize){
+    if (fragmentSize && typeof fragmentSize === "number"){
+        if (data instanceof Array){ 
+            const filenameFunction = getFragmentFilenameFunction(filename);
+            for (let i = 0; i < data.length; i += fragmentSize){
+                const fragmentName = filenameFunction(i);
+                writeJSON(fragmentName, data.slice(i, i + fragmentSize), prettyJSON);
+            }
+        } else {
+            console.error("Script error : tried to fragment output data that isn't iterable");
+            writeJSON(filename, data, prettyJSON); //allez en vria on fait quand même dans le doute
+        }
+    } else {
+        writeJSON(filename, data, prettyJSON);
+    }
+}
+
+function outputJSON_(prettyJSON, filename, printdata, data, fragmentSize){
+    if (printdata){
+        console.log(toJSON(data, prettyJSON));
+    }
+    if (filename){
+        saveJSON(data, filename, prettyJSON, fragmentSize);
+    }
+}
+
+/**
  * Manages output for a script able to log readable data, output JSON, and output CSV
  * @template T
  * @param {"json" | "csv" | "prettyjson"} format 
@@ -108,22 +158,21 @@ function output_(filename, printdata, resultString){
  * @param {T} data 
  * @param {(data: T) => string} CSVtransform 
  */
-export function output(format, filename, printdata, data, CSVtransform){
+export function output(format, filename, printdata, data, CSVtransform, fragmentSize){
     if (!filename && !printdata) return;
 
-    let resultString = (!format || !format.includes("json")) ?
-        (CSVtransform(data) ?? "") :
-        toJSON(data, format == "prettyjson");
-        
-
-    output_(filename, printdata, resultString);
+    if (!format || !format.includes("csv")){
+        output_(filename, printdata, CSVtransform ? CSVtransform(data) : "");
+    } else {
+        outputJSON_(format == "prettyjson", filename, printdata, data, fragmentSize);
+    }
 }
 
 /**
  * Manages output for a script that can only output JSON, no matter of the script can also log readable data. 
  */
-export function outputJSON(data, filename, printdata, prettyJSON){
-    output_(filename, printdata, toJSON(data, prettyJSON));
+export function outputJSON(data, filename, printdata, prettyJSON, fragmentSize){
+    outputJSON_(prettyJSON, filename, printdata, data, fragmentSize);
 }
 
 /**
@@ -172,7 +221,16 @@ export function tryReadJSONInput(inputfile){
     return inputfile ? readJSONInput(inputfile).catch(err => {
         console.warn(`Could not open file ${inputfile} : ${err}`)
         return [];
-    }) : null
+    }) : []
+}
+
+export async function tryReadJSONArray(inputfile){
+    if (!inputfile) return [];
+    const value = await readJSONInput(inputfile);
+    if (!(value instanceof Array)){
+        console.error("Input file", inputfile, "does not contain a JSON array");
+    }
+    return value;
 }
 
 /**
