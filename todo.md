@@ -1,3 +1,4 @@
+- Généraliser l'utilisation de tryReadJSONArray
 - Généraliser l'utilsation du saveManager (à partir de downloadSetsFromEventsBare)
   - Commencer par propager aux autres downloadSetsFromEvents, puis aux autres downloads
 - Généraliser l'utilisation du output fragment quand pertinent (juste passer le paramètre aux fonctions output quand on sort un tableau)

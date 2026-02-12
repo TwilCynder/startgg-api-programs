@@ -1,4 +1,5 @@
 import fs from 'fs/promises'
+import { splitWhitespace } from './util';
 
 function didTheyMeanStdin(name){
     return name == "@stdin";
@@ -51,7 +52,12 @@ export async function readJSONFromStdin(){
  * @param {string} filename 
  */
 export function readLinesAsync(filename){
-    return readText(filename).then(text => text.replace(/\r/g, '').split('\n'));
+    const fields = splitWhitespace(filename);
+    if (fields.length > 1){
+        return readLinesInFiles(fields);
+    } else {
+        return readText(filename).then(text => text.replace(/\r/g, '').split('\n'));
+    }
 }
 
 /**

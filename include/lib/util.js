@@ -15,6 +15,9 @@ export function splitNewline(text){
     return text.replace(/\r/g, "").split("\n");
 }
 
+/**
+ * @param {string} text 
+ */
 export function splitWhitespace(text){
     return text.split(/\s+/g).filter(s=>s);
 }
@@ -224,13 +227,24 @@ export function tryReadJSONInput(inputfile){
     }) : []
 }
 
+/**
+ * @param {string} inputfile 
+ * @returns {Promise<any[]>}
+ */
 export async function tryReadJSONArray(inputfile){
     if (!inputfile) return [];
-    const value = await readJSONInput(inputfile);
-    if (!(value instanceof Array)){
-        console.error("Input file", inputfile, "does not contain a JSON array");
+
+    let fields = splitWhitespace(inputfile);
+    if (fields.length > 1){
+        return await Promise.all(fields.map(filename => tryReadJSONArray(filename))).then(arrays => arrays.flat())
+    } else {
+        let value = await readJSONInput(inputfile);
+        if (!(value instanceof Array)){
+            console.error("Input file", inputfile, "does not contain a JSON array. Got", value);
+            return [];
+        }
+        return value;
     }
-    return value;
 }
 
 /**
