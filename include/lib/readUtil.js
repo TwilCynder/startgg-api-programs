@@ -1,5 +1,5 @@
 import fs from 'fs/promises'
-import { splitWhitespace } from './util';
+import { splitWhitespace } from './util.js';
 
 function didTheyMeanStdin(name){
     return name == "@stdin";

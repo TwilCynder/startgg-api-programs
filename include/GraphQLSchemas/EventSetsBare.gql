@@ -14,6 +14,11 @@ query EventSetsBare($slug: String!, $page: Int, $perPage: Int) {
                     }
                   	standing {
                         placement
+                        stats {
+                            score {
+                                value   
+                            }
+                        }
                     }
                 }
             }

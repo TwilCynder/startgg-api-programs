@@ -58,7 +58,7 @@ export function getEventsResultsBareFromObjects(client, events, numEntrants, lim
             return event;
         }
         const data = await getEventResultsBare(client, event.slug, numEntrants, limiter);
-        Object.assign(event, {standings: {nodes: data}});
+        Object.assign(event, {standings: data});
         return event;
     }))
 }
