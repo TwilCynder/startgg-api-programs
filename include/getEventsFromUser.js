@@ -3,6 +3,7 @@ import { readSchema } from './lib/util.js';
 import { deep_get } from 'startgg-helper-node/util';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from 'startgg-helper';
+import { finalizeUserEventsConfig } from './userEventsQueriesUtil.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventsFromUser.gql");
 const query = new Query(schema, 3);
@@ -30,34 +31,6 @@ async function getEventsPage(client, slug, limiter = null, page, config){
   return result;
 }
 
-/*
-async function processStandingsPage(client, slug, limiter, currentList, page, after = null, until = null, perPage = PER_PAGE){
-    let events = await getStandingsPage(client, slug, limiter, page, perPage, false);
-     if (!events) throw `No result for slug ${slug} page ${page} (${perPage} resutls per page)`;
-
-    for (let ev of events){
-
-      if (ev.startAt > prevTimestamp){
-        console.warn("==========SORT FAULT !!!!==========");
-      }
-      prevTimestamp = ev.startAt;
- 
-      if (until && ev.startAt > until) continue;
-      if (after && ev.startAt < after) return false;
-      if (ev.entrantSizeMin > 1) continue;
-
-      if (standingsList.list[ev.id]) continue;
-
-      standingsList.list[ev.id] = ev.standings.nodes;
-      standingsList.list[ev.id].tournamentName = ev.tournament.name;
-      standingsList.list[ev.id].id = ev.id;
-      standingsList.size++;
-
-    }
-    return events.length >= perPage;
-}
-*/
-
 
 /**
  * 
@@ -72,6 +45,7 @@ async function processStandingsPage(client, slug, limiter, currentList, page, af
 async function processPage(client, slug, limiter, currentList, page, config = {}){
   let until = config.endDate;
   let after = config.startDate;
+  
   let events = await getEventsPage(client, slug, limiter, page, config);
    if (!events) throw `No result for slug ${slug} page ${page}`;
 
@@ -93,10 +67,9 @@ async function processPage(client, slug, limiter, currentList, page, config = {}
  * @param {GraphQLClient} client 
  * @param {string} slug 
  * @param {TimedQuerySemaphore} limiter 
- * @param {GEFUConfig} config 
- * @returns 
+ * @param {import('./userEventsQueriesUtil.js').FinalizedUserEventsConfig} config 
  */
-export async function getEventsFromUser(client, slug, limiter, config = {}){
+async function getEventsFromUser_(client, slug, limiter, config){
   if (!config.startDate && !config.endDate){ //we don't have to check each page, we can go for a simple paginated query
     return query.executePaginated(client, {slug, games: config.games, minEntrants: config.minEntrants}, "user.events", limiter, {pageParamName: "eventsPage"});
   } else {
@@ -114,15 +87,29 @@ export async function getEventsFromUser(client, slug, limiter, config = {}){
 /**
  * 
  * @param {GraphQLClient} client 
+ * @param {string} slug 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {import('./userEventsQueriesUtil.js').RawUserEventsConfig} config 
+ * @returns 
+ */
+export async function getEventsFromUser(client, slug, limiter, config = {}){
+  return getEventsFromUser_(client, slug, limiter, await finalizeUserEventsConfig(config, client, limiter));
+}
+
+/**
+ * 
+ * @param {GraphQLClient} client 
  * @param {string[]} slug 
  * @param {TimedQuerySemaphore} limiter 
- * @param {GEFUConfig} config 
+ * @param {import('./userEventsQueriesUtil.js').RawUserEventsConfig} config 
  * @returns 
  */
 export async function getEventsFromUsers(client, slugs, limiter, config){
-  console.log(config);
 
-  let results = await Promise.all(slugs.map( slug => getEventsFromUser(client, slug, limiter, config).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
+  const finalizedConfig = await finalizeUserEventsConfig(config, client, limiter);
+  console.log(finalizedConfig);
+
+  let results = await Promise.all(slugs.map( slug => getEventsFromUser_(client, slug, limiter, finalizedConfig).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
 
   let dict = {};
   for (let list of results){

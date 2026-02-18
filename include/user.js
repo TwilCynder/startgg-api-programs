@@ -1,9 +1,8 @@
 import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
 import { TimedQuerySemaphore } from 'startgg-helper';
-import { aggregateArrayDataPromises } from './lib/util.js';
+import { aggregateArrayDataPromises, readUsersFile } from './lib/util.js';
 import { readJSONInput } from './lib/readUtil.js';
-import { tryReadUsersFile } from './fetchUserEvents.js';
 
 export class User {
 
@@ -54,7 +53,7 @@ export class User {
     static createUsersMultimodal(client, limiter, slugs, slugsFile, datafile){
         return aggregateArrayDataPromises([
             (async () => {
-                return this.createUsers(client, await tryReadUsersFile(slugsFile, slugs), limiter)
+                return this.createUsers(client, await readUsersFile(slugsFile, slugs), limiter)
             })(),
             datafile ? readJSONInput(datafile).catch(err => {
                 throw "Couldn't read specified user data file " + datafile + " : " + err

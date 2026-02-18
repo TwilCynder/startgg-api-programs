@@ -3,6 +3,7 @@ import { readSchema } from './lib/util.js';
 import { deep_get } from 'startgg-helper-node/util';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from 'startgg-helper';
+import { finalizeUserEventsConfig } from './userEventsQueriesUtil.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/StandingsFromUser.gql");
 const query = new Query(schema, 3);
@@ -14,8 +15,6 @@ query.log = {
 
 const STANDINGS_PER_PAGE = 96;
 
-/** @typedef {{startDate: number, endDate: number, games: number[], minEntrants: number}} GEFUConfig */
-
 
 async function getStandingsPage(client, slug, limiter = null, page, standingsPage = 1, standingsPerPage = STANDINGS_PER_PAGE, silentErrors = false, config){
   let data = await query.execute(client, {slug, eventsPage: page, eventsPerPage: 5, standingsPage, standingsPerPage, games: config.games, minEntrants: config.minEntrants}, limiter, silentErrors);
@@ -24,37 +23,9 @@ async function getStandingsPage(client, slug, limiter = null, page, standingsPag
   return result;
 }
 
-/*
-async function processStandingsPage(client, slug, limiter, currentList, page, after = null, until = null, perPage = PER_PAGE){
-    let events = await getStandingsPage(client, slug, limiter, page, perPage, false);
-     if (!events) throw `No result for slug ${slug} page ${page} (${perPage} resutls per page)`;
-
-    for (let ev of events){
-
-      if (ev.startAt > prevTimestamp){
-        console.warn("==========SORT FAULT !!!!==========");
-      }
-      prevTimestamp = ev.startAt;
- 
-      if (until && ev.startAt > until) continue;
-      if (after && ev.startAt < after) return false;
-      if (ev.entrantSizeMin > 1) continue;
-
-      if (standingsList.list[ev.id]) continue;
-
-      standingsList.list[ev.id] = ev.standings.nodes;
-      standingsList.list[ev.id].tournamentName = ev.tournament.name;
-      standingsList.list[ev.id].id = ev.id;
-      standingsList.size++;
-
-    }
-    return events.length >= perPage;
-}
-*/
-
 async function processStandingsPage(client, slug, limiter, currentList, page, config = {}){
-  let until = config.startDate;
-  let after = config.endDate;
+  let until = config.endDate;
+  let after = config.startDate;
   
   let events = await getStandingsPage(client, slug, limiter, page, undefined, undefined, undefined, config);
   if (!events) throw `No result for slug ${slug} page ${page}`;
@@ -72,16 +43,16 @@ async function processStandingsPage(client, slug, limiter, currentList, page, co
 
   return events.length > 0;
 }
+
 /**
  * 
  * @param {GraphQLClient} client 
  * @param {string} slug 
  * @param {TimedQuerySemaphore} limiter 
- * @param {number} after 
- * @param {number} until 
- * @returns {Promise<{}>}
+ * @param {import('./userEventsQueriesUtil.js').FinalizedUserEventsConfig} config 
+ * @returns 
  */
-export async function getStandingsFromUser(client, slug, limiter, config){
+async function getStandingsFromUser_(client, slug, limiter, config){
   if (!config.startDate && !config.startDate){ //we don't have to check each page, we can go for a simple paginated query
     return query.executePaginated(client, {slug, standingsPerPage: STANDINGS_PER_PAGE, standingsPage: 1, games: config.games, minEntrants: config.minEntrants}, "user.events", limiter, {pageParamName: "eventsPage"});
   } else {
@@ -99,15 +70,29 @@ export async function getStandingsFromUser(client, slug, limiter, config){
 /**
  * 
  * @param {GraphQLClient} client 
+ * @param {string} slug 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {import('./userEventsQueriesUtil.js').RawUserEventsConfig} config 
+ * @returns {Promise<{}>}
+ */
+export async function getStandingsFromUser(client, slug, limiter, config){
+  return getStandingsFromUser_(client, slug, limiter, await finalizeUserEventsConfig(config, client, limiter));
+}
+
+/**
+ * 
+ * @param {GraphQLClient} client 
  * @param {string[]} slugs 
  * @param {TimedQuerySemaphore} limiter 
- * @param {number} after 
- * @param {number} until 
+ * @param {import('./userEventsQueriesUtil.js').RawUserEventsConfig} config 
  * @param {string[]} eventsBlacklist slugs of events to ignore
  * @returns {Promise<{}[]>}
  */
 export async function getStandingsFromUsers(client, slugs, limiter, config, eventsBlacklist){
-  let results = await Promise.all(slugs.map( slug => getStandingsFromUser(client, slug, limiter, config).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
+  
+  const finalizedConfig = await finalizeUserEventsConfig(config, client, limiter);
+
+  let results = await Promise.all(slugs.map( slug => getStandingsFromUser_(client, slug, limiter, finalizedConfig).catch((err) => console.warn("Slug", slug, "kaput : ", err))))
 
   let dict = {};
   for (let list of results){

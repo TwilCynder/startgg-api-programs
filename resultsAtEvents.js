@@ -8,8 +8,8 @@ import { output, readEventFilterWords, readMultimodalArrayInput } from "./includ
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
-import { fetchUsersStandings } from "./include/fetchUserEvents.js";
 import { filterEvents } from "./include/filterEvents.js";
+import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 
 //========== CONFIGURING PARAMETERS ==============
 
@@ -52,7 +52,7 @@ let [users, data, filters] = await Promise.all([
     readMultimodalArrayInput(inputfile, 
         (async()=>{
             if (startDate || endDate){
-                return await fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, minEntrants, games});
+                return await getStandingsFromUsers(client, userSlugs, limiter, {startDate, endDate, minEntrants, games}, eventSlugs);
             } else {
                 return await getEventsResults(client, events, undefined, limiter);
             }

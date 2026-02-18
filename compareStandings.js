@@ -9,7 +9,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getEventsResults } from "./include/getEventResults.js";
 import { output, readEventFilterWords, readMultimodalArrayInput } from "./include/lib/util.js";
 import { filterEvents } from "./include/filterEvents.js";
-import { fetchUsersStandings } from "./include/fetchUserEvents.js";
+import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 
 let {
     eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, 
@@ -38,7 +38,7 @@ let [users, eventsStandings, filters] = await Promise.all([
     User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
     readMultimodalArrayInput(inputfile, 
         (startDate || endDate) ? 
-        fetchUsersStandings(client, userSlugs, events, limiter, {startDate, endDate, games, minEntrants}) :
+        getStandingsFromUsers(client, userSlugs, events, limiter, {startDate, endDate, games, minEntrants}) :
         getEventsResults(client, events, undefined, limiter)
     ),
     readEventFilterWords(filter, filterFiles)

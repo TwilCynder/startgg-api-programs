@@ -225,7 +225,7 @@ export async function readUsersFile(filename, existingArray){
             return (existingArray && existingArray.length) ? existingArray.concat(arr) : arr;
         } 
     } 
-    return existingArray;
+    return existingArray ?? [];
 }
 
 /**

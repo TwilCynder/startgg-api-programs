@@ -4,10 +4,10 @@ import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter, toUNIXTimestamp } from "startgg-helper";
 import { output, readEventFilterWords, readUsersFile } from "./include/lib/util.js";
-import { fetchUserEvents } from "./include/fetchUserEvents.js";
 import { filterEvents, filterEventsFromList } from "./include/filterEvents.js";
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { logFilters } from "./include/logFilters.js";
+import { getEventsFromUsers } from "./include/getEventsFromUser.js";
 
 
 let {
@@ -48,7 +48,7 @@ logFilters(startDate, endDate, games, minEntrants, exclude_expression, filters, 
 if (display_filters) process.exit(0);
 
 let limiter = new StartGGDelayQueryLimiter;
-let data = await fetchUserEvents(client, userSlugs_, limiter, {startDate, endDate, games, minEntrants});
+let data = await getEventsFromUsers(client, userSlugs_, limiter, {startDate, endDate, games, minEntrants});
 limiter.stop();
 
 data = filterEvents(data, exclude_expression, filters, offline, online);
