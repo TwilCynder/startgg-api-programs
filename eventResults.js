@@ -3,10 +3,10 @@ import {client} from "./include/lib/client.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js"
 import { extractSlugs } from "startgg-helper-node"
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { EventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsers, EventListParser } from "./include/lib/computeEventList.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { dateText, output, readMultimodalArrayInput, splitWhitespace } from "./include/lib/util.js";
+import { dateText, generateLineUsingLineFunctions, output, readMultimodalArrayInput, splitWhitespace } from "./include/lib/util.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
 import { getMostRelevantName } from "./include/getMostRelevantName.js";
 
@@ -20,8 +20,8 @@ let {replacementsFile, eventsSlugs, sorted, line_format, inputfile, outputFormat
     })*/
     .addSwitch(["-S", "--sorted"], {description: "Sort by start time"})
     //.addSwitch(["-u", "--output-slug"], {dest: "outSlug", description: "Include event slugs in the csv output"})
-    .addOption(["-F", "--line-format"], {description: 'String describing the format of each line. It should contain words separated by spaces ; words should be "date", "eventName", "tournamentName", "name", "slug", "size", "blank" and "results". "results" is added automatically at the end if not present.'})
-    .addCustomParser(new EventListParser, "eventsSlugs")
+    .addOption(["-L", "--line-format"], {description: 'String describing the format of each line. It should contain words separated by spaces ; words should be "date", "eventName", "tournamentName", "name", "slug", "size", "blank" and "results". "results" is added automatically at the end if not present.'})
+    .apply(addEventParsers)
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -30,18 +30,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
 
-let limiter = new StartGGDelayQueryLimiter();
-let events = await readMultimodalArrayInput(inputfile, getEventsResults(client, extractSlugs(eventsSlugs), undefined, limiter))  ;
-limiter.stop()
-
-console.log(events.length);
-
-function getEventStartTime(event){
-    return event.startAt ?? event.tournament.startAt;
-}
-
-events = events.filter(ev => !!ev)
-if (sorted) events = events.sort((a, b) => getEventStartTime(a) - getEventStartTime(b));
+// ===== PREPARING OUTPUT =========
 
 let namesReplacements = {}
 if (replacementsFile){
@@ -66,11 +55,8 @@ function substituteName(name){
     return name;
 }
 
-if (silent_) unmuteStdout();
-
-const default_format = "date name size results";
 const textFunctions = {
-    date: (event) => dateText(new Date((event.startAt ?? event.tournament.startAt) * 1000)),
+    date: (event) => dateText(event.startAt ?? event.tournament.startAt),
     eventName: (event) => event.name,
     tournamentName: (event) => event.tournament.name,
     name: (event) => "" + event.tournament.name + " - " + event.name,
@@ -84,27 +70,52 @@ const textFunctions = {
     weekly: (event) => event.isWeekly ? "TRUE" : "FALSE"
 }
 
+const defaultLineFunctions = [
+    textFunctions.date, 
+    textFunctions.name, 
+    textFunctions.size, 
+    textFunctions.results
+]
+
 /** @type {(typeof textFunctions.date)[]} */
-let lineFunctions = [];
-line_format = line_format ?? default_format;
-
-let resultsUsed = false;
-for (const word of line_format.split(/\s+/g)){
-    const f = textFunctions[word];
-    if (f == textFunctions.results) resultsUsed = true;
-    if (f) lineFunctions.push(f);
-}
-
-if (!resultsUsed) lineFunctions.push(textFunctions.results);
-
-function generateLine(event){
-    let line = "";
-    for (const f of lineFunctions){
-        line += f(event) + '\t'
+let lineFunctions;
+if (line_format){
+    let resultsUsed = false;
+    for (const word of line_format.split(/\s+/g)){
+        if (!word) continue;
+        const f = textFunctions[word];
+        if (!f) {
+            console.error("Bad property name in line format :", word, ". Possible names are " + Object.keys(textFunctions).join(", "));
+            process.exit(1);
+        }
+        if (f == textFunctions.results) resultsUsed = true;
+        if (f) lineFunctions.push(f);
     }
-
-    return line.replace(/\t+$/g, "");
+    if (!resultsUsed) lineFunctions.push(textFunctions.results);
+} else {
+    lineFunctions = defaultLineFunctions;
 }
+
+//========== LOADING DATA ==============
+
+let limiter = new StartGGDelayQueryLimiter();
+let events = await readMultimodalArrayInput(inputfile, getEventsResults(client, extractSlugs(eventsSlugs), undefined, limiter))  ;
+limiter.stop()
+
+console.log(events.length);
+
+function getEventStartTime(event){
+    return event.startAt ?? event.tournament.startAt;
+}
+
+//========== PROCESSING DATA ==============
+
+events = events.filter(ev => !!ev)
+if (sorted) events = events.sort((a, b) => getEventStartTime(a) - getEventStartTime(b));
+
+if (silent_) unmuteStdout();
+
+//========== OUTPUT ==============
 
 printdata = printdata || logdata_;
 output(outputFormat, outputfile, printdata, events, (events) => {
@@ -115,7 +126,7 @@ output(outputFormat, outputfile, printdata, events, (events) => {
             continue;
         }
         //console.log(event.tournament.name, `(${event.slug}) on`, new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));
-        resultString += generateLine(event) + '\n';
+        resultString += generateLineUsingLineFunctions(event, lineFunctions) + '\n';
     }
     return resultString;
 });

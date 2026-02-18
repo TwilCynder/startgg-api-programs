@@ -315,3 +315,49 @@ export async function readEventFilterWords(filter_words, filter_word_files){
 
     return filters.concat(filter_words).flat();
 }
+
+/**
+ * @typedef {(obj: any) => string} textFieldFunction
+ * @param {string} line_format 
+ * @param {Object<string, textFieldFunction>} textFunctions 
+ * @param {textFieldFunction[]} defaultLineFunctions 
+ * @param {string[]} mandatories 
+ */
+export function getLineFormatFunctions(line_format, textFunctions, defaultLineFunctions, mandatories){
+    if (line_format){
+        /** @type {textFieldFunction[]} */
+        let lineFunctions = [];
+
+        let mandatoriesUsed = Object.fromEntries(mandatories.map(elt => [elt, false]));
+        for (let word of line_format.split(/\s+/g)){
+            word = word.trim();
+            if (!word) continue;
+
+            if (mandatoriesUsed[word] === false) mandatoriesUsed[word] = true;
+
+            const f = textFunctions[word];
+            if (!f) {
+                console.error("Bad property name in line format :", word, ". Possible names are " + Object.keys(textFunctions).join(", "));
+                process.exit(1);
+            }
+            if (f) lineFunctions.push(f);
+        }
+
+        for (const mandatoryKey in mandatoriesUsed){
+            if (!mandatoriesUsed[mandatoryKey] && textFunctions[mandatoryKey]) lineFunctions.push(textFunctions[mandatoryKey]) 
+        }
+
+        return lineFunctions
+    } else {
+       return defaultLineFunctions;
+    }
+}
+
+export function generateLineUsingLineFunctions(object, lineFunctions){
+    let line = "";
+    for (const f of lineFunctions){
+        if (!f) continue;
+        line += f(object) + '\t'
+    }
+    return line.replace(/\t+$/g, "");
+}
