@@ -51,7 +51,7 @@ export function filterEvents(events, exclude_expression, exclude_words, offline,
 
     events = filterEventsNames(events, exclude_words);
 
-    if (offline == online){
+    if (offline != online){
         events = events.filter(event => event.isOnline == online)
     }
 
@@ -71,4 +71,21 @@ export function filterEventsFromTournament(events, exclude_expression, exclude_w
     events = filterEvents(events, exclude_expression, exclude_words, offline, online);
 
     return minEntrants ? events.filter(event => event.numEntrants >= minEntrants) : events;
+}
+
+/**
+ * Removes events if their slug is either included or not included in a list of slugs
+ * @param {any[]} events A list of events to filter
+ * @param {string[]} eventsBlacklist Events in this list will be removed from the input events list 
+ * @returns 
+ */
+export function filterEventsFromList(events, eventsBlacklist, blacklistMode = true){
+    if (eventsBlacklist){
+        return events.filter(event => {
+            for (const slug of eventsBlacklist){
+                if (slug == event.slug) return !blacklistMode;
+            }
+            return blacklistMode;
+        })
+    }
 }

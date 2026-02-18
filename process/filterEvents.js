@@ -2,7 +2,7 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventGenericFilterParams, addEventOnlineFilterParams, addInputParams, addInputParamsMandatory, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { addEventParsers, addEventParsersSwitchable, readEventLists } from "../include/lib/computeEventList.js";
 import { outputJSON, readEventFilterWords, tryReadJSONInput } from "../include/lib/util.js";
-import { filterEventsFromTournament } from "../include/filterEvents.js";
+import { filterEventsFromList, filterEventsFromTournament } from "../include/filterEvents.js";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
 let {inputfile, eventSlugs, eventsFilenames, exclude_expression, filter, filterFiles, outputfile, printdata, silent, prettyjson, blacklistMode, offline, online, minEntrants} = new ArgumentsManager() 
@@ -29,15 +29,7 @@ let [data, events, filters] = await Promise.all([
     readEventFilterWords(filter, filterFiles)
 ]);
 
-if (events && events.length){
-    data = data.filter(event => {
-        for (let slug of events){
-            if (slug == event.slug) return !blacklistMode;
-        }
-        return blacklistMode;
-    });    
-}
-
+data = filterEventsFromList(data, events, blacklistMode);
 data = filterEventsFromTournament(data, exclude_expression, filters, minEntrants, offline, online);
 
 if (silent_) unmuteStdout();

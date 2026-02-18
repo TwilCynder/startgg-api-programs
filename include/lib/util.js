@@ -57,9 +57,21 @@ export function readSchema(source, filename){
 }
 
 /**
+ * Converts a number to a date, assuming it's a UNIX timestamp (second-based, not milisecond-based)
+ * @param {Date | number} date 
+ */
+function toDate(date){
+    if (date instanceof Date){
+        return date;
+    }
+    return new Date(date * 1000);
+}
+
+/**
  * @param {Date} date 
  */
 export function dateText(date){
+    date = toDate(date);
     return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
 }
 
@@ -67,6 +79,7 @@ export function dateText(date){
  * @param {Date} date 
  */
 export function timeText(date){
+    date = toDate(date);
     return `${dateText(date)} - ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 }
 
@@ -164,7 +177,7 @@ function outputJSON_(prettyJSON, filename, printdata, data, fragmentSize){
 export function output(format, filename, printdata, data, CSVtransform, fragmentSize){
     if (!filename && !printdata) return;
 
-    if (!format || !format.includes("csv")){
+    if (!format || format.includes("csv")){
         output_(filename, printdata, CSVtransform ? CSVtransform(data) : "");
     } else {
         outputJSON_(format == "prettyjson", filename, printdata, data, fragmentSize);

@@ -2,16 +2,20 @@ import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventFilterParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper";
+import { StartGGDelayQueryLimiter, toUNIXTimestamp } from "startgg-helper";
 import { output, readEventFilterWords, readUsersFile } from "./include/lib/util.js";
 import { fetchUserEvents } from "./include/fetchUserEvents.js";
-import { filterEvents } from "./include/filterEvents.js";
+import { filterEvents, filterEventsFromList } from "./include/filterEvents.js";
+import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
+import { logFilters } from "./include/logFilters.js";
+
 
 let {
     userSlugs, filename, 
-    games, minEntrants, exclude_expression, filter, filterFiles , startDate, endDate, offline, online,
+    eventSlugs, eventsFilenames, games, minEntrants, exclude_expression, filter, filterFiles, startDate, endDate, offline, online, display_filters,
     outputFormat, outputfile, logdata, printdata, silent, slugOnly
 } = new ArgumentsManager()
+    .setParameters({guessLowDashes: true})
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
         description: "A list of users slugs to fetch events for"
@@ -20,7 +24,10 @@ let {
         description: "Path to a file containing a list of user slugs"
     })
     .apply(addEventFilterParams)
+    .apply(addEventParsersSwitchable)
+    .addSwitch("--display-filters", {description: "If this option is used the program does nothing, only displays the active filters"})
     .addSwitch(["-u", "--slug-only"], {dest: "slugOnly", description: "Only output the slug for each event"})
+    .setAbstract("Uses the provided events list as a blacklist")
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -28,16 +35,24 @@ let {
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
-userSlugs = await readUsersFile(filename, userSlugs);
-console.log(userSlugs);
-let limiter = new StartGGDelayQueryLimiter;
-let [data, filters] = await Promise.all([
-    fetchUserEvents(client, userSlugs, limiter, {startDate, endDate, games, minEntrants}),
-    readEventFilterWords(filter, filterFiles)
+let [userSlugs_, filters, eventsBlacklist] = await Promise.all([
+    readUsersFile(filename, userSlugs),
+    readEventFilterWords(filter, filterFiles),
+    readEventLists(eventSlugs, eventsFilenames)
 ])
+
+console.log("User slugs :", userSlugs_);
+console.log("Filters :");
+logFilters(startDate, endDate, games, minEntrants, exclude_expression, filters, offline, online, eventsBlacklist);
+
+if (display_filters) process.exit(0);
+
+let limiter = new StartGGDelayQueryLimiter;
+let data = await fetchUserEvents(client, userSlugs_, limiter, {startDate, endDate, games, minEntrants});
 limiter.stop();
 
 data = filterEvents(data, exclude_expression, filters, offline, online);
+data = filterEventsFromList(data, eventsBlacklist, true);
 
 if (silent_) unmuteStdout();
 
