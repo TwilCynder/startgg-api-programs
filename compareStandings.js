@@ -2,7 +2,7 @@ import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-import { addEventDateParams, addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
+import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";

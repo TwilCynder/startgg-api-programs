@@ -82,6 +82,7 @@ function processEvent(ev, matrix){
         }
         prevPlacement = standing.placement;
 
+        if (standing.entrant.isDisqualified) continue;
         if (!standing.entrant.participants[0].user) continue;
 
         let id = standing.entrant.participants[0].user.id;

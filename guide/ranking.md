@@ -81,7 +81,7 @@ You have your lists in `data/resultsLocal.csv` and `data/resultsExt.csv`. Now, d
 
 ### Comparing players
 Before moving on, if we manually removed events from the result table(s) in the previous step, we need to remove them in the data we downloaded :  
-`node process/filterEvents.js -i data/standings.json --events-file data/events.txt -o data/standings.json`  
+`node process/filterEvents.js data/standings.json --events-file data/events.txt -o data/standings.json`  
 
 Now run 
 - `node compareStandings.js -D data/users.json -i data/standings.json -o data/standingsComparison.csv --format csv`

@@ -5,7 +5,7 @@ import { addInputParams, addOutputParamsCustom, addUsersParams, doWeLog, isSilen
 import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readInputJSON, readMultimodalArrayInput, tryReadJSONInput } from "./include/lib/util.js";
+import { output, readMultimodalArrayInput, tryReadJSONInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
 import { yellow } from "./include/lib/consoleUtil.js";
