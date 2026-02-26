@@ -35,7 +35,11 @@ export const tierNames = [
     "17-24",
     "25-32",
     "33-48",
-    "49-64"
+    "49-64",
+    "65-96",
+    "97-128",
+    "129-192",
+    "193-256",
 ]
 
 export { standingTiers as standingTiers };
