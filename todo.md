@@ -1,6 +1,9 @@
+- Bouger la fonction de calcul de SPR dans sgg helper
+- Finir le système de game dans upsetcontest (sysètme, à généraliser, où on peut passer soit un fichier soit un slug + dossier)
 - Généraliser l'utilisation de tryReadJSONArray
 - Généraliser l'utilsation du saveManager (à partir de downloadSetsFromEventsBare)
   - Commencer par propager aux autres downloadSetsFromEvents, puis aux autres downloads
+- Généraliser l'utilisation de columns()
 - Généraliser l'utilisation du output fragment quand pertinent (juste passer le paramètre aux fonctions output quand on sort un tableau)
 - Généraliser le système de format string (voir --line-format)
 - Implémenter un QueryManager, avec un tryLoad, pour les fonctions qui peuvent utiliser plusieurs queries *ou pas*

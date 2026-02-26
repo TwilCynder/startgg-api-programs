@@ -11,7 +11,6 @@ query EventStandingsQuery($slug: String!, $page: Int!, $perPage: Int) {
           id
           name
           initialSeedNum
-          id
           participants {
             user {
               id

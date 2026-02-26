@@ -44,9 +44,12 @@ let {
 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
+
+// ========  PROCESSING INPUT PARAMETERS ========
+
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
-// ===== PREPARING OUTPUT =========
+// ======== PREPARING OUTPUT =========
 
 const textFunctions = {
     date: (event) => dateText(event.startAt ?? event.tournament.startAt),

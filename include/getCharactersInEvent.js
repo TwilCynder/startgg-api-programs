@@ -1,6 +1,6 @@
 import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
-import { getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap, getSetsInEventsSeparated, reduceSetsInEvents } from './getSetsInEvents.js';
+import { getQueryLogConfig, getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap, getSetsInEventsSeparated, reduceSetsInEvents } from './getSetsInEvents.js';
 import { processSets } from './processCharacterStats.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacterOnly.gql");
