@@ -1,5 +1,5 @@
 import { Query } from 'startgg-helper';
-import { getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap} from './getSetsInEvents.js';
+import { getQueryLogConfig, getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap} from './getSetsInEvents.js';
 import { readSchema } from './lib/util.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsGames.gql");

@@ -9,17 +9,16 @@ import { createClient  } from "startgg-helper-node";
 import { getPlayerName } from "./include/getPlayerName.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { output } from "./include/lib/util.js";
+import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
 let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, silent, names, top, min_sets} = new ArgumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
-    .addSwitch(["-a", "--names"], {description: "Fetch players names (to use in human-readable instead of ID). True by default"})
-    .addOption(["-n", "--number"], {description: "How many players to display in human-readbale result", type: "number"})
+    .addSwitch(["-n", "--names"], {description: "Fetch players names (to use in human-readable instead of ID). True by default"})
     .addOption(["-m", "--min_sets"], {description: "Minimum number of sets to be included in the results", type: "number", default: 10})
-    .addOption(["-t", "--top"], {description: "Display only this many players"})
+    .addOption(["-t", "--top"], {description: "Display the top x players in the logs (does not affect the data output)", default: 3, type: "number"})
     .enableHelpParameter()
     .parseProcessArguments();
 
@@ -33,7 +32,7 @@ let client = createClient();
 let limiter = new StartGGDelayQueryLimiter();
 
 let data = await readMultimodalArrayInput(inputfile, 
-    eventSlugs.length > 0 ? getEventsSetsBasic(client, eventSlugs, limiter): null
+    eventSlugs.length > 0 ? getEventsSetsBasic(client, eventSlugs, limiter) : null
 )
 
 data = data.reduce( (prev, curr) => {
@@ -63,7 +62,7 @@ for (let set of data){
 
     if (score1 < 0 || score2 < 0) continue;
 
-    let clutch = Math.abs(score1 - score2) == 1
+    let clutch = Math.abs(score1 - score2) == 1;
 
     addSet(set.slots[0].entrant.participants[0].user, clutch);
     addSet(set.slots[1].entrant.participants[0].user, clutch);

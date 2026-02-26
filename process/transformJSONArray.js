@@ -26,14 +26,15 @@ const ops = {
         f: (data, [path]) => data.map(element => deep_get(element, path)),
         params: 1
     },
-
     flat: {
         f: (data) => data.flat(),
-        params: 0
+    },
+    filterNull: {
+        f: (data) => data.filter(elt => (elt != null) && (elt != undefined)),
     }
 }
 
-// ======== PROCESSING
+// ======== PROCESSING ========
 
 for (let i = 0; i < operations.length; i++){
     const word = operations[i];
@@ -44,13 +45,15 @@ for (let i = 0; i < operations.length; i++){
         process.exit(1);
     }
 
-    if(operations.length < i + op.params){
+    const nbParams = op.params ?? 0;
+
+    if(operations.length < i + nbParams){
         console.error("Not enough arguments for operation", word);
         process.exit(1);
     }
 
-    const params = operations.slice(i + 1, i + op.params + 1);
-    i += op.params;
+    const params = operations.slice(i + 1, i + nbParams + 1);
+    i += nbParams;
 
     data = op.f(data, params)
 }

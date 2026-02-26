@@ -15,16 +15,14 @@ let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, 
     .apply(addInputParams)
     .apply(addOutputParams)
     .addSwitch(["-a", "--names"], {description: "Fetch players names (to use in human-readable instead of ID). True by default"})
-    .addOption(["-n", "--number"], {description: "How many players to display in human-readbale result", type: "number"})
     .addOption(["-m", "--min_sets"], {description: "Minimum number of sets to be included in the results", type: "number", default: 10})
-    .addOption(["-t", "--top"], {description: "Display only this many players"})
+    .addOption(["-t", "--top"], {description: "Display the top x players in the logs (does not affect the data output)", default: 3, type: "number"})
     .enableHelpParameter()
     .parseProcessArguments();
 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
-
 
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
@@ -33,7 +31,6 @@ let data = await readMultimodalArrayInput(inputfile, getEventsSetsGames(client, 
 limiter.stop();
 
 function detectReverse(games){
-    if (games.length < 5) return false;
     let winnerChangeCounter = 0;
     let previousWinnerId = games[0].winnerId;
     for (let game of games){
@@ -69,9 +66,12 @@ function addReverse(player){
 }
 
 for (let set of data){
-    if (!set.games){
-        continue;
+    if (!set) {
+        console.log("Null set")
+        continue
     }
+    if (!set.games) continue;
+    if (set.games.length < 5) continue;
 
     let p1 = set.slots[0].entrant.participants[0].player;
     let p2 = set.slots[1].entrant.participants[0].player;
