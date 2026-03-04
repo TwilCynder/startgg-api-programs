@@ -2,7 +2,7 @@ import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js"; 
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addInputParams, addOutputParamsCustom, addUsersParams, doWeLog, isSilent } from "./include/lib/paramConfig.js";
-import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { output, readMultimodalArrayInput, tryReadJSONInput } from "./include/lib/util.js";
@@ -35,7 +35,7 @@ if (display){
         process.exit(1);
     }
 } else {
-    let events = await readEventLists(eventSlugs, eventsFilenames);
+    let events = await readSlugLists(eventSlugs, eventsFilenames);
 
     let limiter = new StartGGDelayQueryLimiter;
     let [users, sets] = await Promise.all([

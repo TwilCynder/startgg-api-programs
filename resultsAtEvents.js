@@ -5,7 +5,7 @@ import { unmuteStdout, muteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { dateText, generateLineUsingLineFunctions, getLineFormatFunctions, output, readEventFilterWords, readMultimodalArrayInput } from "./include/lib/util.js";
-import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
 import { filterEvents } from "./include/filterEvents.js";
@@ -47,7 +47,7 @@ if (silent_) muteStdout();
 
 // ========  PROCESSING INPUT PARAMETERS ========
 
-let events = await readEventLists(eventSlugs, eventsFilenames);
+let events = await readSlugLists(eventSlugs, eventsFilenames);
 
 // ======== PREPARING OUTPUT =========
 

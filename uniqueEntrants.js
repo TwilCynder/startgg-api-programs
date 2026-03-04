@@ -1,5 +1,5 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
@@ -19,7 +19,7 @@ let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, outputFormat,
     .enableHelpParameter()
     .parseProcessArguments();
  
-eventSlugs = await readEventLists(eventSlugs, eventsFilenames);
+eventSlugs = await readSlugLists(eventSlugs, eventsFilenames);
 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 

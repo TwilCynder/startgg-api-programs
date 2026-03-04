@@ -3,7 +3,7 @@ import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
-import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getEventsResults } from "./include/getEventResults.js";
@@ -30,7 +30,7 @@ let silent_ = isSilent(printdata, silent);
 
 if (silent_) muteStdout();
 
-let events = await readEventLists(eventSlugs, eventsFilenames);
+let events = await readSlugLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
 

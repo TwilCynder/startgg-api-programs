@@ -1,4 +1,4 @@
-import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
@@ -24,7 +24,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 
 if (silent_) muteStdout();
 
-let events = await readEventLists(eventSlugs, eventsFilenames);
+let events = await readSlugLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
 let data = await readMultimodalArrayInput(inputfile, getEventsSetsGames(client, events, limiter));

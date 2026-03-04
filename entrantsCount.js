@@ -1,6 +1,6 @@
 import { client } from "./include/lib/client.js";
 import { getEntrantsCountOverLeague } from "./include/getEntrantsCount.js";
-import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 
 let {eventSlugs, eventsFilenames} = new ArgumentsManager()
@@ -9,7 +9,7 @@ let {eventSlugs, eventsFilenames} = new ArgumentsManager()
     .enableHelpParameter()
     .parseProcessArguments();
 
-eventSlugs = await readEventLists(eventSlugs, eventsFilenames);
+eventSlugs = await readSlugLists(eventSlugs, eventsFilenames);
 let count = await getEntrantsCountOverLeague(client, eventSlugs);
 
 console.log(count);

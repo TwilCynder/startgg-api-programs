@@ -1,5 +1,5 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { createClientAuto } from "./include/lib/createClient.js";
@@ -19,7 +19,7 @@ let {eventSlugs, eventsFilenames, inputfile, outputFormat, outputfile, logdata, 
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
-let eventSlug = await readEventLists(eventSlugs, eventsFilenames);
+let eventSlug = await readSlugLists(eventSlugs, eventsFilenames);
 
 let client = await createClientAuto();
 let limiter = new StartGGDelayQueryLimiter();

@@ -48,7 +48,7 @@ export function addEventParsersSwitchable(am){
  * @param {boolean} silentErrors 
  * @returns 
  */
-export async function readEventLists(currentList, filenames, silentErrors){
+export async function readSlugLists(currentList, filenames, silentErrors){
     let events = (await readLinesInFiles(filenames, silentErrors))
         .filter(ev => !!ev)
         .map(ev => {

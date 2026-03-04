@@ -1,6 +1,6 @@
 import { getEventsSetsBasic, getEventsSetsBasicFromObjects } from "./include/getEventsSets.js";
 
-import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
@@ -33,7 +33,7 @@ if (silent_) muteStdout();
 
 // ========  PREPROCESSING INPUT ========
 
-let events = await readEventLists(eventSlugs, eventsFilenames);
+let events = await readSlugLists(eventSlugs, eventsFilenames);
 
 //========== LOADING DATA ==============
  

@@ -1,4 +1,4 @@
-import { addEventParsers, EventListParser, readEventLists } from './include/lib/computeEventList.js'
+import { addEventParsers, EventListParser, readSlugLists } from './include/lib/computeEventList.js'
 import { getSetsCharsInEvents } from './include/getCharactersInEvent.js';
 import { client } from './include/lib/client.js';
 import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
@@ -22,7 +22,7 @@ try {
 
     let limiter = new StartGGDelayQueryLimiter();
 
-    let events = await readEventLists(eventSlugs, eventsFilenames);
+    let events = await readSlugLists(eventSlugs, eventsFilenames);
     let data = await readMultimodalArrayInput(inputfile, getSetsCharsInEvents(client, events, limiter))
 
     limiter.stop();

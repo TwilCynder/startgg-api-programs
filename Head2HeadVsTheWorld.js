@@ -2,7 +2,7 @@ import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js"; 
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 import { addInputParams, addOutputParams, addUsersParams, doWeLog } from "./include/lib/paramConfig.js";
-import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { deep_get} from "startgg-helper-node/util";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js"
 import { StartGGDelayQueryLimiter } from "startgg-helper";
@@ -27,7 +27,7 @@ let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
 let [events] = await Promise.all([
-    readEventLists(eventSlugs, eventsFilenames),
+    readSlugLists(eventSlugs, eventsFilenames),
 ])
 let limiter = new StartGGDelayQueryLimiter;
 

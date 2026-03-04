@@ -1,4 +1,4 @@
-import { addEventParsers, readEventLists } from './include/lib/computeEventList.js'
+import { addEventParsers, readSlugLists } from './include/lib/computeEventList.js'
 import { getSetsCharsDetailedInEvents } from './include/getCharactersInEventsDetailed.js';
 import { getCharsStatsInSets, getUpdateFunction } from './include/processCharacterStats.js';
 import { client } from './include/lib/client.js';
@@ -57,7 +57,7 @@ try {
         throw "Neither <charactersInfoFilename> or <gameSlug> were specified (using -s or -f respectively)"
     }
 
-    let events = await readEventLists(eventSlugs, eventsFilenames);
+    let events = await readSlugLists(eventSlugs, eventsFilenames);
 
     let limiter = new StartGGDelayQueryLimiter();
 

@@ -5,7 +5,7 @@ import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter, toUNIXTimestamp } from "startgg-helper";
 import { output, readEventFilterWords, readUsersFile } from "./include/lib/util.js";
 import { filterEvents, filterEventsFromList } from "./include/filterEvents.js";
-import { addEventParsersSwitchable, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { logFilters } from "./include/logFilters.js";
 import { getEventsFromUsers } from "./include/getEventsFromUser.js";
 
@@ -38,7 +38,7 @@ if (silent_) muteStdout();
 let [userSlugs_, filters, eventsBlacklist] = await Promise.all([
     readUsersFile(filename, userSlugs),
     readEventFilterWords(filter, filterFiles),
-    readEventLists(eventSlugs, eventsFilenames)
+    readSlugLists(eventSlugs, eventsFilenames)
 ])
 
 console.log("User slugs :", userSlugs_);

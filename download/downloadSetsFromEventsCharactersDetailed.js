@@ -1,4 +1,4 @@
-import { addEventParsers, readEventLists } from "../include/lib/computeEventList.js";
+import { addEventParsers, readSlugLists } from "../include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "../include/lib/client.js";
@@ -27,7 +27,7 @@ let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
 
-let [events, eventObjects] = await Promise.all([readEventLists(eventSlugs, eventsFilenames), tryReadJSONArray(inputfile)]);
+let [events, eventObjects] = await Promise.all([readSlugLists(eventSlugs, eventsFilenames), tryReadJSONArray(inputfile)]);
 
 let limiter = new StartGGDelayQueryLimiter();
 let progressManager = cache ? await queriesProgressManager(cache, {writeThreshold: cache_frequency ?? 100}) : null;

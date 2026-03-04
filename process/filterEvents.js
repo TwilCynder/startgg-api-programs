@@ -1,6 +1,6 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventGenericFilterParams, addEventOnlineFilterParams, addInputParams, addInputParamsMandatory, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { addEventParsers, addEventParsersSwitchable, readEventLists } from "../include/lib/computeEventList.js";
+import { addEventParsers, addEventParsersSwitchable, readSlugLists } from "../include/lib/computeEventList.js";
 import { outputJSON, readEventFilterWords, tryReadJSONInput } from "../include/lib/util.js";
 import { filterEventsFromList, filterEventsFromTournament } from "../include/filterEvents.js";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
@@ -25,7 +25,7 @@ if (silent_) muteStdout();
 
 let [data, events, filters] = await Promise.all([
     tryReadJSONInput(inputfile),
-    readEventLists(eventSlugs, eventsFilenames),
+    readSlugLists(eventSlugs, eventsFilenames),
     readEventFilterWords(filter, filterFiles)
 ]);
 

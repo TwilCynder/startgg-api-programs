@@ -5,7 +5,7 @@ import { readJSONInput, readLinesAsync } from "./include/lib/readUtil.js";
 import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "startgg-helper-node";
 import { addInputParams } from "./include/lib/paramConfig.js";
-import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { readMultimodalArrayInputWrapper } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js"
  
@@ -20,7 +20,7 @@ let {inputfile, eventSlugs, eventsFilenames, names, namesfile, userDataFile, out
     .enableHelpParameter()  
     .parseProcessArguments();
 
-let list = await readEventLists(eventSlugs, eventsFilenames);
+let list = await readSlugLists(eventSlugs, eventsFilenames);
 
 let [results, userData] = await Promise.all([
     readMultimodalArrayInputWrapper(inputfile, async () => {

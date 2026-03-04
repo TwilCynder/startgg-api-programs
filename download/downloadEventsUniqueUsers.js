@@ -1,6 +1,6 @@
 
 
-import { addEventParsers, EventListParser, readEventLists } from "../include/lib/computeEventList.js";
+import { addEventParsers, EventListParser, readSlugLists } from "../include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "../include/lib/client.js";
@@ -23,7 +23,7 @@ let silent_ = isSilent(printdata, silent)
 
 if (silent_) muteStdout();
 
-let [events, eventObjects] = await Promise.all([readEventLists(eventSlugs, eventsFilenames), tryReadJSONInput(inputfile)]);
+let [events, eventObjects] = await Promise.all([readSlugLists(eventSlugs, eventsFilenames), tryReadJSONInput(inputfile)]);
 events = events.concat(eventObjects.filter (event => !!event.slug).map(event => event.slug));
 
 let limiter = new StartGGDelayQueryLimiter();
