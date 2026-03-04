@@ -2,14 +2,15 @@ import { client } from "./include/lib/client.js";
 import { getAttendanceFromEvents } from "./include/getAttendance.js";
 import { addEventParsers, readEventLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output } from "./include/lib/util.js";
+import { output, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, inputfile , outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
     .apply(addEventParsers)
+    .apply(addInputParams)
     .apply(addOutputParams)
     .enableHelpParameter()
     .parseProcessArguments();
@@ -21,7 +22,8 @@ if (silent_) muteStdout();
 let events = await readEventLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let eventResults = await getEntrantsBasicForEvents(client, events, limiter).then(res => res.filter(event => !!event.entrants));
+let eventResults = await readMultimodalArrayInput(inputfile, getEntrantsBasicForEvents(client, events, limiter).then(res => res.filter(event => !!event.entrants)))
+console.log(eventResults)
 let attendance = getAttendanceFromEvents(eventResults);
 limiter.stop();
 

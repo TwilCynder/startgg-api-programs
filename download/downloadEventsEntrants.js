@@ -8,7 +8,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { outputJSON, tryReadJSONInput } from "../include/lib/util.js";
+import { aggregateArrayDataPromises, outputJSON, tryReadJSONInput } from "../include/lib/util.js";
 import { getEntrantsBasicForEvents, getEntrantsBasicFromObjects } from "../include/getEntrantsBasic.js";
 
 let {eventSlugs, eventsFilenames, inputfile, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
