@@ -49,7 +49,9 @@ export function addEventParsersSwitchable(am){
  * @returns 
  */
 export async function readSlugLists(currentList, filenames, silentErrors){
-    let events = (await readLinesInFiles(filenames, silentErrors))
+    let events = 
+        (await readLinesInFiles(filenames, silentErrors))
+        .concat(currentList)
         .filter(ev => !!ev)
         .map(ev => {
             if (ev.includes("%")){
@@ -65,7 +67,7 @@ export async function readSlugLists(currentList, filenames, silentErrors){
         .map(ev => {
             return extractSlug(ev.trim())
         })
-    return currentList.concat(events);
+    return events;
 }
 
 /**

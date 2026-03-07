@@ -11,19 +11,19 @@ query.log = {
 
 export async function getOtherEventsFromEvent(client, slug, limiter = null, silentErrors = false){
   let data = await query.execute(client, {slug}, limiter, silentErrors);
-  if (!data.event) {
+  if (!data.event || !data.event.tournament) {
     console.warn("Coulnd't fetch info for event slug", slug);
     return null;
   }
   console.log("Fetched info for event slug", slug);
   
+  const tournament = data.event.tournament;
+
   return {
-    tournament: {
-      name: data.event.tournament.name,
-      slug: data.event.tournament.slug
-    },
-    baseSlug: slug,
-    events: data.event.tournament.events
+    name: tournament.name,
+    slug: tournament.slug,
+    events: tournament.events,
+    baseSlug: slug
   }
 
 }

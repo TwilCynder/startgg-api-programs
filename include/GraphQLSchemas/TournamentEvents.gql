@@ -1,0 +1,10 @@
+query SideEvents($slug: String){
+    tournament(slug: $slug) {
+        slug
+        name
+        events {
+            name
+            slug
+        }
+    }
+}
