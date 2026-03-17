@@ -115,6 +115,11 @@ function output_(filename, printdata, resultString){
     }
 }
 
+export function getExtension(fname){
+    //Credit : VisioN https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript/12900504#12900504
+    return fname.slice((fname.lastIndexOf(".") - 1 >>> 0) + 2);
+}
+
 /**
  * @param {string} filename 
  * @param {number} i 
@@ -176,6 +181,10 @@ function outputJSON_(prettyJSON, filename, printdata, data, fragmentSize){
  */
 export function output(format, filename, printdata, data, CSVtransform, fragmentSize){
     if (!filename && !printdata) return;
+
+    if (!format && filename){
+        format = getExtension(filename);
+    }
 
     if (!format || format.includes("csv")){
         output_(filename, printdata, CSVtransform ? CSVtransform(data) : "");
