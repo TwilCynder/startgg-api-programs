@@ -1,11 +1,11 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addOutputParamsJSON } from "../include/lib/paramConfig.js";
-import { outputJSON, tryReadJSONArray } from "../include/lib/util.js";
+import { addOutputParams, addOutputParamsJSON } from "../include/lib/paramConfig.js";
+import { output, outputJSON, tryReadJSONArray } from "../include/lib/util.js";
 import { deep_get } from "startgg-helper-node";
 
-let {inputfile, outputfile, printdata, silent, prettyjson, fragmentOutput, operations} = new ArgumentsManager()
+let {inputfile, outputFormat, outputfile, logdata, printdata, silent, fragmentOutput, operations} = new ArgumentsManager()
     .addParameter("inputfile")
-    .apply(addOutputParamsJSON)
+    .apply(addOutputParams)
     .addMultiParameter("operations")
     .enableHelpParameter()
     .parseProcessArguments();
@@ -21,7 +21,7 @@ if (!(data instanceof Array)){
 
 // ======== OPERATIONS =======
 
-const ops = {
+const transformOps = {
     path: {
         f: (data, [path]) => data.map(element => deep_get(element, path)),
         params: 1
@@ -31,6 +31,36 @@ const ops = {
     },
     filterNull: {
         f: (data) => data.filter(elt => (elt != null) && (elt != undefined)),
+    },
+    sortBy: {
+        f: (data, [path]) => {
+            if (path.includes(".")) data.sort((a, b) => deep_get(a, path) - deep_get(b, path));
+            else data.sort((a, b) => a[prop] - b[prop]);
+            return data;
+        },
+        params: 1
+    },
+    sortByReverse: {
+        f: (data, [path]) => {
+            if (path.includes(".")) data.sort((a, b) => deep_get(b, path) - deep_get(a, path));
+            else data.sort((a, b) => b[prop] - a[prop]);
+            return data;
+        },
+        params: 1
+    },
+    firstN: {
+        f: (data, [n]) => data.slice(0, n),
+        params: 1
+    },
+    lastN: {
+        f: (data, [n]) => data.slice(n),
+        params: 1
+    },
+    first: {
+        f: (data) => data[0]
+    },
+    last1: {
+        f: (data) => data[data.length - 1]
     }
 }
 
@@ -38,7 +68,7 @@ const ops = {
 
 for (let i = 0; i < operations.length; i++){
     const word = operations[i];
-    const op = ops[word];
+    const op = transformOps[word];
 
     if (!op){
         console.error("Unknown operation :", word);
@@ -58,4 +88,9 @@ for (let i = 0; i < operations.length; i++){
     data = op.f(data, params)
 }
 
-outputJSON(data, outputfile, printdata, prettyjson);
+output(outputFormat, outputfile, printdata, data, data => {
+    if (data instanceof Array){
+        return data.map(elt => elt.toString()).join("\n");
+    }
+    return JSON.stringify(data, null, outputFormat == "prettyjson" ? 4 : null);
+});

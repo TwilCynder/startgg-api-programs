@@ -1,5 +1,6 @@
 - Bouger la fonction de calcul de SPR dans sgg helper
-- Finir le système de game dans upsetcontest (sysètme, à généraliser, où on peut passer soit un fichier soit un slug + dossier)
+- Finir le système de game dans upsetcontest (système, à généraliser, où on peut passer soit un fichier soit un slug + dossier)
+- Multi-output : pouvoir sortir à la fois du JSON et csv (genre --output-json & --output-csv, utilsier un array de formats avec un Parser custom)
 - Généraliser l'utilisation de tryReadJSONArray
 - Généraliser l'utilsation du saveManager (à partir de downloadSetsFromEventsBare)
   - Commencer par propager aux autres downloadSetsFromEvents, puis aux autres downloads
