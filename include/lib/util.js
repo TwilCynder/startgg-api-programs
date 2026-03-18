@@ -245,8 +245,8 @@ export async function readUsersFile(filename, existingArray){
 export function tryReadJSONInput(inputfile){
     return inputfile ? readJSONInput(inputfile).catch(err => {
         console.warn(`Could not open file ${inputfile} : ${err}`)
-        return [];
-    }) : []
+        return null;
+    }) : null
 }
 
 /**
@@ -262,7 +262,7 @@ export async function tryReadJSONArray(inputfile){
     } else {
         let value = await tryReadJSONInput(inputfile);
         if (!(value instanceof Array)){
-            console.error("Input file", inputfile, "does not contain a JSON array. Got", value);
+            if (value) console.error("Input file", inputfile, "does not contain a JSON array. Got", value);
             return [];
         }
         return value;

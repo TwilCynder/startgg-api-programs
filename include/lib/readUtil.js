@@ -1,5 +1,6 @@
 import fs from 'fs/promises'
 import { splitWhitespace } from './util.js';
+import { deep_get } from 'startgg-helper-node';
 
 function didTheyMeanStdin(name){
     return name == "@stdin";
@@ -38,8 +39,10 @@ export async function readText(inputFile){
  * @returns 
  */
 export async function readJSONInput(inputFile){
-    let text = await readText(inputFile);
-    return JSON.parse(text);
+    const [filename, path] = inputFile.split(/:/g);
+    const text = await readText(filename);
+    const data = JSON.parse(text);
+    return path ? deep_get(data, path) : data;
 }
 
 export async function readJSONFromStdin(){

@@ -1,14 +1,19 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addOutputParams, addOutputParamsJSON } from "../include/lib/paramConfig.js";
+import { addOutputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
 import { output, outputJSON, tryReadJSONArray } from "../include/lib/util.js";
 import { deep_get } from "startgg-helper-node";
+import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
-let {inputfile, outputFormat, outputfile, logdata, printdata, silent, fragmentOutput, operations} = new ArgumentsManager()
+let {inputfile, outputFormat, outputfile, printdata, silent, fragmentOutput, operations} = new ArgumentsManager()
     .addParameter("inputfile")
     .apply(addOutputParams)
     .addMultiParameter("operations")
     .enableHelpParameter()
     .parseProcessArguments();
+
+printdata = printdata || !outputfile;
+silent = isSilent(printdata, silent);
+if (silent) muteStdout();
 
 // ======== LOADING DATA
 
@@ -87,6 +92,8 @@ for (let i = 0; i < operations.length; i++){
 
     data = op.f(data, params)
 }
+
+if (silent) unmuteStdout()
 
 output(outputFormat, outputfile, printdata, data, data => {
     if (data instanceof Array){
