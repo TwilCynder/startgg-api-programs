@@ -1,3 +1,3 @@
-import { createClient } from "startgg-helper-node";
+import { createClientAuto } from "./createClient.js";
 
-export const client = createClient(); 
+export const client = await createClientAuto(); 

@@ -21,3 +21,14 @@ export async function createClientAuto(){
     }
     return createClient();
 }
+
+export class ClientManager{
+    #client;
+
+    async get(){
+        if (!this.#client){
+            this.#client = createClientAuto();
+        }
+        return await this.#client;
+    }
+}

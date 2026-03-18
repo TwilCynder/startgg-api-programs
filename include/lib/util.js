@@ -260,7 +260,7 @@ export async function tryReadJSONArray(inputfile){
     if (fields.length > 1){
         return await Promise.all(fields.map(filename => tryReadJSONArray(filename))).then(arrays => arrays.flat())
     } else {
-        let value = await readJSONInput(inputfile);
+        let value = await tryReadJSONInput(inputfile);
         if (!(value instanceof Array)){
             console.error("Input file", inputfile, "does not contain a JSON array. Got", value);
             return [];
@@ -369,4 +369,12 @@ export function generateLineUsingLineFunctions(object, lineFunctions){
         line += f(object) + '\t'
     }
     return line.replace(/\t+$/g, "");
+}
+
+/**
+ * @param {Object[]} array 
+ * @param {string} property 
+ */
+export function arrayToMap(array, property){
+    return array.map(obj => [obj[property], obj])
 }
