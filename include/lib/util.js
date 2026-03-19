@@ -3,6 +3,7 @@ import { readJSONFromStdin, readLinesInFiles } from './readUtil.js';
 import { toJSON } from 'startgg-helper-node/util';
 import { readJSONInput, readLinesAsync } from './readUtil.js';
 import { relurl } from "./dirname.js"
+import { extractSlug } from 'startgg-helper-node';
 
 //scriptutil
 
@@ -230,7 +231,7 @@ export async function readUsersFile(filename, existingArray){
     if (filename){
         let lines = await readLinesAsync(filename);
         if (lines && lines.length){
-            let arr = lines.filter(line => !!line && line != "null" && line != "undefined").map(line => line.trim());
+            let arr = lines.filter(line => !!line && line != "null" && line != "undefined").map(line => extractSlug(line.trim()));
             return (existingArray && existingArray.length) ? existingArray.concat(arr) : arr;
         } 
     } 

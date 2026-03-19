@@ -39,7 +39,7 @@ export async function readText(inputFile){
  * @returns 
  */
 export async function readJSONInput(inputFile){
-    const [filename, path] = inputFile.split(/:/g);
+    const [filename, path] = inputFile.split ? inputFile.split(/:/g) : [inputFile, null]
     const text = await readText(filename);
     const data = JSON.parse(text);
     return path ? deep_get(data, path) : data;
@@ -56,11 +56,7 @@ export async function readJSONFromStdin(){
  */
 export function readLinesAsync(filename){
     const fields = splitWhitespace(filename);
-    if (fields.length > 1){
-        return readLinesInFiles(fields);
-    } else {
-        return readText(filename).then(text => text.replace(/\r/g, '').split('\n'));
-    }
+    return readLinesInFiles(fields);
 }
 
 /**
@@ -68,14 +64,18 @@ export function readLinesAsync(filename){
  * @param {string[]} filenames 
  */
 export function readLinesInFiles(filenames, silentErrors = false){
-    return Promise.all(filenames.map(filename => {
-        return readLinesAsync(filename)
+    return Promise.all(filenames.map(filename => 
+        readLinesInFile(filename)
             .catch(err => {
-                if (!silentErrors) console.error("Coundl't read provided filename " + filename + " :", err);
-                return []
+                if (!silentErrors) console.error("Counld't read lines from file", filename, ":", err);
+                return [];
             })
             .then(lines => lines.filter(line => !!line))
-    })).then(lists => lists.flat())
+    )).then(lists => lists.flat())
+}
+
+function readLinesInFile(filename){
+    return readText(filename).then(text => text.replace(/\r/g, '').split('\n'));
 }
 
 export async function stat(filename){

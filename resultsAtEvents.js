@@ -15,7 +15,7 @@ import { getMostRelevantName } from "./include/getMostRelevantName.js";
 //========== CONFIGURING PARAMETERS ==============
 
 let {
-    userSlugs, filename, userDataFile, 
+    userSlugs, filename, userDataFile, filterUsers,
     eventSlugs, eventsFilenames, 
     games, minEntrants, filter, filterFiles , exclude_expression, startDate, endDate, minimumIn, offline, online,
     outputFormat, outputfile, logdata, printdata, silent, eventName, outSlug, line_format,
@@ -81,7 +81,7 @@ const lineFunctions = getLineFormatFunctions(line_format, textFunctions, default
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, data, filters] = await Promise.all([
-    User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
+    User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile, filterUsers, true),
     readMultimodalArrayInput(inputfile, 
         (async()=>{
             if (startDate || endDate){
@@ -98,7 +98,7 @@ limiter.stop();
 
 //========== PROCESSING DATA ==============
 
-if (!users || users.length < 1){
+if (!users || users.size < 1){
     console.warn("No users specified : result will be empty");
 }
 
@@ -113,7 +113,6 @@ data = filterEvents(data, exclude_expression, filters, offline, online);
 
 for (let event of data){
     if (!event || !event.standings){
-        
         continue;
     }
     let standings = event.standings.nodes;
@@ -121,16 +120,14 @@ for (let event of data){
     event.standings.nodes = [];
 
     for (let standing of standings){
-        let user = deep_get(standing, "entrant.participants.0.user");
-        if (!user){
-            console.log("No user for standing", standing.entrant.participants[0].player.gamerTag, "at", event.tournament.name, standing);
+        let standingUser = deep_get(standing, "entrant.participants.0.user");
+        if (!standingUser){
+            console.log("No user for standing", deep_get(standing, "entrant.participants.0.player.gamerTag"), "at", event.tournament.name, standing);
             continue;
         }
 
-        for (let u of users){
-            if (user.id == u.id){
-                event.standings.nodes.push(standing);
-            }
+        if (users.has(standingUser.discriminator)){
+            event.standings.nodes.push(standing);
         }
     }
 }

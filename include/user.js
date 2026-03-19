@@ -1,8 +1,9 @@
 import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
 import { TimedQuerySemaphore } from 'startgg-helper';
-import { aggregateArrayDataPromises, readUsersFile } from './lib/util.js';
+import { aggregateArrayDataPromises, readUsersFile, tryReadJSONArray } from './lib/util.js';
 import { readJSONInput } from './lib/readUtil.js';
+import fs from "fs/promises"
 
 export class User {
 
@@ -18,7 +19,7 @@ export class User {
         if (user == null){
             throw "Couldn't load user " + this.slug;
         }
-        this.slug = user.slug;
+        this.slug = user.discriminator;
         this.id = user.id;
         this.name = user.player.gamerTag;
 
@@ -41,28 +42,64 @@ export class User {
         return await Promise.all(slugs.map( (slug) => this.loadUser(client, slug, limiter)))
     }
 
-    /**
-     * 
-     * @param {GraphQLClient} client 
-     * @param {TimedQuerySemaphore} limiter 
-     * @param {string[]} slugs 
-     * @param {string} slugsFile 
-     * @param {string} datafile 
-     * @returns {Promise<User[]>}
-     */
-    static createUsersMultimodal(client, limiter, slugs, slugsFile, datafile){
-        return aggregateArrayDataPromises([
-            (async () => {
-                return this.createUsers(client, await readUsersFile(slugsFile, slugs), limiter)
-            })(),
-            datafile ? readJSONInput(datafile).catch(err => {
-                throw "Couldn't read specified user data file " + datafile + " : " + err
-            }).then(data => data.map(user => new User(user))) : []
-        ])
+    static loadMultimodalInputs(slugs, slugsFile, datafile){
+        return Promise.all ([
+            tryReadJSONArray(datafile),
+            readUsersFile(slugsFile, slugs),
+        ]);
+    }
+    
+    static async _createUsersMultimodal(client, limiter, slugs, slugsFile, datafile){
+        let [usersData, slugs_] = await this.loadMultimodalInputs(slugs, slugsFile, datafile);
+
+        let usersMap = new Map(usersData.map(userInfo => [userInfo.discriminator, new User(userInfo)]));
+
+        await Promise.all(slugs_.map(async slug => {
+            if (!usersMap.get(slug)){
+                const user = this.loadUser(client, slug, limiter);
+                usersMap.set(slug, user);
+            }
+        }));
+
+        return usersMap;
     }
 
-    static async loadUsers(client, users, limiter = null){
-        await Promise.all(users.map( (p) => p.load(client, limiter)))
+    static async _createUsersMultimodalFiltered(client, limiter, slugs, slugsFile, datafile){
+        let [usersData, slugs_] = await this.loadMultimodalInputs(slugs, slugsFile, datafile);
+        
+        let usersMap = new Map(usersData.map(userInfo => [userInfo.discriminator, new User(userInfo)]));
+
+        return await Promise.all(slugs_.map(async slug => {
+            let fromMap = usersMap.get(slug);
+            if (fromMap){
+                return fromMap;
+            } else {
+                return await this.loadUser(client, slug, limiter);
+            }
+        }))
+    }
+
+    /**
+     * Creates user objects from a list of slugs (fetching data for each of them) and/or an array of pre-fetched objects. Both lists may contain the same user, it will be deduplicated. If filterMode is true, instead disregards any user data not present in the slug list.
+     * @param {GraphQLClient} client 
+     * @param {TimedQuerySemaphore} limiter 
+     * @param {string[]} slugs List of user slugs
+     * @param {string} slugsFile File containing a list of slugs
+     * @param {string} datafile File containing an array of pre-fetched user data
+     * @param {boolean} listOnly Use only the users present in the slugs list ; the data file is only used to avoid redundant fetches.
+     * @param {boolean} asMap Returns the users in a map, with the slug as key for each user
+     */
+    static async createUsersMultimodal(client, limiter, slugs, slugsFile, datafile, listOnly, asMap){
+        if (listOnly){
+            let array = await this._createUsersMultimodalFiltered(client, limiter, slugs, slugsFile, datafile);
+            return asMap ? new Map(array.map(user => [user.slug, user])) : array;
+        } else {
+            let map = await this._createUsersMultimodal(client, limiter, slugs, slugsFile, datafile);
+            return asMap ? map : Array.from(map.values());
+        }
     }
 
 }
+
+//TODO : système de mise à jour du data file quand j'aurai unifié les formats de données
+

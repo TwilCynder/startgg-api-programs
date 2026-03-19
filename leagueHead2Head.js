@@ -11,7 +11,7 @@ import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js"
 import { yellow } from "./include/lib/consoleUtil.js";
 import { readText } from "./include/lib/readUtil.js";
 
-let {eventSlugs, eventsFilenames, userSlugs, filename, total, count, userDataFile, outputFormat, outputfile, logdata, printdata, silent, inputfile, display} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, userSlugs, userDataFile, filterUsers, filename, total, count, outputFormat, outputfile, logdata, printdata, silent, inputfile, display} = new ArgumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
     .apply(addOutputParamsCustom(true, true))
@@ -39,7 +39,7 @@ if (display){
 
     let limiter = new StartGGDelayQueryLimiter;
     let [users, sets] = await Promise.all([
-        User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
+        User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile, filterUsers),
         readMultimodalArrayInput(inputfile, getEventsSetsBasic(client, events, limiter)),
     ])
     limiter.stop();

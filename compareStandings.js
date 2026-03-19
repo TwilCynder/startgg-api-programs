@@ -12,7 +12,7 @@ import { filterEvents } from "./include/filterEvents.js";
 import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 
 let {
-    eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, 
+    eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers,
     games, minEntrants, startDate, endDate, exclude_expression, filter, filterFiles, offline, online,
     outputFormat, outputfile, printdata, silent, inputfile
 } = new ArgumentsManager()

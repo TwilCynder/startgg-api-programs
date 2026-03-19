@@ -208,8 +208,8 @@ export function addEventFilterParamsExcept(...exclude){
 }
 
 /**
- * Dests added : userSlugs, filename, userDataFile
- * start-date, [f]ilename, [D]/user-data-file
+ * Dests added : userSlugs, filename, userDataFile, filterUsers  
+ * start-date, [f]ilename, [D]/user-data-file, users-list-only
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addUsersParams(argumentsManager){
@@ -223,6 +223,10 @@ export function addUsersParams(argumentsManager){
     .addOption(["-D", "--user-data-file"], {
         dest: "userDataFile",
         description: "File containing user data"
+    })
+    .addSwitch(["--users-list-only"], {
+        dest: "filterUsers",
+        description: "Use only the users in the list specified with -f, even if more are present in the data file specified with -D"
     })
     
 }

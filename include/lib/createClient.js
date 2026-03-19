@@ -1,15 +1,17 @@
 import { createClient } from "startgg-helper-node";
 import { relurl } from "./dirname.js";
-import { readJSONInput } from "./readUtil.js";
+import { tryReadJSONInput } from "./util.js";
 
 export async function createClientAuto(){
     try {
-        const secrets = await readJSONInput(relurl(import.meta.url, "../../secrets.json"));
+        const secrets = await tryReadJSONInput(relurl(import.meta.url, "../../secrets.json"));
         
-        if (secrets && secrets.token){
-            return createClient(secrets.token);
-        } else {
-            console.log("secrets file found, but no token property. Using token-less client.")
+        if (secrets){
+            if (secrets.token){
+                return createClient(secrets.token);
+            } else {
+                console.log("secrets file found, but no token property. Using token-less client.")
+            }
         }
     } catch (err) {
         if (err.code != "ENOENT"){
