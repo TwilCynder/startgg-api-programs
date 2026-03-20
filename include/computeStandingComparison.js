@@ -104,8 +104,6 @@ function processEvent(ev, matrix){
 export function computeStandingComparisonFromStandings(users, events){
     let matrix = new StandingComparisonMatrix(users);
 
-    console.log(events);
-
     for (let ev of events){
         processEvent(ev, matrix);
     }

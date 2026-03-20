@@ -35,7 +35,7 @@ let events = await readSlugLists(eventSlugs, eventsFilenames);
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, eventsStandings, filters] = await Promise.all([
-    User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile),
+    User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile, filterUsers),
     readMultimodalArrayInput(inputfile, 
         (startDate || endDate) ? 
         getStandingsFromUsers(client, userSlugs, events, limiter, {startDate, endDate, games, minEntrants}) :

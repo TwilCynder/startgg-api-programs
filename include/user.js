@@ -20,7 +20,7 @@ export class User {
             throw "Couldn't load user " + this.slug;
         }
         this.slug = user.discriminator;
-        this.id = user.id;
+        this.id = user.player.id;
         this.name = user.player.gamerTag;
 
         return this;

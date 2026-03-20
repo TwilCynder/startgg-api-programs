@@ -33,17 +33,17 @@ export function leagueHeadHeadToHeadFromSetsArray(sets, users){
         if (!set.slots[0].entrant || !set.slots[1].entrant) continue;
 
         let setP1 = set.slots[0].entrant.participants;
-        if (setP1.length > 1) { //it's 2v2 or smth
+        if (setP1.length != 1) { //it's 2v2 or smth
             //console.log("[Ignoring non-1v1 set]");
             continue;
         }
-        setP1 = setP1[0].user;
-        if (!setP1){ //p1 doesn't have a user account
+        setP1 = setP1[0].player;
+        if (!setP1){ //p1 doesn't have a player
             continue;
         }
 
-        let setP2 = deep_get(set, "slots.1.entrant.participants.0.user")
-        if (!setP2){ //p2 doesn't have a user account
+        let setP2 = deep_get(set, "slots.1.entrant.participants.0.player")
+        if (!setP2){ //p2 doesn't have a player
             continue;
         }
 

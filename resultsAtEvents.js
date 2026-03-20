@@ -136,7 +136,7 @@ if (minimumIn){
     data = data.filter(event => event.standings.nodes.length >= minimumIn);
 }
 
-data = data.sort((a, b) => a.startAt - b.startAt);
+data = data.sort((a, b) => a.tournament.startAt - b.tournament.startAt);
 
 if (silent_) unmuteStdout();
 

@@ -9,7 +9,6 @@ import { output, readMultimodalArrayInput, tryReadJSONInput } from "./include/li
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
 import { yellow } from "./include/lib/consoleUtil.js";
-import { readText } from "./include/lib/readUtil.js";
 
 let {eventSlugs, eventsFilenames, userSlugs, userDataFile, filterUsers, filename, total, count, outputFormat, outputfile, logdata, printdata, silent, inputfile, display} = new ArgumentsManager()
     .apply(addUsersParams)
@@ -44,8 +43,6 @@ if (display){
     ])
     limiter.stop();
 
-    console.log(sets);
-
     let matrix = leagueHeadHeadToHeadFromSetsArray(sets, users);
     data = {matrix, users};
 }
@@ -59,8 +56,10 @@ if (count > 0 && (!data.count || !data.count.length != count)){
 if (silent_) unmuteStdout();
 
 if (logdata_ && count > 0){
-    for (let h2h of data.count){
-        console.log("-", yellow(data.users[h2h.users[0]].name), "vs", yellow(data.users[h2h.users[1]].name), ":", h2h.count);
+    if (count > 0){
+        for (let h2h of data.count){
+            console.log("-", yellow(data.users[h2h.users[0]].name), "vs", yellow(data.users[h2h.users[1]].name), ":", h2h.count);
+        }
     }
 }
 
@@ -68,7 +67,7 @@ output(outputFormat, outputfile, printdata, data, (data) => {
     if (count){
         let result = "";
         for (let h2h of data.count){
-            result += data.users[h2h.users[0]].name + '\t' + data.users[h2h.users[1]].name + '\t' + h2h.count;
+            result += data.users[h2h.users[0]].name + '\t' + data.users[h2h.users[1]].name + '\t' + h2h.count + '\n';
         }
         return result;
     } else { 
