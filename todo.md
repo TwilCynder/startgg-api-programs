@@ -1,6 +1,5 @@
 ## Small things
 
-- Bouger la fonction de calcul de SPR dans sgg helper
 - Finir le système de game dans upsetcontest (système, à généraliser, où on peut passer soit un fichier soit un slug + dossier)
 - Multi-output : pouvoir sortir à la fois du JSON et csv (genre --output-json & --output-csv, utilsier un array de formats avec un Parser custom)
 - Généraliser l'utilisation de tryReadJSONArray
@@ -13,7 +12,7 @@
 - Généraliser le système de format string (voir --line-format)
 - Utiliser (ou au moins supporter) la version Bare des données pour les scripts genre standingComparison, leagueHead2Head, globalement tous ceux qui supportent un "users file", vu qu'avec un users file fetch le gamerTag à chaque fois c'est redondant (et coûteux)
 - Implémenter un QueryManager, avec un tryLoad, pour les fonctions qui peuvent utiliser plusieurs queries *ou pas*
-- Ajouter le système de gestion de game content à sgg-helper (et pk pas la finalisation de dates)
+- Ajouter le système de gestion de game content à sgg-helper
 - Faire un package NPM
 - généraliser le système de --display de leaguehead2head, pour utiliser uniquement la partie transformation en texte d'un script
 - Utiliser selections.character instead of selectionValue

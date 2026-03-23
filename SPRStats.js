@@ -7,6 +7,7 @@ import { columnsln, output, readMultimodalArrayInput } from "./include/lib/util.
 import { getEventsResults } from "./include/getEventResults.js";
 import { createClientAuto } from "./include/lib/createClient.js";
 import { bgreen, yellow } from "./include/lib/consoleUtil.js";
+import { getUpsetFactor } from "startgg-helper-node"
 
 let {eventSlugs, eventsFilenames, inputfile,
     outputFormat, outputfile, logdata, printdata, silent, fragmentOutput,
@@ -44,45 +45,10 @@ limiter.stop()
 
 //======== PROCESSING DATA ========
 
-const placements = [
-        1,       2,      3,      4,       6,
-        8,      12,     16,     24,      32,
-       48,      64,     96,    128,     192,
-      256,     384,    512,    768,    1024,
-     1536,    2048,   3072,   4096,    6144,
-     8192,   12288,  16384,  24576,   32768,
-    49152,   65536,  98304, 131072,  196608,
-   262144,  393216, 524288, 786432, 1048576,
-  1572864, 2097152
-]
-
-function getSPR(placement, seed){
-    let finalTierIndex, predictedTierIndex;
-    for (let i = 0; i < placements.length; i++){
-        const upperLimit = placements[i];
-        
-        if (placement <= upperLimit && !finalTierIndex){
-            finalTierIndex = i + 1;
-            if (predictedTierIndex) break;
-        }
-
-        if (seed <= upperLimit && !predictedTierIndex){
-            predictedTierIndex = i + 1;
-            if (finalTierIndex) break;
-        }
-    }
-    if (!finalTierIndex || !predictedTierIndex){
-        console.error("Apparently this event has more than 2097152 entrants ?")
-        process.exit(1);
-    }
-
-    return predictedTierIndex - finalTierIndex;
-}
-
 let players = {}
 
 function addRunDetailed(playerID, playerName, placement, seed, eventName){
-    let spr = getSPR(placement, seed);
+    let spr = getUpsetFactor(placement, seed);
     if ((spr < 0 && positive) || (spr > 0 && negative)) spr = 0;
 
     const player = players[playerID];
@@ -98,7 +64,7 @@ function addRunDetailed(playerID, playerName, placement, seed, eventName){
 }
 
 function addRunSimple(playerID, playerName, placement, seed, eventName){
-    let spr = getSPR(placement, seed);
+    let spr = getUpsetFactor(placement, seed);
     if ((spr < 0 && positive) || (spr > 0 && negative)) spr = 0;
 
     const player = players[playerID]

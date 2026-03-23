@@ -36,7 +36,7 @@ export async function loadVideogameContent(filename, client, limiter, slug, writ
         if (s){
             if (s.isDirectory()){
                 if (!slug){
-                    console.error("Tried to load game content info from a games cache directory, but no slug was specified");
+                    console.error("Specified game data file is a directory, which requires a game slug to be used. Please specify one");
                     return null;
                 }
                 filename += '/' + slug.replace('game/', '') + '.json'; 
