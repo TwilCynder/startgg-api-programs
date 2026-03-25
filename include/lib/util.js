@@ -106,15 +106,13 @@ export function columnsln(...text){
     return columns(...text) + '\n';
 }
 
-function output_(filename, printdata, resultString){
-    if (filename){
-        let file = fs.createWriteStream(filename, {encoding: "utf-8"});
-        file.write(resultString);
-    } 
-    if (printdata) {
-        console.log(resultString);
-    }
-}
+//======== OUTPUT ========
+const PRETTY_JSON_SPACES = 4;
+const FORMAT_ALIASES = {
+    readable: "prettyjson",
+    csv: "text"
+};
+const DEFAULT_FORMAT = "json";
 
 export function getExtension(fname){
     //Credit : VisioN https://stackoverflow.com/questions/190852/how-can-i-get-file-extensions-with-javascript/12900504#12900504
@@ -141,83 +139,161 @@ function getFragmentFilenameFunction(filename){
     return i => name + "-" + i + extension;
 }
 
-function writeJSON(filename, data, prettyJSON){
-    fs.writeFileSync(filename, toJSON(data, prettyJSON), {encoding: "utf-8"}); 
+function write(filename, text){
+    fs.writeFileSync(filename, text, {encoding: 'utf-8'});
 }
 
-function saveJSON(data, filename, prettyJSON, fragmentSize){
+function writeOutputs(filenames, text){
+    for (const filename of filenames){
+        if (filename){
+            write(filename, text);
+        } else {
+            console.log(text);
+        }
+    }
+}
+
+function handleTextOutputs(filenames, data, CSVTransform){
+    const text = CSVTransform(data);
+    writeOutputs(filenames, text);
+}
+
+function writeJSONOutputs(filenames, data, spaces){
+    const text = JSON.stringify(data, null, spaces);
+    writeOutputs(filenames, text);
+}
+
+function writeJSONFragmentOutputs(filenameFunctions, data, spaces, fragmentID){
+    const text = JSON.stringify(data, null, spaces);
+    for (const filenameFunction of filenameFunctions){
+        if (filenameFunction){
+            const realFilename = filenameFunction(fragmentID);
+            write(realFilename, text);
+        } else {
+            console.log(text);
+        }
+    }
+}
+
+function handleJSONOutputs(filenames, data, fragmentSize, spaces){
+    if (!filenames || filenames.length < 1) return;
+
     if (fragmentSize && typeof fragmentSize === "number"){
         if (data instanceof Array){ 
-            const filenameFunction = getFragmentFilenameFunction(filename);
+            const filenameFunctions = filenames.map(filename => filename && getFragmentFilenameFunction(filename));
+
             for (let i = 0; i < data.length; i += fragmentSize){
-                const fragmentName = filenameFunction(i);
-                writeJSON(fragmentName, data.slice(i, i + fragmentSize), prettyJSON);
+                writeJSONFragmentOutputs(filenameFunctions, data.slice(i, i + fragmentSize), spaces, i);
             }
         } else {
             console.error("Script error : tried to fragment output data that isn't iterable");
-            writeJSON(filename, data, prettyJSON); //allez en vria on fait quand même dans le doute
+            writeJSONOutputs(outputs, data, spaces); //allez en vrai on fait quand même dans le doute
         }
     } else {
-        writeJSON(filename, data, prettyJSON);
+        writeJSONOutputs(outputs, data, spaces);
     }
 }
 
-function outputJSON_(prettyJSON, filename, printdata, data, fragmentSize){
-    if (printdata){
-        console.log(toJSON(data, prettyJSON));
+function registerOutput(formatArrays, filename, format){
+    let arr = formatArrays[FORMAT_ALIASES[format] ?? format];
+    if (!arr){
+        console.error("Unsupported format :", format);
+        return;
     }
-    if (filename){
-        saveJSON(data, filename, prettyJSON, fragmentSize);
-    }
+    arr.push(filename);
 }
 
 /**
  * Manages output for a script able to log readable data, output JSON, and output CSV
  * @template T
- * @param {"json" | "csv" | "prettyjson"} format 
- * @param {string} filename 
+ * @param {string[]} outputfiles 
  * @param {boolean} printdata 
+ * @param {string?} format 
+ * @param {import('./paramConfig.js').Output[]} formattedOutput 
  * @param {T} data 
  * @param {(data: T) => string} CSVtransform 
+ * @param {number?} fragmentSize 
+ * @returns 
  */
-export function output(format, filename, printdata, data, CSVtransform, fragmentSize){
-    if (!filename && !printdata) return;
+export function output(outputfiles, printdata, format, formattedOutput = [], data, CSVtransform, fragmentSize){
+    let sortedOutputs = {text: [], json: [], prettyjson: []}
 
-    if (!format && filename){
-        format = getExtension(filename);
+    if (printdata){
+        registerOutput(sortedOutputs, null, format ?? DEFAULT_FORMAT);
+    }
+    for (const filename of outputfiles){
+        registerOutput(sortedOutputs, filename, format ?? getExtension(filename) ?? DEFAULT_FORMAT)
     }
 
-    if (!format || format.includes("csv")){
-        output_(filename, printdata, CSVtransform ? CSVtransform(data) : "");
-    } else {
-        outputJSON_(format == "prettyjson", filename, printdata, data, fragmentSize);
+    for (const output of formattedOutput){
+        registerOutput(sortedOutputs, output.filename, output.format);
     }
+    console.log(sortedOutputs);
+    handleTextOutputs(sortedOutputs.text, data, CSVtransform);
+    handleJSONOutputs(sortedOutputs.json, data, fragmentSize);
+    handleJSONOutputs(sortedOutputs.prettyjson, data, fragmentSize, PRETTY_JSON_SPACES);
+}
+/**
+ * Manages output for a script able to log readable data, output JSON, and output CSV, taking all parameters from the result of an ArgumentsManager parsing, assuming the functions in paramConfig.js were used
+ * @template T
+ * @param {{outputfiles: string[], printdata: boolean, outputFormat: string, formattedOutput: import('./paramConfig.js').Output[], fragmentOutput: number}} args
+ * @param {T} data 
+ * @param {(data: T) => string} CSVtransform 
+ * @returns 
+ */
+export function outputFromArgs(args, data, CSVTransform){
+    return output(args.outputfiles, args.printdata, args.outputFormat, args.formattedOutput, data, CSVTransform, args.fragmentOutput)
 }
 
 /**
- * Manages output for a script that can only output JSON, no matter of the script can also log readable data. 
+ * Manages output for a script that can only output JSON, no matter if the script can also log readable data. 
  */
-export function outputJSON(data, filename, printdata, prettyJSON, fragmentSize){
-    outputJSON_(prettyJSON, filename, printdata, data, fragmentSize);
+export function outputJSON(data, outputFiles, printdata, prettyJSON, formattedOutput, fragmentSize){
+    let sortedOutputs = {json: [], prettyjson: []}
+
+    if (printdata){
+        (prettyJSON ? sortedOutputs.prettyjson : sortedOutputs.json).push(null);
+    }
+    for (const filename of outputFiles){
+        (prettyJSON ? sortedOutputs.prettyjson : sortedOutputs.json).push(filename);
+    }
+
+    for (const output of formattedOutput){
+        registerOutput(sortedOutputs, output, output.format);
+    }
+    console.log(sortedOutputs);
+
+    handleJSONOutputs(sortedOutputs.json, data, fragmentSize);
+    handleJSONOutputs(sortedOutputs.prettyjson, data, fragmentSize, PRETTY_JSON_SPACES);
 }
+
+export function outputJSONFromArgs(args, data){
+
+}
+
 
 /**
  * Manages output for a script that can only output a text
  */
-export function outputText(text, filename, printdata){
-    output_(filename, printdata, text);
+export function outputText(text, outputFiles, printdata){
+    if (printdata){
+        console.log(text);
+    }
+    for (const filename of outputFiles){
+        write(filename, text);
+    }
 }
 
 /**
  * Manages output for a script that can output a text *maybe* (i.e. can also log data)
- * @param {string} filename 
+ * @param {string} outputFiles 
  * @param {boolean} printdata 
  * @param {any} data 
  * @param {(data: any) => string} textTransform 
  */
-export function outputTextLazy(textTransform, filename, printdata, data){
-    if (filename || printdata){
-        outputText(textTransform(data), filename, printdata)
+export function outputTextLazy(textTransform, outputFiles, printdata, data){
+    if ((outputFiles && outputFiles.length) || printdata){
+        outputText(textTransform(data), outputFiles, printdata)
     }
 }
 
@@ -370,12 +446,4 @@ export function generateLineUsingLineFunctions(object, lineFunctions){
         line += f(object) + '\t'
     }
     return line.replace(/\t+$/g, "");
-}
-
-/**
- * @param {Object[]} array 
- * @param {string} property 
- */
-export function arrayToMap(array, property){
-    return array.map(obj => [obj[property], obj])
 }

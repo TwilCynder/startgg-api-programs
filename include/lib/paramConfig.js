@@ -1,16 +1,72 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser"
+import { ArgumentsManager, Parser } from "@twilcynder/arguments-parser"
 
 //ça ça reste ici
 
+export function argumentsManager(abstract){
+    let am = new ArgumentsManager()
+        .setParameters({guessLowDashes: true, recursiveResult: "allArgs"})
+        .enableHelpParameter()
+    if (abstract) am.setAbstract(abstract);
+    return am;
+}
+
+/** @typedef {{filename: string?, format: string}} Output */
+
+const FORMATTED_FILE_OUTPUT_ARG_TRIGGER = "--output-";
+const FORMATTED_STDOUT_ARG_TRIGGER = "--print-"
+export class FormattedOutputsParser extends Parser {
+    #supported_formats = null;
+
+    constructor(...formats){
+        super();
+        this._state = [];
+        if (formats) this.#supported_formats = formats;
+    }
+
+    checkFormat(format){
+        if (!format){
+            throw "No format specified after " + FORMATTED_FILE_OUTPUT_ARG_TRIGGER + " or " + FORMATTED_STDOUT_ARG_TRIGGER;
+        }
+        if (this.#supported_formats && !this.#supported_formats.includes(format)){
+            throw "Unsupported output format " + format + " ; supported formats are " + this.#supported_formats.join(", ");
+        }
+    }
+
+    parse(args, i){
+        const arg = args[i]
+        if (arg && arg.startsWith(FORMATTED_FILE_OUTPUT_ARG_TRIGGER)){
+            const format = arg.slice(FORMATTED_FILE_OUTPUT_ARG_TRIGGER.length);
+            this.checkFormat(format);
+            this._state.push({filename: this.getArg(args, i + 1), format});
+            return 1;
+        } else if (arg && arg.startsWith(FORMATTED_STDOUT_ARG_TRIGGER)){
+            const format = arg.slice(FORMATTED_STDOUT_ARG_TRIGGER.length);
+            this.checkFormat(format);
+            this._state.push({filename: null, format});
+            return true;
+        }
+
+        return false;
+    }
+
+    getUsageDescription(){
+        return "{--output-<format>} {--print-<format>}"
+    }
+
+    isStateEmpty(){
+        return this._state.length > 0;
+    }
+}
+
 /**
- * Added dests : outputfile, printdata, silent  
+ * Added dests : outputfiles, printdata, silent  
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent  
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsBasic(argumentsManager){
     argumentsManager
-        .addOption(["-o", "--output_file"], {
-            dest: "outputfile",
+        .addMultiOption(["-o", "--output-file"], {
+            dest: "outputfiles",
             description: "A file to save the output to. If not specified, the output will be sent to the std output."
         })
         .addSwitch(["-p", "--print-output"], {
@@ -22,6 +78,7 @@ export function addOutputParamsBasic(argumentsManager){
         })
 }
 
+/** @param {ArgumentsManager} argumentsManager */
 function addLogParameter(argumentsManager){
     argumentsManager.addSwitch(["-l", "--log-data"], {
         dest: "logdata",
@@ -29,13 +86,17 @@ function addLogParameter(argumentsManager){
     })
 }
 
+/** @param {ArgumentsManager} argumentsManager */
 function addFormatParameter(argumentsManager){
-    argumentsManager.addOption("--format", {
-        dest: "outputFormat",
-        description: "The output format. Either json (default) or csv"
-    })
+    argumentsManager
+        .addOption("--format", {
+            dest: "outputFormat",
+            description: "The output format. Either json (default) or csv"
+        })
+        .addCustomParser(new FormattedOutputsParser("json", "prettyjson", "readable", "csv", "text"), "formattedOutput", {}, true)
 }
 
+/** @param {ArgumentsManager} argumentsManager */
 function addFragmentParameter(argumentsManager){
     argumentsManager.addOption(["-X", "--fragment-output"], {
         dest: "fragmentOutput",
@@ -47,7 +108,7 @@ function addFragmentParameter(argumentsManager){
 
 /**
  * For scripts that can only output processed text.  
- * Added dests : outputfile, printdata, silent, logdata  
+ * Added dests : outputfiles, printdata, silent, logdata  
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [l]og-data  
  * @param {ArgumentsManager} argumentsManager 
  */
@@ -57,7 +118,7 @@ export function addOutputParamsText(argumentsManager){
 }
 
 /**
- * Added dests : outputfile, printdata, silent, prettyjson, fragmentOutput
+ * Added dests : outputfiles, printdata, silent, prettyjson, fragmentOutput
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [r]eadable-json, [X]/fragment-output  
  * @param {ArgumentsManager} argumentsManager 
  */
@@ -66,12 +127,13 @@ export function addOutputParamsJSON(argumentsManager){
     addFragmentParameter(argumentsManager);
     argumentsManager
         .addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson"})
+        .addCustomParser(new FormattedOutputsParser("json", "prettyjson", "readable"), "formattedOutput")
 }
 
 /**
  * Returns a function to pass to .apply    
- * Added dests : outputfile, printdata, silent  
- * Potential dests : logdata, outputFormat, fragmentOutput
+ * Added dests : outputfiles, printdata, silent  
+ * Potential dests : logdata, outputFormat, formattedOutput, fragmentOutput, 
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent  
  * Potential switchs : [l]og-data, format, [X]/fragment-output  
  * @param {boolean} log 
@@ -88,8 +150,8 @@ export function addOutputParamsCustom(log, format, fragment){
 }
 
 /**
- * Added dests : outputFormat, outputfile, logdata, printdata, silent, fragmentOutput
- * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [p]rint-output, format, [X]/fragment-output  
+ * Added dests : outputFormat, outputfiles, logdata, printdata, silent, fragmentOutput, formattedOutput
+ * Added switchs : [o]uput-file, [p]rint-output, [s]silent, [p]rint-output, format, [X]/fragment-output  
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParams(argumentsManager){
@@ -228,7 +290,6 @@ export function addUsersParams(argumentsManager){
         dest: "filterUsers",
         description: "Use only the users in the list specified with -f, even if more are present in the data file specified with -D"
     })
-    
 }
 
 /**
