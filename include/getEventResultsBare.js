@@ -24,7 +24,8 @@ export async function getEventResultsBare(client, slug, perPage = 192, limiter =
 
     let res = await query.executePaginated(client, {slug}, "event.standings", limiter, {perPage});
 
-    console.log("Fetched results for event", slug);
+    if (res) console.log("Fetched results for event", slug);
+    else console.warn("Cound't fetch results for event", slug);
 
     return res;
 }
@@ -38,9 +39,9 @@ export async function getEventResultsBare(client, slug, perPage = 192, limiter =
  * @returns {Promise<{}[]>}
  */
 export function getEventsResultsBare(client, slugs, perPage = 192, limiter = null){
-    return Promise.all(slugs.map((slug) => getEventResultsBare(client, slug, numEntrants, limiter)
+    return Promise.all(slugs.map((slug) => getEventResultsBare(client, slug, perPage, limiter)
+        .then(data => data ? Object.assign(data, {slug}) : null)
         .catch((err) => console.warn("Slug", slug, "kaput : ", err))
-        .then(data => Object.assign(data, {slug}))
     ));
 }
 
