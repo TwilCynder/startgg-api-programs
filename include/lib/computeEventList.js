@@ -26,6 +26,7 @@ export function addFileEventListParser(am){
 
 /**
  * Added dests : eventSlugs, eventsFilenames
+ * Added switches : 
  * @param {ArgumentsManager} am 
  */
 export function addEventParsers(am){

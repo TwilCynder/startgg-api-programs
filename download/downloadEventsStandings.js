@@ -4,10 +4,10 @@ import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
-import { addInputParams, addOutputParamsJSON, argumentsManager, isSilent } from "../include/lib/paramConfig.js";
-import { aggregateArrayDataPromises, outputJSON, tryReadJSONInput } from "../include/lib/util.js";
+import { addInputParams, addOutputParamsJSON, argumentsManager, doWePrintFromArgs } from "../include/lib/paramConfig.js";
+import { aggregateArrayDataPromises, outputJSONFromArgs, tryReadJSONInput } from "../include/lib/util.js";
 
-let {eventSlugs, eventsFilenames, inputfile, outputFiles, printdata, silent, prettyjson, fragmentOutput, formattedOutput, bare} = argumentsManager()
+let {eventSlugs, eventsFilenames, inputfile, bare, allArgs} = argumentsManager()
     .apply(addEventParsers) 
     .apply(addInputParams)
     .apply(addOutputParamsJSON)
@@ -15,10 +15,9 @@ let {eventSlugs, eventsFilenames, inputfile, outputFiles, printdata, silent, pre
     .enableHelpParameter()
     .parseProcessArguments();
 
-printdata = printdata || nullArray(outputFiles);
-let silent_ = isSilent(printdata, silent);
+let silent = doWePrintFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let [events, eventObjects, getters] = await Promise.all([readSlugLists(eventSlugs, eventsFilenames), tryReadJSONInput(inputfile), (bare ? 
     import("../include/getEventResultsBare.js").then((m) => ({default: m.getEventsResultsBare, object: m.getEventsResultsBareFromObjects})) : 
@@ -30,8 +29,8 @@ let data = await aggregateArrayDataPromises([getters.default(client, events, und
 
 limiter.stop();
 
-if (silent_){
+if (silent){
     unmuteStdout();
 }
 
-outputJSON(data, outputFiles, printdata, prettyjson, formattedOutput, fragmentOutput);
+outputJSONFromArgs(allArgs, data);

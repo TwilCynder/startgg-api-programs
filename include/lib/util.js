@@ -187,10 +187,10 @@ function handleJSONOutputs(filenames, data, fragmentSize, spaces){
             }
         } else {
             console.error("Script error : tried to fragment output data that isn't iterable");
-            writeJSONOutputs(outputs, data, spaces); //allez en vrai on fait quand même dans le doute
+            writeJSONOutputs(filenames, data, spaces); //allez en vrai on fait quand même dans le doute
         }
     } else {
-        writeJSONOutputs(outputs, data, spaces);
+        writeJSONOutputs(filenames, data, spaces);
     }
 }
 
@@ -228,21 +228,22 @@ export function output(outputfiles, printdata, format, formattedOutput = [], dat
     for (const output of formattedOutput){
         registerOutput(sortedOutputs, output.filename, output.format);
     }
-    console.log(sortedOutputs);
+
     handleTextOutputs(sortedOutputs.text, data, CSVtransform);
     handleJSONOutputs(sortedOutputs.json, data, fragmentSize);
     handleJSONOutputs(sortedOutputs.prettyjson, data, fragmentSize, PRETTY_JSON_SPACES);
 }
+
 /**
  * Manages output for a script able to log readable data, output JSON, and output CSV, taking all parameters from the result of an ArgumentsManager parsing, assuming the functions in paramConfig.js were used
  * @template T
- * @param {{outputfiles: string[], printdata: boolean, outputFormat: string, formattedOutput: import('./paramConfig.js').Output[], fragmentOutput: number}} args
+ * @param {{outputFiles: string[], printdata: boolean, outputFormat: string, formattedOutput: import('./paramConfig.js').Output[], fragmentOutput: number}} args
  * @param {T} data 
  * @param {(data: T) => string} CSVtransform 
  * @returns 
  */
 export function outputFromArgs(args, data, CSVTransform){
-    return output(args.outputfiles, args.printdata, args.outputFormat, args.formattedOutput, data, CSVTransform, args.fragmentOutput)
+    return output(args.outputFiles, args.printdata, args.outputFormat, args.formattedOutput, data, CSVTransform, args.fragmentOutput)
 }
 
 /**
@@ -261,14 +262,13 @@ export function outputJSON(data, outputFiles, printdata, prettyJSON, formattedOu
     for (const output of formattedOutput){
         registerOutput(sortedOutputs, output, output.format);
     }
-    console.log(sortedOutputs);
 
     handleJSONOutputs(sortedOutputs.json, data, fragmentSize);
     handleJSONOutputs(sortedOutputs.prettyjson, data, fragmentSize, PRETTY_JSON_SPACES);
 }
 
 export function outputJSONFromArgs(args, data){
-
+    return outputJSON(data, args.outputFiles, args.printdata, args.prettyjson, args.formattedOutput, args.fragmentOutput);
 }
 
 
@@ -446,4 +446,8 @@ export function generateLineUsingLineFunctions(object, lineFunctions){
         line += f(object) + '\t'
     }
     return line.replace(/\t+$/g, "");
+}
+
+export function nullArray(arr){
+    return !arr || arr.length < 1
 }

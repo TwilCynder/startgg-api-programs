@@ -1,15 +1,13 @@
 
-import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
-import { addInputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { outputJSON, tryReadJSONArray } from "../include/lib/util.js";
+import { addInputParams, addOutputParamsJSON, argumentsManager, doWePrintFromArgs } from "../include/lib/paramConfig.js";
+import { outputJSONFromArgs, tryReadJSONArray } from "../include/lib/util.js";
 import { getUsersSetsChars, getUserSetsCharsFromObjects } from "../include/getUserSetsChars.js";
 
-let {userSlugs, file, inputfile, setscount, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
+let {userSlugs, file, inputfile, allArgs} = argumentsManager()
     .addMultiParameter("userSlugs")
     .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"})
     .apply(addInputParams)
@@ -18,8 +16,7 @@ let {userSlugs, file, inputfile, setscount, outputfile, printdata, silent, prett
     .enableHelpParameter()
     .parseProcessArguments();
 
-printdata = printdata || !outputfile;
-let silent_ = isSilent(printdata, silent)
+let silent = doWePrintFromArgs(allArgs);
 
 if (silent_) muteStdout();
 
@@ -33,4 +30,4 @@ if (silent_){
     unmuteStdout();
 }
 
-outputJSON(data, outputfile, printdata, prettyjson);
+outputJSONFromArgs(allArgs, data);

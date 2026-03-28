@@ -15,7 +15,7 @@ import { yellow } from './lib/consoleUtil.js';
  */
 export async function getSetsInEvent(client, query, slug, limiter, progressManager){
     progressManager = await getPaginatedProgressManagerFrom(progressManager, slug);
-    let sets = await executePaginatedWithSaveManager(query, progressManager, client, {slug}, "event.sets", limiter, {perPage: 200})
+    let sets = await executePaginatedWithSaveManager(query, progressManager, client, {slug}, "event.sets", limiter)
     //let sets = await query.executePaginated(client, {slug}, "event.sets", limiter, {perPage: 50});
     if (!sets) {
         console.warn("Coulnd't fetch sets for event slug", slug);

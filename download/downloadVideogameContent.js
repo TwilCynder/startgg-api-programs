@@ -1,21 +1,18 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
-import { addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { outputJSON } from "../include/lib/util.js";
+import { addOutputParamsJSON, argumentsManager, doWePrintFromArgs } from "../include/lib/paramConfig.js";
+import { outputJSONFromArgs } from "../include/lib/util.js";
 import { loadVideogameContent } from "../include/loadVideogameContent.js";
 
-let {game, outputfile, printdata, silent, prettyjson} = new ArgumentsManager()
+let {game, allArgs} = argumentsManager()
     .addParameter("game")
     .apply(addOutputParamsJSON)
     .enableHelpParameter()
     .parseProcessArguments();
 
-printdata = printdata || !outputfile;
-let silent_ = isSilent(printdata, silent)
+let silent = doWePrintFromArgs(allArgs);
 
 if (silent_) muteStdout();
 
@@ -27,4 +24,4 @@ if (silent_){
     unmuteStdout();
 }
 
-outputJSON(data, outputfile, printdata, prettyjson);
+outputJSONFromArgs(allArgs, data);

@@ -1,12 +1,11 @@
 import { addEventParsers, readSlugLists } from "../include/lib/computeEventList.js";
-import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
-import { addInputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { outputJSON, tryReadJSONArray } from "../include/lib/util.js";
+import { addInputParams, addOutputParamsJSON, argumentsManager, doWePrintFromArgs } from "../include/lib/paramConfig.js";
+import { outputJSONFromArgs, tryReadJSONArray } from "../include/lib/util.js";
 import { queriesProgressManager } from "../include/progressSaver.js";
 import { formatM } from "../include/lib/consoleUtil.js";
 
@@ -18,7 +17,7 @@ const GETTER_LOADERS = {
     charsOnly: () => import("../include/getCharactersInEvent.js").then(m => ({flat: m.getSetsCharsInEvents, object: m.getSetsCharsInEventsFromObjects, hashmap: m.getSetsCharsInEventsHashMap, arrays: m.getSetsCharsInEventsSeparated}))
 }
 
-let {eventSlugs, eventsFilenames, inputfile, mode, type, outputfile, printdata, silent, prettyjson, fragmentOutput, formattedOutput, cache, cache_frequency} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, inputfile, mode, type, cache, cache_frequency, allArgs} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .apply(addEventParsers)
     .apply(addInputParams)
@@ -30,10 +29,9 @@ let {eventSlugs, eventsFilenames, inputfile, mode, type, outputfile, printdata, 
     .enableHelpParameter()
     .parseProcessArguments();
 
-printdata = printdata || !outputfile;
-let silent_ = isSilent(printdata, silent)
+let silent = doWePrintFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 /** @type {typeof GETTER_LOADERS.basic} */
 const getterLoader = GETTER_LOADERS[type];
@@ -64,8 +62,6 @@ if (mode.startsWith("o")){
 }
 limiter.stop();
 
-if (silent_){
-    unmuteStdout();
-}
+if (silent) unmuteStdout();
 
-outputJSON(data, outputfile, printdata, prettyjson, formattedOutput, fragmentOutput);
+outputJSONFromArgs(allArgs, data);
