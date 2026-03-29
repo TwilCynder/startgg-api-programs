@@ -30,7 +30,7 @@ function readFromStdin(){
  * @param {string} inputFile
  */
 export async function readText(inputFile){
-    return await (didTheyMeanStdin() ? readFromStdin() : fs.readFile(inputFile).then(buf => buf.toString('utf-8')))
+    return await (didTheyMeanStdin(inputFile) ? readFromStdin() : fs.readFile(inputFile).then(buf => buf.toString('utf-8')))
 }
 
 /**
