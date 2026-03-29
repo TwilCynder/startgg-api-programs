@@ -1,11 +1,11 @@
 import { client } from "./include/lib/client.js";
 import {ArgumentsManager} from '@twilcynder/arguments-parser'
-import { addOutputParamsText, doWeLog } from "./include/lib/paramConfig.js";
+import { addOutputParamsText, argumentsManager, doWeLog } from "./include/lib/paramConfig.js";
 import { loadVideogameContent } from "./include/loadVideogameContent.js";
 import { outputTextLazy } from "./include/lib/util.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {game, filename, characters, stages, outputfile, printdata, silent, logdata} = new ArgumentsManager()
+let {game, filename, characters, stages, outputfile, printdata, silent, logdata} = argumentsManager()
     .apply(addOutputParamsText)
     .addParameter("game", {description: "start.gg videogame slug (found in a game's page URL)"})
     .addSwitch(["-c", "--characters"], {description: "Display characters info"})

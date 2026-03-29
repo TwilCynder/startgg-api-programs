@@ -1,10 +1,9 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { EventListParser } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { unmuteStdout, muteStdout } from "./include/lib/fileUtil.js";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
 import { getEntrantsExtendedForEvents } from "./include/getEntrantsExtended.js";
@@ -14,7 +13,7 @@ import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 import { loadCharactersInfo } from "./include/loadVideogameContent.js";
 
-let {list, extended, mains, minimum, game, gamefile, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {list, extended, mains, minimum, game, gamefile, inputfile, allArgs} = argumentsManager()
     .addCustomParser(new EventListParser, "list")
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -26,9 +25,9 @@ let {list, extended, mains, minimum, game, gamefile, inputfile, outputFormat, ou
     .enableHelpParameter()
     .parseProcessArguments();
  
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
 let entrants = await readMultimodalArrayInput(inputfile, 
@@ -63,9 +62,9 @@ if (mains){
 
 limiter.stop();
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     for (let user of users){
         let data = [user.player.gamerTag, "|"];
         if (extended){
@@ -83,7 +82,7 @@ if (logdata_){
 
 const dash = value => value ? value : "--"
 
-output(outputFormat, outputfile, printdata, users, (users) => {
+outputFromArgs(allArgs, users, (users) => {
     let resultString = "";
     for (let user of users){
         resultString += 

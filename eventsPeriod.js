@@ -1,15 +1,15 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventDateFilterParams, addEventFilterParamsExcept, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addEventDateFilterParams, addEventFilterParamsExcept, addOutputParams, argumentsManager, doWeLog, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { processGameListString } from "./include/loadGames.js";
 import { StartGGDelayQueryLimiter, toUNIXTimestamp } from "startgg-helper-node";
 import { getEventsByDate } from "./include/getEventsByDate.js";
 import { filterEventsFromTournament } from "./include/filterEvents.js";
 import { createClientAuto } from "./include/lib/createClient.js";
-import { output, readEventFilterWords } from "./include/lib/util.js";
+import { output, outputFromArgs, readEventFilterWords } from "./include/lib/util.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { bgreen } from "./include/lib/consoleUtil.js";
 
-let {games, minEntrants, exclude_expression, filter, filterFiles, future, singles_only, startDate, endDate, countryCode, online, offline, detailed, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {games, minEntrants, exclude_expression, filter, filterFiles, future, singles_only, startDate, endDate, countryCode, online, offline, detailed, allArgs} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .addParameter("startDate", {description: "Starting date, can be a UNIX timestamp or a Javascript Date String", type: "number"})
     .addParameter("endDate", {description: "End date, can be a UNIX timestamp or a Javascript Date String", type: "number"})
@@ -33,7 +33,7 @@ if (offline && online){
     process.exit(1);
 }
 
-[logdata, silent] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
 if (silent) muteStdout();
 
@@ -70,7 +70,7 @@ if (logdata){
     console.log(data.length, "total.");
 }
 
-output(outputFormat, outputfile, printdata, data, data => {
+outputFromArgs(allArgs, data, data => {
     let res = "";
     if (detailed){
         for (const event of data){
@@ -81,6 +81,3 @@ output(outputFormat, outputfile, printdata, data, data => {
     }
     return res;
 });
-
-//1735689661
-//1738368061

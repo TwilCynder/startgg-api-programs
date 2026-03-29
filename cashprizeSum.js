@@ -1,7 +1,6 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addOutputParams, argumentsManager, doWeLog, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { readJSONInput, readText, stat } from "./include/lib/readUtil.js";
-import { output, parseCSV } from "./include/lib/util.js";
+import { columnsln, outputFromArgs, parseCSV } from "./include/lib/util.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { getEventResults } from "./include/getEventResults.js";
 import { client } from "./include/lib/client.js";
@@ -17,20 +16,20 @@ const defaultCSVSchema = {
     CPend: 16,
 }
 
-let { filename, outputFormat, outputfile, logdata, printdata, silent, data_cache, cashprize_columns, slug_column} = new ArgumentsManager()
+let {filename, data_cache, cashprize_columns, slug_column, allArgs} = argumentsManager(
+        "For a given list of tournaments with CP spread info and final standings, outputs the sum of Cashprizes earned by each participant over all tournaments. Takes the tournament list as a CSV table, each line contains the slug/URL of a tournament and its CP spread, with the CP for 1st in a column, then CP for 2nd in next column, etc. Column numbers for each info can be set through CLI arguments and in the code."
+    )
     .setParameters({guessLowDashes: true})
     .apply(addOutputParams)
-    .setAbstract("For a given list of tournaments with CP spread info and final standings, outputs the sum of Cashprizes earned by each participant over all tournaments. Takes the tournament list as a CSV table, each line contains the slug/URL of a tournament and its CP spread, with the CP for 1st in a column, then CP for 2nd in next column, etc. Column numbers for each info can be set through CLI arguments and in the code.")
     .addParameter("filename", {description: "CSV table filename"})
     .addOption(["-S", "--slug-column"], {description : "Index of the column with the tournament's slug/URL"})
     .addOption(["-C", "--cashprize-columns"], {length: 2, description: "Index of the first and last (inclusive) columns where individual place cashprizes will be found"})
     .addOption(["-d", "--data-cache"], {description: "File used to store curated tournament data pulled from start.gg, to avoid having to re-download/read it if tournaments don't change"})
-    .enableHelpParameter()
 
     .parseProcessArguments();
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-silent_ = false;
+let [logdata_, silent_] = doWeLogFromArgs(allArgs);
+
 if (silent_) muteStdout();
 
 cashprize_columns = cashprize_columns ?? [null, null];
@@ -97,10 +96,10 @@ if (logdata_) {
     }
 }
 
-output(outputFormat, outputfile, printdata, sortedUsers, data => {
+outputFromArgs(allArgs, sortedUsers, _ => {
     let txt = "";
     for (let player of sortedUsers) {
-        txt += player.slug + '\t' + player.name + '\t' + player.money + '\n';
+        txt += columnsln(player.slug, player.name, player.money)
     }
-return txt;
+    return txt;
 })

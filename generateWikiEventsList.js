@@ -5,11 +5,11 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getEventsResults} from "./include/getEventResults.js"
 import { getDateString } from "./include/dateString.js";
 import { outputText, readMultimodalArrayInput } from './include/lib/util.js'
-import { addInputParams, addOutputParamsBasic, isSilent } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParamsBasic, argumentsManager, isSilent } from "./include/lib/paramConfig.js";
 import { extractSlugs } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {slugs, outputfile, printdata, silent, inputfile} = new ArgumentsManager()
+let {slugs, outputfile, printdata, silent, inputfile} = argumentsManager()
     .apply(addOutputParamsBasic)
     .apply(addInputParams)
     .addCustomParser(new EventListParser, "slugs")

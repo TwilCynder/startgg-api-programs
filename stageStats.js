@@ -1,6 +1,5 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
+import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getSetsCharsInEvents } from "./include/getCharactersInEvent.js";
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
@@ -8,7 +7,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { loadStagesInfo } from "./include/loadVideogameContent.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {eventSlugs, eventsFilenames, inputfile, game, stagesfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, inputfile, game, stagesfile, allArgs} = argumentsManager
     .addMultiParameter("eventSlugs")
     .addOption("--stages-filename", {dest: "stagesFile"})
     .addOption(["-g", "--game"])
@@ -19,9 +18,9 @@ let {eventSlugs, eventsFilenames, inputfile, game, stagesfile, outputFormat, out
     .enableHelpParameter()
     .parseProcessArguments();
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let events = await readSlugLists(eventSlugs, eventsFilenames);
 
@@ -51,16 +50,16 @@ let total = list.reduce((prev, curr) => prev + curr.count, 0)
 list.sort((a, b) => b.count - a.count);
 list.forEach(stage => stage.ratio = stage.count / total);
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     for (let stage of list){
         console.log(stage.name, `${stage.count} (${(stage.ratio * 100).toFixed(2)}%)`);
     }
 }
 
 
-output(outputFormat, outputfile, printdata, list, list => {
+outputFromArgs(allArgs, list, list => {
     let res = "";
     for (let stage of list){
         res += stage.name + '\t' + stage.count + '\t' + stage.ratio + "%\n";

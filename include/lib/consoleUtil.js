@@ -3,6 +3,7 @@ const codes = {
     yellow : "33",
     purple : "35",
     bgreen : "92",
+    bred : "91",
     bold : "1",
     italics : "3",
     underline : "4"
@@ -54,6 +55,10 @@ export function purple(text){
 
 export function bgreen(text){
     return colored(text, codes.bgreen);
+}
+
+export function bred(text){
+    return colored(text, codes.bred);
 }
 
 /**

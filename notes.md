@@ -1,35 +1,24 @@
 ## Gestion de la sortie
-Paramètres : silent, printdata, logdata, outputfile
+Les scripts utilisent tous un argument allArgs, sauf ceux qui ne sortent que du plain text.
 
-- Dans tous les cas, on est silencieux (silent_) si silent est spécifié mais aussi si printdata l'est
-- Pour un script qui peut sortir que des data en JSON
-    - addOutputParamsJSON
-    - outputJSON
-    - 
-        ```js
-        printdata = printdata || !outputfile;
-        let silent_ = isSilent(printdata, silent)
-        ```
-- Pour un script qui peut sortir des data en JSON ou csv (et peut aussi log)
-    - addOutputParams
-    - output
-    - doweLog
-- Pour un script qui peut sortir des data en JSON ou csv (pas de log)
-    - addOutputParamsCustom(false, true)
-    - output
-        ```js
-        printdata = printdata || !outputfile;
-        let silent_ = isSilent(printdata, silent); 
-        ```
-- Pour un script qui ne peut pas sortir de data, que du texte, qu'il peut log
-    - addOutputParamsText
-    - outputText[Lazy]
-    - doWeLog
-- Pour un script qui ne peut pas sortir de data, que du texte sans log
-    - addOutputParamsBasic
-    - outputText[Lazy]
-    -   
-        ```js
-        printdata = printdata || !outputfile;
-        let silent_ = isSilent(printdata, silent) 
-        ```
+Gestion des **paramètres** (ArgumentsManager) :
+- Texte only, pas de log : `addOutputParamsBasic`
+- Texte avec log : `addOutputParamsText`
+- JSON only  : `addOutputParamsJSON`
+- JSON & texte (pas de log) : `addOutputParamsCustomNoLog`
+- JSON & texte avec log : `addOutputParams`
+
+Gestion du `silent` et du `logdata`:
+- Script sans log : `doWePrintFromArgs`
+  ```js
+  let silent = doWePrintFromArgs(allArgs);
+  ```
+- Script avec log : `doWeLogFromArgs`
+  ```js
+  let [logdata, silent] = doWeLogFromArgs(allArgs);
+  ```
+
+Gestion de la **sortie** : 
+- Si le script ne sort que du texte : `outputTextLazy`
+- Si le script ne sort que du JSON : `outputJSONfromArgs`
+- Si le script sort JSON et texte : `outputFromArgs`

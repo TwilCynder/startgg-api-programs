@@ -1,12 +1,12 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addInputParams, addOutputParamsCustom, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParamsCustom, argumentsManager, doWeLog } from "./include/lib/paramConfig.js";
 import { outputTextLazy, readMultimodalArrayInput, readUsersFile } from "./include/lib/util.js";
 import { getUsersInfoExtended } from "./include/getUserInfoExtended.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {userSlugs, file, inputfile, outputfile, printdata, silent, logdata, slug} = new ArgumentsManager()
+let {userSlugs, file, inputfile, outputfile, printdata, silent, logdata, slug} = argumentsManager()
     .addMultiParameter("userSlugs")
     .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"})
     .addSwitch(["-u", "--slug"], {description: "Include slug in output"})

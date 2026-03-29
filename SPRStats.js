@@ -1,18 +1,18 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper-node";
-import { columnsln, output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { columnsln, output, outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { createClientAuto } from "./include/lib/createClient.js";
 import { bgreen, yellow } from "./include/lib/consoleUtil.js";
 import { getUpsetFactor } from "startgg-helper-node"
 
 let {eventSlugs, eventsFilenames, inputfile,
-    outputFormat, outputfile, logdata, printdata, silent, fragmentOutput,
-    top, reverse, positive, negative, average, detailed, min_events
-} = new ArgumentsManager()
+    top, reverse, positive, negative, average, detailed, min_events, 
+    allArgs
+} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .setAbstract("Computes the sum of SPRs (indicator of the difference between seed-based predicted result and final result) for each players at a set of events")
     .apply(addEventParsers)
@@ -29,9 +29,8 @@ let {eventSlugs, eventsFilenames, inputfile,
 
     .parseProcessArguments();
     
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-
-if (silent_) muteStdout();
+let [logdata, silent] = doWeLog(allArgs);
+if (silent) muteStdout();
 
 // ========  PREPROCESSING INPUT ========
 
@@ -126,9 +125,9 @@ if (average){
 
 // ======== OUTPUT ========
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     const cut = playersList.filter(player => player.runsNb >= min_events).slice(-top);
     for (const player of cut){
         console.log(bgreen(player.name), "| Total SPR :", player.totalSPR, "| Average :", player.avg, "| Total runs :", player.runsNb);
@@ -140,7 +139,7 @@ if (logdata_){
     }
 }
 
-output(outputFormat, outputfile, printdata, playersList, list => {
+outputFromArgs(allArgs, playersList, list => {
     let res = "";
     for (const player of list){
         res += columnsln(

@@ -1,18 +1,17 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addOutputParams, addOutputParamsJSON, isSilent } from "../include/lib/paramConfig.js";
-import { output, outputJSON, tryReadJSONArray } from "../include/lib/util.js";
+import { addOutputParams, addOutputParamsCustom, addOutputParamsJSON, argumentsManager, doWePrintFromArgs, isSilent } from "../include/lib/paramConfig.js";
+import { output, outputFromArgs, outputJSON, tryReadJSONArray } from "../include/lib/util.js";
 import { deep_get } from "startgg-helper-node";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
-let {inputfile, outputFormat, outputfile, printdata, silent, fragmentOutput, operations} = new ArgumentsManager()
+let {inputfile, outputFormat, operations, allArgs} = argumentsManager()
     .addParameter("inputfile")
-    .apply(addOutputParams)
+    .apply(addOutputParamsCustom(false, true, true))
     .addMultiParameter("operations")
     .enableHelpParameter()
     .parseProcessArguments();
 
-printdata = printdata || !outputfile;
-silent = isSilent(printdata, silent);
+let silent = doWePrintFromArgs(allArgs);
 if (silent) muteStdout();
 
 // ======== LOADING DATA
@@ -95,7 +94,7 @@ for (let i = 0; i < operations.length; i++){
 
 if (silent) unmuteStdout()
 
-output(outputFormat, outputfile, printdata, data, data => {
+outputFromArgs(allArgs, data, data => {
     if (data instanceof Array){
         return data.map(elt => elt.toString()).join("\n");
     }

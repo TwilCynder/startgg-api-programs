@@ -1,19 +1,19 @@
 import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js"; 
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-import { addInputParams, addOutputParamsCustom, addUsersParams, doWeLog, isSilent } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, addUsersParams, argumentsManager, doWeLog, doWeLogFromArgs, isSilent } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readMultimodalArrayInput, tryReadJSONInput } from "./include/lib/util.js";
+import { output, outputFromArgs, readMultimodalArrayInput, tryReadJSONInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { leagueHeadHeadToHeadFromSetsArray } from "./include/leagueHead2Head.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
-let {eventSlugs, eventsFilenames, userSlugs, userDataFile, filterUsers, filename, total, count, outputFormat, outputfile, logdata, printdata, silent, inputfile, display} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, userSlugs, userDataFile, filterUsers, filename, total, count, inputfile, display, allArgs} = argumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
-    .apply(addOutputParamsCustom(true, true))
+    .apply(addOutputParams)
     .apply(addInputParams)
     .addSwitch(["-t", "--total"], {description: "Add the sum of all head to heads at the end of each player's line"})
     .addSwitch(["-d", "--display"], {description: "Do not compute data, treat input data as an already computed result of this script and only use the display functionality"})
@@ -22,9 +22,9 @@ let {eventSlugs, eventsFilenames, userSlugs, userDataFile, filterUsers, filename
     .setMissingArgumentBehavior("Missing argument", 1, false)
     .parseProcessArguments();
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let data;
 if (display){
@@ -53,9 +53,9 @@ if (count > 0 && (!data.count || !data.count.length != count)){
     data.count = totals.slice(0, count);
 }
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_ && count > 0){
+if (logdata && count > 0){
     if (count > 0){
         for (let h2h of data.count){
             console.log("-", yellow(data.users[h2h.users[0]].name), "vs", yellow(data.users[h2h.users[1]].name), ":", h2h.count);
@@ -63,7 +63,7 @@ if (logdata_ && count > 0){
     }
 }
 
-output(outputFormat, outputfile, printdata, data, (data) => {
+outputFromArgs(allArgs, data, (data) => {
     if (count){
         let result = "";
         for (let h2h of data.count){

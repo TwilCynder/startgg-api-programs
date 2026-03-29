@@ -1,15 +1,14 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { unmuteStdout, muteStdout } from "./include/lib/fileUtil.js";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 
-let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -21,9 +20,8 @@ let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, outputFormat,
  
 eventSlugs = await readSlugLists(eventSlugs, eventsFilenames);
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-
-if (silent_) muteStdout();
+let [logdata, silent] = doWeLogFromArgs(allArgs);
+if (silent) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter;
 let entrants = await readMultimodalArrayInput(inputfile, getEntrantsBasicForEvents(client, eventSlugs));
@@ -34,9 +32,9 @@ let users = minimum ?
     processUniqueEntrantsLeague(entrants);
 
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     if (count){
         console.log(users.length)
     } else {
@@ -46,7 +44,7 @@ if (logdata_){
     }
 }
 
-output(outputFormat, outputfile, printdata, count ? users.length : users, (users) => {
+outputFromArgs(allArgs, count ? users.length : users, (users) => {
     let resultString = "";
     if (name){
         for (let user of users){

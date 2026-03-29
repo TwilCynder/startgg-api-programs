@@ -1,14 +1,13 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
-import { getOtherEventsFromEvent, getOtherEventsFromEvents } from "./include/getOtherEvents.js";
+import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
+import { getOtherEventsFromEvent } from "./include/getOtherEvents.js";
 import { client } from "./include/lib/client.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { getEventsInTournament } from "./include/getEventsInTournament.js";
 
-let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, allArgs} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .setAbstract("Returns the full list of events for a set of tournaments. Also accepts events as input, returning the events at the tournaments they belong to.")
     .apply(addEventParsers)
@@ -19,9 +18,8 @@ let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, outputFormat
     .enableHelpParameter()
     .parseProcessArguments()
     
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-
-if (silent_) muteStdout();
+let [logdata, silent] = doWeLogFromArgs(allArgs);
+if (silent) muteStdout();
  
 let events = await readSlugLists(eventSlugs, eventsFilenames);
 
@@ -50,9 +48,9 @@ data = data.filter(v => !!v).map(tournament => {
     return tournament;
 })
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     for (let tournament of data){
         if (tournament.events.length < 1) continue
         console.log(tournament.name);
@@ -62,7 +60,7 @@ if (logdata_){
     }
 }
 
-output(outputFormat, outputfile, printdata, data, data => {
+outputFromArgs(allArgs, data, data => {
     let res = "";
     for (let tournament of data){
         for (let event of tournament.events){

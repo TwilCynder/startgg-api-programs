@@ -4,21 +4,24 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { readJSONInput, readLinesAsync } from "./include/lib/readUtil.js";
 import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "startgg-helper-node";
-import { addInputParams } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
-import { readMultimodalArrayInputWrapper } from "./include/lib/util.js";
-import { yellow } from "./include/lib/consoleUtil.js"
+import { output, outputFromArgs, readEventFilterWords, readMultimodalArrayInputWrapper } from "./include/lib/util.js";
+import { bgreen, bred, yellow } from "./include/lib/consoleUtil.js"
+import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
  
-let {inputfile, eventSlugs, eventsFilenames, names, namesfile, userDataFile, outputfile, outputFormat} = new ArgumentsManager()
+let {inputfile, eventSlugs, eventsFilenames, names, namesfile, userDataFile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .addMultiParameter("names")
     .addOption(["-f", "--names-file"], {dest: "namesfile"})
     .addOption(["-u", "--user-data-file"], {dest: "userDataFile", description: "File containing user data"})
-    .addOption(["-o", "--output-file"], {dest: "outputfile"})
-    .addOption("--format", {dest: "outputFormat", default: "txt"})
+    .apply(addOutputParams)
     .apply(addInputParams)
     .enableHelpParameter()  
     .parseProcessArguments();
+
+let [logdata, silent] = doWeLogFromArgs(allArgs);
+if (silent) muteStdout();
 
 let list = await readSlugLists(eventSlugs, eventsFilenames);
 
@@ -37,22 +40,18 @@ let [results, userData] = await Promise.all([
         if (namesfile){
             try {
                 let res = await readLinesAsync(namesfile);
-
                 if (!res) throw "Found nothing";
 
                 names = names.concat(res);
                 
             } catch (err) {
-                console.warn(`Couldn't read names from file ${namesfile} : ${err}`)
+                console.warn(`Couldn't read names from file ${namesfile} :`, err);
             }
             
         }
     })()
 ]) 
-
-results = results.concat(userData);
-
-let users = results.reduce((acc, current) => current ? acc.concat(current) : acc, []);
+let users = results.concat(userData);
 
 let result = names.map( (name, i) => {
     for (let user of users){
@@ -64,19 +63,17 @@ let result = names.map( (name, i) => {
     return {slug: null, name: name}
 })
 
-let resultString = ""
+if (silent) unmuteStdout();
 
-if (outputFormat.includes("json")){
-    resultString = JSON.stringify(result, null, outputFormat == "prettyjson" ? 4 : undefined);
-} else {
-    for (let user of result){
-        resultString += user.slug + '\n';
+if (logdata){
+    for (const user of result){
+        console.log("-", user.name, ":", user.slug ? bgreen(user.slug) : bred("Not Found"));
     }
 }
 
-if (outputfile){
-    let filename = outputfile;
-    await fs.writeFile(filename, resultString);
-} else {
-    console.log(resultString);
-}   
+outputFromArgs(allArgs, result, (data) => {
+    let resultString = "";
+    for (let user of data){
+        resultString += user.slug + '\n';
+    }
+}); 

@@ -13,14 +13,13 @@ let {game, allArgs} = argumentsManager()
     .parseProcessArguments();
 
 let silent = doWePrintFromArgs(allArgs);
-
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let limiter = new StartGGDelayQueryLimiter();
 let data = await loadVideogameContent(null, client, limiter, game);
 limiter.stop();
 
-if (silent_){
+if (silent){
     unmuteStdout();
 }
 

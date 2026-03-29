@@ -1,34 +1,31 @@
 import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
-import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, isSilent } from "./include/lib/paramConfig.js";
+import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, argumentsManager, doWePrintFromArgs } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getEventsResults } from "./include/getEventResults.js";
-import { output, readEventFilterWords, readMultimodalArrayInput } from "./include/lib/util.js";
+import { outputFromArgs, readEventFilterWords, readMultimodalArrayInput } from "./include/lib/util.js";
 import { filterEvents } from "./include/filterEvents.js";
 import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 
 let {
-    eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers,
+    eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers, inputfile,
     games, minEntrants, startDate, endDate, exclude_expression, filter, filterFiles, offline, online,
-    outputFormat, outputfile, printdata, silent, inputfile
-} = new ArgumentsManager()
+    allArgs
+} = argumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
     .apply(addEventFilterParams)
-    .apply(addOutputParamsCustom(false, true))
+    .apply(addOutputParamsCustom(false, true, true))
     .apply(addInputParams)
     .enableHelpParameter()
     .setMissingArgumentBehavior("Missing argument", 1, false)
     .parseProcessArguments();
 
-printdata = printdata || !outputfile;
-let silent_ = isSilent(printdata, silent);
-
-if (silent_) muteStdout();
+let silent = doWePrintFromArgs(allArgs);
+if (silent) muteStdout();
 
 let events = await readSlugLists(eventSlugs, eventsFilenames);
 
@@ -52,9 +49,9 @@ eventsStandings = filterEvents(eventsStandings, exclude_expression, filters, off
 
 let matrix = SC.computeStandingComparisonFromStandings(users, eventsStandings);
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-output(outputFormat, outputfile, printdata, matrix, (matrix) => {
+outputFromArgs(allArgs, matrix, (matrix) => {
     let result = "\\\\\\";
     for (let user of users){
         result += '\t' + user.name;

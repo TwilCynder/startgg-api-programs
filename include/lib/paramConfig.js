@@ -1,4 +1,5 @@
 import { ArgumentsManager, Parser } from "@twilcynder/arguments-parser"
+import { nullArray } from "./util.js";
 
 //ça ça reste ici
 
@@ -19,7 +20,7 @@ export class FormattedOutputsParser extends Parser {
 
     constructor(...formats){
         super();
-        this._state = [];
+        this._state = Object.assign([], {files: false, prints: false});
         if (formats) this.#supported_formats = formats;
     }
 
@@ -38,11 +39,13 @@ export class FormattedOutputsParser extends Parser {
             const format = arg.slice(FORMATTED_FILE_OUTPUT_ARG_TRIGGER.length);
             this.checkFormat(format);
             this._state.push({filename: this.getArg(args, i + 1), format});
+            this._state.files = true;
             return 1;
         } else if (arg && arg.startsWith(FORMATTED_STDOUT_ARG_TRIGGER)){
             const format = arg.slice(FORMATTED_STDOUT_ARG_TRIGGER.length);
             this.checkFormat(format);
             this._state.push({filename: null, format});
+            this._state.prints = true;
             return true;
         }
 
@@ -59,14 +62,14 @@ export class FormattedOutputsParser extends Parser {
 }
 
 /**
- * Added dests : outputfiles, printdata, silent  
+ * Added dests : outputFiles, printdata, silent  
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent  
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsBasic(argumentsManager){
     argumentsManager
         .addMultiOption(["-o", "--output-file"], {
-            dest: "outputfiles",
+            dest: "outputFiles",
             description: "A file to save the output to. If not specified, the output will be sent to the std output."
         })
         .addSwitch(["-p", "--print-output"], {
@@ -93,7 +96,10 @@ function addFormatParameter(argumentsManager){
             dest: "outputFormat",
             description: "The output format. Either json (default) or csv"
         })
-        .addCustomParser(new FormattedOutputsParser("json", "prettyjson", "readable", "csv", "text"), "formattedOutput", {}, true)
+        .addCustomParser(
+            new FormattedOutputsParser("json", "prettyjson", "readable", "csv", "text"), 
+            "formattedOutput", {}, true
+        )
 }
 
 /** @param {ArgumentsManager} argumentsManager */
@@ -108,7 +114,7 @@ function addFragmentParameter(argumentsManager){
 
 /**
  * For scripts that can only output processed text.  
- * Added dests : outputfiles, printdata, silent, logdata  
+ * Added dests : outputFiles, printdata, silent, logdata  
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [l]og-data  
  * @param {ArgumentsManager} argumentsManager 
  */
@@ -118,7 +124,7 @@ export function addOutputParamsText(argumentsManager){
 }
 
 /**
- * Added dests : outputfiles, printdata, silent, prettyjson, fragmentOutput
+ * Added dests : outputFiles, printdata, silent, prettyjson, fragmentOutput, formattedOutput
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [r]eadable-json, [X]/fragment-output  
  * @param {ArgumentsManager} argumentsManager 
  */
@@ -131,11 +137,22 @@ export function addOutputParamsJSON(argumentsManager){
 }
 
 /**
+ * Added dests : outputFiles, printdata, silent, outputFormat, formattedOutput, fragmentOutput
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent, format, output-*, print-*, [X]/fragment-output
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addOutputParamsNoLog(argumentsManager){
+    addOutputParamsBasic(argumentsManager);
+    addFormatParameter(argumentsManager);
+    addFragmentParameter(argumentsManager);
+}
+
+/**
  * Returns a function to pass to .apply    
- * Added dests : outputfiles, printdata, silent  
+ * Added dests : outputFiles, printdata, silent  
  * Potential dests : logdata, outputFormat, formattedOutput, fragmentOutput, 
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent  
- * Potential switchs : [l]og-data, format, [X]/fragment-output  
+ * Potential switchs : [l]og-data, format, output-*, print-*, [X]/fragment-output  
  * @param {boolean} log 
  * @param {boolean} format 
  * @returns 
@@ -151,7 +168,7 @@ export function addOutputParamsCustom(log, format, fragment){
 
 /**
  * Added dests : outputFormat, outputfiles, logdata, printdata, silent, fragmentOutput, formattedOutput
- * Added switchs : [o]uput-file, [p]rint-output, [s]silent, [p]rint-output, format, [X]/fragment-output  
+ * Added switchs : [o]uput-file, [p]rint-output, [s]silent, [p]rint-output, format, [X]/fragment-output output-*, print-*
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParams(argumentsManager){
@@ -184,6 +201,16 @@ export function addInputParamsMandatory(argumentsManager){
     addInputParams_(argumentsManager, true)
 }
 
+/**
+ * Dests added : cache, cache_frequency
+ * Added switchs : [c]ache, cache-frequency
+ * @param {ArgumentsManager} argumentsManager 
+ */
+export function addCacheParams(argumentsManager){
+    argumentsManager
+        .addOption(["-c", "--cache"], {description: "File to use as cache for queries (useful is the program crashes during execution)"})
+        .addOption(["--cache-frequency"], {description: "How often does the program write to cache (in number of queries)"})
+}
 
 /**
  * Dests added : startDate, endDate  
@@ -292,6 +319,10 @@ export function addUsersParams(argumentsManager){
     })
 }
 
+function isThereAnyOutputFile(outputFiles, formattedOutput){
+    return (outputFiles && outputFiles.length) || (formattedOutput && formattedOutput.files);
+}
+
 /**
  * @param {boolean} printdata 
  * @param {string} outputfile 
@@ -301,17 +332,31 @@ export function isSilent(printdata, silent){
     return silent || printdata;
 }
 
+export function isSilentFromArgs(args){
+    return isSilent(args.printdata, args.silent);
+}
+
+export function doWePrintFromArgs(args){
+    args.printdata = args.printdata || !isThereAnyOutputFile(args.outputFiles, args.formattedOutput);
+    return isSilentFromArgs(args);
+}
+
 /**
  * Returns two values, indicating if we should log data, and if the program should be silent
  * @param {boolean} logdata 
  * @param {boolean} printdata 
- * @param {string} outputfile 
+ * @param {string[]} outputfile 
  * @param {boolean} silent 
+ * @param {Output[]} formattedOutput 
  * @returns [logdata, silent]
  */
-export function doWeLog(logdata, printdata, outputfile, silent){
+export function doWeLog(logdata, printdata, outputfile, silent, formattedOutput){
     return [
-        logdata || (!printdata && !outputfile && !silent),
+        logdata || (!printdata && !isThereAnyOutputFile(outputfile, formattedOutput) && !silent),
         isSilent(printdata, silent)
     ]
+}
+
+export function doWeLogFromArgs(args){
+    return doWeLog(args.logdata, args.printdata, args.outputFiles, args.silent, args.formattedOutput);
 }

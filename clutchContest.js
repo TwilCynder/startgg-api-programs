@@ -1,18 +1,17 @@
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
-import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { createClient  } from "startgg-helper-node";
 
 import { getPlayerName } from "./include/getPlayerName.js";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
-let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, silent, names, top, min_sets} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, inputfile, names, top, min_sets, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -22,9 +21,9 @@ let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, 
     .enableHelpParameter()
     .parseProcessArguments();
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 eventSlugs = await readSlugLists(eventSlugs, eventsFilenames)
 
@@ -81,10 +80,6 @@ let playerList = Object.entries(players).map(([id, player]) => {
 let totalList = playerList.sort((a, b) => b.clutchs - a.clutchs).slice(0, top);
 let averageList = playerList.sort((a, b) => b.average - a.average).slice(0, top);
 
-//console.log(totalList.length, averageList.length, top);
-
-//process.exit(0);
-
 if (names){
     if (top){
         await Promise.all(totalList.concat(averageList).map(player =>
@@ -103,9 +98,9 @@ if (names){
 
 limiter.stop();
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     console.log("====== TOTAL ======")
     for (let player of totalList){
         console.log(player.name, ":", player.clutchs, `(${yellow(player.average.toFixed(2))} average) out of ${yellow(player.sets)}`)
@@ -116,7 +111,7 @@ if (logdata_){
     }
 }
 
-output(outputFormat, outputfile, printdata, playerList, (players) => {
+outputFromArgs(allArgs, playerList, (players) => {
     let str = "";
     for (let player of players){
         str += `${player.name}\t${player.slug}\t${player.clutchs}\t${player.sets}\t${player.average}\n`

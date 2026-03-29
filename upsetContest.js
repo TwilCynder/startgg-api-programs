@@ -1,18 +1,17 @@
-import { getEventsSetsBasic, getEventsSetsBasicFromObjects } from "./include/getEventsSets.js";
+import { getEventsSetsBasicFromObjects } from "./include/getEventsSets.js";
 
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
-import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
-import { deep_get, StartGGDelayQueryLimiter } from "startgg-helper";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getDoubleEliminationUpsetFactorFromSet } from "startgg-helper";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { columns, columnsln, output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { columnsln, outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 import { loadCharactersInfo } from "./include/loadVideogameContent.js";
 
-let {eventSlugs, eventsFilenames, top, min_sets, sprRange, game, game_file, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, top, min_sets, sprRange, game, game_file, inputfile, allArgs} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .apply(addOutputParams)
     .apply(addInputParams)
@@ -27,9 +26,8 @@ let {eventSlugs, eventsFilenames, top, min_sets, sprRange, game, game_file, inpu
 
     .parseProcessArguments()
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-
-if (silent_) muteStdout();
+let [logdata, silent] = doWeLogFromArgs(allArgs);
+if (silent) muteStdout();
 
 // ========  PREPROCESSING INPUT ========
 
@@ -166,9 +164,9 @@ players = Object.entries(players).map( ([id, player]) => {
 
 //========== OUTPUT ==============
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
 
     function getCharsString(chars){
         if (!chars || chars.length < 1) return "";
@@ -234,7 +232,7 @@ if (logdata_){
     }
 }
 
-output(outputFormat, outputfile, printdata, players, players => {
+outputFromArgs(allArgs, players, players => {
     let res = "";
     for (let player of players){
         res += columnsln(

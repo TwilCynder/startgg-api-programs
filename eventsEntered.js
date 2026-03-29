@@ -1,9 +1,8 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventFilterParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addEventFilterParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
-import { StartGGDelayQueryLimiter, toUNIXTimestamp } from "startgg-helper";
-import { output, readEventFilterWords, readUsersFile } from "./include/lib/util.js";
+import { StartGGDelayQueryLimiter } from "startgg-helper";
+import { outputFromArgs, readEventFilterWords, readUsersFile } from "./include/lib/util.js";
 import { filterEvents, filterEventsFromList } from "./include/filterEvents.js";
 import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { logFilters } from "./include/logFilters.js";
@@ -13,8 +12,8 @@ import { getEventsFromUsers } from "./include/getEventsFromUser.js";
 let {
     userSlugs, filename, 
     eventSlugs, eventsFilenames, games, minEntrants, exclude_expression, filter, filterFiles, startDate, endDate, offline, online, display_filters,
-    outputFormat, outputfile, logdata, printdata, silent, slugOnly
-} = new ArgumentsManager()
+    slugOnly, allArgs
+} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .apply(addOutputParams)
     .addMultiParameter("userSlugs", {
@@ -32,8 +31,8 @@ let {
 
     .parseProcessArguments()
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-if (silent_) muteStdout();
+let [logdata, silent] = doWeLogFromArgs(allArgs);
+if (silent) muteStdout();
 
 let [userSlugs_, filters, eventsBlacklist] = await Promise.all([
     readUsersFile(filename, userSlugs),
@@ -54,9 +53,9 @@ limiter.stop();
 data = filterEvents(data, exclude_expression, filters, offline, online);
 data = filterEventsFromList(data, eventsBlacklist, true);
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     if (slugOnly){
         for (let event of data){
             console.log(event.slug);
@@ -69,7 +68,7 @@ if (logdata_){
 
 }
 
-output(outputFormat, outputfile, printdata, data, (data) => {
+outputFromArgs(allArgs, data, (data) => {
     let resultString = "";
     if (slugOnly ){
         for (let event of data){

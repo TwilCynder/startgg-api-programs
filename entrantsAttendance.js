@@ -1,33 +1,32 @@
 import { client } from "./include/lib/client.js";
 import { getAttendanceFromEvents } from "./include/getAttendance.js";
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {eventSlugs, eventsFilenames, inputfile , outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, inputfile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
     .enableHelpParameter()
     .parseProcessArguments();
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let events = await readSlugLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let eventResults = await readMultimodalArrayInput(inputfile, getEntrantsBasicForEvents(client, events, limiter).then(res => res.filter(event => !!event.entrants)))
-console.log(eventResults)
+let eventResults = await readMultimodalArrayInput(inputfile, getEntrantsBasicForEvents(client, events, limiter).then(res => res.filter(event => !!event.entrants)));
+
 let attendance = getAttendanceFromEvents(eventResults);
 limiter.stop();
 
-let entrantsList = []
+let entrantsList = [];
 
 for (let entrant of Object.values(attendance)) {
     entrantsList.push({name: entrant.user.player.gamerTag, attendance: entrant.count});
@@ -47,7 +46,9 @@ for (let e of entrantsList){
 }
 pools[t] = count;
 
-if (logdata_){
+if (silent) unmuteStdout();
+
+if (logdata){
     for (let e of entrantsList){
         console.log(e.name, e.attendance);
     }
@@ -60,7 +61,7 @@ if (logdata_){
     }
 }
 
-output(outputFormat, outputfile, printdata, {attendance: entrantsList, pools}, (data) => {
+outputFromArgs(allArgs, {attendance: entrantsList, pools}, (data) => {
     let resultString = ""
 
     for (let e of entrantsList){

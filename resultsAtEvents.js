@@ -1,10 +1,9 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventFilterParams, addInputParams, addOutputParams, addUsersParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addEventFilterParams, addInputParams, addOutputParamsNoLog, addUsersParams, argumentsManager, doWePrintFromArgs } from "./include/lib/paramConfig.js";
 import { deep_get } from "startgg-helper-node/util";
 import { unmuteStdout, muteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { dateText, generateLineUsingLineFunctions, getLineFormatFunctions, output, readEventFilterWords, readMultimodalArrayInput } from "./include/lib/util.js";
+import { dateText, generateLineUsingLineFunctions, getLineFormatFunctions, outputFromArgs, readEventFilterWords, readMultimodalArrayInput } from "./include/lib/util.js";
 import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { User } from "./include/user.js";
@@ -18,12 +17,12 @@ let {
     userSlugs, filename, userDataFile, filterUsers,
     eventSlugs, eventsFilenames, 
     games, minEntrants, filter, filterFiles , exclude_expression, startDate, endDate, minimumIn, offline, online,
-    outputFormat, outputfile, logdata, printdata, silent, eventName, outSlug, line_format,
-    inputfile, 
-} = new ArgumentsManager()
+    eventName, outSlug, line_format,
+    inputfile, allArgs
+} = argumentsManager()
     .setParameters({guessLowDashes: true})    
     .setAbstract("Computes the results achieved by a given list of users at a set of tournaments. You can use preexisting standings data as fetched by download/downloadStandingsFromUsers.js or by download/downloadEventsStandings.js, or ")
-    .apply(addOutputParams)
+    .apply(addOutputParamsNoLog)
     .apply(addInputParams)
     .apply(addEventParsersSwitchable)
     .apply(addUsersParams)
@@ -42,8 +41,8 @@ let {
 
     .parseProcessArguments()
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-if (silent_) muteStdout();
+let silent = doWePrintFromArgs(allArgs);
+if (silent) muteStdout();
 
 // ========  PROCESSING INPUT PARAMETERS ========
 
@@ -138,13 +137,11 @@ if (minimumIn){
 
 data = data.sort((a, b) => a.tournament.startAt - b.tournament.startAt);
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
 //========== OUTPUT ==============
 
-printdata = printdata || logdata_;
-
-output(outputFormat, outputfile, printdata, data, (data) => {
+outputFromArgs(allArgs, data, (data) => {
     let resultString = "";
     for (let event of data){
         //console.log(event.tournament.name, `(${event.slug}) on`, new Date(event.startAt * 1000).toLocaleDateString("fr-FR"));

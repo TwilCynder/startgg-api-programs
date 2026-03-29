@@ -1,43 +1,38 @@
-import { addEventParsers, EventListParser, readSlugLists } from './include/lib/computeEventList.js'
+import { addEventParsers, readSlugLists } from './include/lib/computeEventList.js'
 import { getSetsCharsInEvents } from './include/getCharactersInEvent.js';
 import { client } from './include/lib/client.js';
-import { addInputParams, addOutputParams, doWeLog } from './include/lib/paramConfig.js';
-import { output, readMultimodalArrayInput } from './include/lib/util.js';
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from './include/lib/paramConfig.js';
+import { outputFromArgs, readMultimodalArrayInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from 'startgg-helper';
-import { ArgumentsManager } from '@twilcynder/arguments-parser';
 import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
 import { getGamesNbInSets } from './include/getGamesNbInSets.js';
 
-try {
-    let {eventSlugs, eventsFilenames, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
-        .apply(addEventParsers)
-        .apply(addInputParams)
-        .apply(addOutputParams)
-        .enableHelpParameter()
-        .parseProcessArguments();
 
-    let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let {eventSlugs, eventsFilenames, inputfile, allArgs} = argumentsManager()
+    .apply(addEventParsers)
+    .apply(addInputParams)
+    .apply(addOutputParams)
+    .enableHelpParameter()
+    .parseProcessArguments();
 
-    if (silent_) muteStdout();
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-    let limiter = new StartGGDelayQueryLimiter();
+if (silent) muteStdout();
 
-    let events = await readSlugLists(eventSlugs, eventsFilenames);
-    let data = await readMultimodalArrayInput(inputfile, getSetsCharsInEvents(client, events, limiter))
+let limiter = new StartGGDelayQueryLimiter();
 
-    limiter.stop();
+let events = await readSlugLists(eventSlugs, eventsFilenames);
+let data = await readMultimodalArrayInput(inputfile, getSetsCharsInEvents(client, events, limiter))
 
-    let sets = data.length
-    let games = getGamesNbInSets(data);
-    
-    if (silent_) unmuteStdout();
- 
-    if (logdata_){
-        console.log(sets, games);
-    }
+limiter.stop();
 
-    output(outputFormat, outputfile, printdata, {games, sets}, (result) => ("" + result.sets + '\t' + result.games))
-} catch (e) {
-    console.error("AN ERROR HAS OCCURED")
-    console.error(e)
+let sets = data.length
+let games = getGamesNbInSets(data);
+
+if (silent) unmuteStdout();
+
+if (logdata){
+    console.log(sets, games);
 }
+
+outputFromArgs(allArgs, {games, sets}, (result) => ("" + result.sets + '\t' + result.games))

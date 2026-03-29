@@ -1,14 +1,13 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { columnsln, output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { columnsln, outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsBasicHashmap } from "./include/getEventsSets.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 //TODO : ajouter un système de range comme pour les upsets
-let {eventSlugs, eventsFilenames, loserOnly, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, loserOnly, inputfile, allArgs} = argumentsManager()
     .apply(addInputParams)
     .apply(addOutputParams)
     .apply(addEventParsers)
@@ -16,9 +15,9 @@ let {eventSlugs, eventsFilenames, loserOnly, inputfile, outputFormat, outputfile
     .enableHelpParameter()
     .parseProcessArguments()
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-if (silent_) muteStdout()
+if (silent) muteStdout()
 
 let events = await readSlugLists(eventSlugs, eventsFilenames);
 
@@ -65,15 +64,15 @@ for (let run of best.runs){
     run.name = names[run.id] ?? "[UNKNOWN]"; 
 }
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     for (let run of best.runs){
         console.log("-", run.name, " with ", run.length, "sets at event", run.event);
     }
 }
 
-output(outputFormat, outputfile, printdata, best.runs, (runs) => {
+outputFromArgs(allArgs, best.runs, (runs) => {
     let res = "";
     for (let run of runs){
         res += columnsln(run.name, run.id, run.length, run.event);

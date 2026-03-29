@@ -1,16 +1,16 @@
 import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js"; 
 import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
-import { addInputParams, addOutputParams, addUsersParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, addUsersParams, argumentsManager, doWeLog, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
 import { deep_get} from "startgg-helper-node/util";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js"
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { output, outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
 
-let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers, worldUsersFilename, outputFormat, outputfile, logdata, printdata, silent, inputfile, scoreonly} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers, worldUsersFilename, inputfile, scoreonly, allArgs} = argumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
     .apply(addOutputParams)
@@ -22,9 +22,9 @@ let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers
     .setMissingArgumentBehavior("Missing argument", 1, false)
     .parseProcessArguments();
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let [events] = await Promise.all([
     readSlugLists(eventSlugs, eventsFilenames),
@@ -88,9 +88,9 @@ for (let set of sets){
 }
 
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     if (scoreonly){
         for (let user of users){
             console.log(`${user.w}-${user.l}`);
@@ -103,7 +103,7 @@ if (logdata_){
 
 }
 
-output(outputFormat, outputfile, printdata, users, (users) => {
+outputFromArgs(allArgs, users, (users) => {
     if (scoreonly){
         for (let user of users){
             res += user.w + '\t' + user.l + '\n';

@@ -1,16 +1,15 @@
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
-import { ArgumentsManager } from "@twilcynder/arguments-parser"; 
 
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsGames } from "./include/getEventsSetsGames.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
-let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, inputfile, silent, top, min_sets} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, top, min_sets, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -20,9 +19,9 @@ let {eventSlugs, eventsFilenames, outputFormat, outputfile, logdata, printdata, 
     .enableHelpParameter()
     .parseProcessArguments();
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let events = await readSlugLists(eventSlugs, eventsFilenames);
 
@@ -103,9 +102,9 @@ console.log(playerList)
 let totalList = playerList.sort((a, b) => b.reverses - a.reverses).slice(0, top);
 let averageList = playerList.sort((a, b) => b.average - a.average).slice(0, top);
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     console.log("====== TOTAL ======")
     for (let player of totalList){
         console.log(player.name, ":", player.reverses, `(${yellow(player.average.toFixed(2))} average) out of ${yellow(player.sets)}`)
@@ -116,7 +115,7 @@ if (logdata_){
     }
 }
 
-output(outputFormat, outputfile, printdata, playerList, (players) => {
+outputFromArgs(allArgs, playerList, (players) => {
     let str = "";
     for (let player of players){
         str += `${player.name}\t${player.reverses}\t${player.sets}\t${player.average}\n`

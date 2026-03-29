@@ -1,6 +1,6 @@
 import { argv, exit } from "process";
-import { getEvents } from "./include/geteventsForVideogame.js";
-import { client } from "./include/lib/client.js";
+import { getEvents } from "../include/geteventsForVideogame.js";
+import { client } from "../include/lib/client.js";
 import fs from 'fs';
 import fsp from 'fs/promises';
 

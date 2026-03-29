@@ -1,14 +1,13 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
-import { addInputParams, addOutputParams, doWeLog } from "./include/lib/paramConfig.js";
+import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { createClientAuto } from "./include/lib/createClient.js";
 import { extractSlugs, StartGGDelayQueryLimiter } from "startgg-helper-node";
-import { output, readMultimodalArrayInput } from "./include/lib/util.js";
+import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { getResultsByPlayerInline } from "./include/getResultsByPlayer.js";
 
-let {eventSlugs, eventsFilenames, inputfile, outputFormat, outputfile, logdata, printdata, silent} = new ArgumentsManager()
+let {eventSlugs, eventsFilenames, inputfile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
@@ -16,10 +15,10 @@ let {eventSlugs, eventsFilenames, inputfile, outputFormat, outputfile, logdata, 
     .setAbstract("Returns standings at a set of events for all players having entered these events. Either specify an event list, or pass event results (with event info) as input")
     .parseProcessArguments()
 
-let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
-if (silent_) muteStdout();
+let [logdata, silent] = doWeLogFromArgs(allArgs);
+if (silent) muteStdout();
 
-let eventSlug = await readSlugLists(eventSlugs, eventsFilenames);
+eventSlugs = await readSlugLists(eventSlugs, eventsFilenames);
 
 let client = await createClientAuto();
 let limiter = new StartGGDelayQueryLimiter();
@@ -28,9 +27,9 @@ let events = await readMultimodalArrayInput(inputfile, getEventsResults(client, 
 
 let data = getResultsByPlayerInline(events);
 
-if (silent_) unmuteStdout();
+if (silent) unmuteStdout();
 
-if (logdata_){
+if (logdata){
     for (const player of data){
         console.log(player.name, ":");
         for (const standing of player.standings){
@@ -39,7 +38,7 @@ if (logdata_){
     }
 }
 
-output(outputFormat, outputfile, printdata, data, data => {
+outputFromArgs(allArgs, data, data => {
     let res = "";
     for (const player of data){
         res += player.name + '\t' + player.id + '\t';
