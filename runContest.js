@@ -1,5 +1,5 @@
 import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
-import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { columnsln, outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsSetsBasicHashmap } from "./include/getEventsSets.js";
@@ -19,7 +19,7 @@ let [logdata, silent] = doWeLogFromArgs(allArgs);
 
 if (silent) muteStdout()
 
-let events = await readSlugLists(eventSlugs, eventsFilenames);
+let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter()
 let data = await readMultimodalArrayInput(inputfile, getEventsSetsBasicHashmap(client, events, limiter))

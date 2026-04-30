@@ -307,7 +307,12 @@ export async function readUsersFile(filename, existingArray){
     if (filename){
         let lines = await readLinesAsync(filename);
         if (lines && lines.length){
-            let arr = lines.filter(line => !!line && line != "null" && line != "undefined").map(line => extractSlug(line.trim()));
+            let arr = lines.filter(line => !!line && line != "null" && line != "undefined").map(slug => {
+                slug = extractSlug(slug.trim());
+                if (slug.includes("/")){
+                    slug = slug.split("/").at(-1);
+                }
+            });
             return (existingArray && existingArray.length) ? existingArray.concat(arr) : arr;
         } 
     } 

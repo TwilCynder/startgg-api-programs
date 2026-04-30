@@ -1,6 +1,6 @@
 import { getEventsSetsBasicFromObjects } from "./include/getEventsSets.js";
 
-import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
@@ -31,7 +31,7 @@ if (silent) muteStdout();
 
 // ========  PREPROCESSING INPUT ========
 
-let events = await readSlugLists(eventSlugs, eventsFilenames);
+let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 //========== LOADING DATA ==============
  

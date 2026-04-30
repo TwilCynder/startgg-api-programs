@@ -1,4 +1,4 @@
-import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
@@ -21,7 +21,7 @@ let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, allArgs} = a
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
  
-let events = await readSlugLists(eventSlugs, eventsFilenames);
+let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
 let data = await readMultimodalArrayInput(inputfile, Promise.all(events.map(slug => {

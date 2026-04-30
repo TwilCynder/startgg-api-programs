@@ -1,4 +1,4 @@
-import { addEventParsers, readSlugLists } from "../include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "../include/lib/computeEventList.js";
 
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
@@ -19,7 +19,7 @@ let silent = doWePrintFromArgs(allArgs);
 
 if (silent) muteStdout();
 
-let [events, eventObjects] = await Promise.all([readSlugLists(eventSlugs, eventsFilenames), tryReadJSONInput(inputfile)]);
+let [events, eventObjects] = await Promise.all([readEventSlugsLists(eventSlugs, eventsFilenames), tryReadJSONInput(inputfile)]);
 events = events.concat(eventObjects.filter(event => !!event.slug).map(event => event.slug));
 
 let limiter = new StartGGDelayQueryLimiter();

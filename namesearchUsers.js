@@ -5,7 +5,7 @@ import { readJSONInput, readLinesAsync } from "./include/lib/readUtil.js";
 import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "startgg-helper-node";
 import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
-import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { output, outputFromArgs, readEventFilterWords, readMultimodalArrayInputWrapper } from "./include/lib/util.js";
 import { bgreen, bred, yellow } from "./include/lib/consoleUtil.js"
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
@@ -23,7 +23,7 @@ let {inputfile, eventSlugs, eventsFilenames, names, namesfile, userDataFile, all
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
 
-let list = await readSlugLists(eventSlugs, eventsFilenames);
+let list = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let [results, userData] = await Promise.all([
     readMultimodalArrayInputWrapper(inputfile, async () => {
@@ -71,9 +71,6 @@ if (logdata){
     }
 }
 
-outputFromArgs(allArgs, result, (data) => {
-    let resultString = "";
-    for (let user of data){
-        resultString += user.slug + '\n';
-    }
-}); 
+outputFromArgs(allArgs, result, (data) => 
+    data.map(user => user.slug).join("\n")
+); 

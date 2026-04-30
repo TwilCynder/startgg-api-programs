@@ -1,6 +1,6 @@
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 
-import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { createClient  } from "startgg-helper-node";
@@ -25,7 +25,7 @@ let [logdata, silent] = doWeLogFromArgs(allArgs);
 
 if (silent) muteStdout();
 
-eventSlugs = await readSlugLists(eventSlugs, eventsFilenames)
+eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames)
 
 let client = createClient();
 let limiter = new StartGGDelayQueryLimiter();

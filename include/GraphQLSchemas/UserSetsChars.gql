@@ -1,6 +1,5 @@
 query User($slug: String, $id: ID, $perPage: Int, $page: Int!, $after: Timestamp) {
     user(slug: $slug, id: $id){
-        slug
         player {
             gamerTag
             sets(perPage: $perPage, page: $page, filters : {

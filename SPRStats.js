@@ -1,5 +1,5 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { addInputParams, addOutputParams, argumentsManager, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper-node";
@@ -34,7 +34,7 @@ if (silent) muteStdout();
 
 // ========  PREPROCESSING INPUT ========
 
-let [events, client] = await Promise.all([readSlugLists(eventSlugs, eventsFilenames), createClientAuto()]);
+let [events, client] = await Promise.all([readEventSlugsLists(eventSlugs, eventsFilenames), createClientAuto()]);
 
 // ======== LOADING DATA ========
 

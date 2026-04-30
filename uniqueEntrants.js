@@ -1,4 +1,4 @@
-import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
@@ -18,7 +18,7 @@ let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, allArgs} = ar
     .enableHelpParameter()
     .parseProcessArguments();
  
-eventSlugs = await readSlugLists(eventSlugs, eventsFilenames);
+eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();

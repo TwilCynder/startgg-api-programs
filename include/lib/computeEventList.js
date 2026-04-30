@@ -43,17 +43,20 @@ export function addEventParsersSwitchable(am){
     addFileEventListParser(am);
 }
 
+async function readSlugLists(currentList, filenames, silentErrors){
+    return (await readLinesInFiles(filenames, silentErrors))
+        .concat(currentList)
+        .filter(ev => !!ev)
+}
+
 /**
  * @param {string[]} currentList 
  * @param {string[]} filenames 
  * @param {boolean} silentErrors 
  * @returns 
  */
-export async function readSlugLists(currentList, filenames, silentErrors){
-    let events = 
-        (await readLinesInFiles(filenames, silentErrors))
-        .concat(currentList)
-        .filter(ev => !!ev)
+export async function readEventSlugsLists(currentList, filenames, silentErrors){
+    return (await readSlugLists(currentList, filenames, silentErrors))
         .map(ev => {
             if (ev.includes("%")){
                 let [template, min_, max_] = splitWhitespace(ev);
@@ -68,7 +71,6 @@ export async function readSlugLists(currentList, filenames, silentErrors){
         .map(ev => {
             return extractSlug(ev.trim())
         })
-    return events;
 }
 
 /**

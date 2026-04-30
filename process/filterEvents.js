@@ -1,5 +1,5 @@
 import { addEventGenericFilterParams, addEventOnlineFilterParams, addOutputParamsJSON, argumentsManager, doWePrintFromArgs } from "../include/lib/paramConfig.js";
-import { addEventParsersSwitchable, readSlugLists } from "../include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readEventSlugsLists } from "../include/lib/computeEventList.js";
 import { outputJSONFromArgs, readEventFilterWords, tryReadJSONInput } from "../include/lib/util.js";
 import { filterEventsFromList, filterEventsFromTournament } from "../include/filterEvents.js";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
@@ -21,7 +21,7 @@ if (silent) muteStdout();
 
 let [data, events, filters] = await Promise.all([
     tryReadJSONInput(inputfile),
-    readSlugLists(eventSlugs, eventsFilenames),
+    readEventSlugsLists(eventSlugs, eventsFilenames),
     readEventFilterWords(filter, filterFiles)
 ]);
 

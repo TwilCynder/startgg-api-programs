@@ -1,4 +1,4 @@
-import { addEventParsers, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { createClientAuto } from "./include/lib/createClient.js";
@@ -18,7 +18,7 @@ let {eventSlugs, eventsFilenames, inputfile, allArgs} = argumentsManager()
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
 
-eventSlugs = await readSlugLists(eventSlugs, eventsFilenames);
+eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let client = await createClientAuto();
 let limiter = new StartGGDelayQueryLimiter();

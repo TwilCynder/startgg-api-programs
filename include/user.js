@@ -15,11 +15,11 @@ export class User {
     /**
      * @param {string} slug 
      */
-    constructor(user){
+    constructor(user, slug){
         if (user == null){
-            throw "Couldn't load user " + this.slug;
+            throw "Null user";
         }
-        this.slug = user.discriminator;
+        this.slug = slug ?? user.discriminator;
         this.id = user.player.id;
         this.name = user.player.gamerTag;
 
@@ -42,7 +42,7 @@ export class User {
         return await Promise.all(slugs.map( (slug) => this.loadUser(client, slug, limiter)))
     }
 
-    static loadMultimodalInputs(slugs, slugsFile, datafile){
+    static _loadMultimodalInputs(slugs, slugsFile, datafile){
         return Promise.all ([
             tryReadJSONArray(datafile),
             readUsersFile(slugsFile, slugs),
@@ -50,7 +50,7 @@ export class User {
     }
     
     static async _createUsersMultimodal(client, limiter, slugs, slugsFile, datafile){
-        let [usersData, slugs_] = await this.loadMultimodalInputs(slugs, slugsFile, datafile);
+        let [usersData, slugs_] = await this._loadMultimodalInputs(slugs, slugsFile, datafile);
 
         let usersMap = new Map(usersData.map(userInfo => [userInfo.discriminator, new User(userInfo)]));
 
@@ -65,7 +65,7 @@ export class User {
     }
 
     static async _createUsersMultimodalFiltered(client, limiter, slugs, slugsFile, datafile){
-        let [usersData, slugs_] = await this.loadMultimodalInputs(slugs, slugsFile, datafile);
+        let [usersData, slugs_] = await this._loadMultimodalInputs(slugs, slugsFile, datafile);
         
         let usersMap = new Map(usersData.map(userInfo => [userInfo.discriminator, new User(userInfo)]));
 

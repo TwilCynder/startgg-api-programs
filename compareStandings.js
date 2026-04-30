@@ -2,7 +2,7 @@ import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js";
 import * as SC from "./include/computeStandingComparison.js";   
 import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, argumentsManager, doWePrintFromArgs } from "./include/lib/paramConfig.js";
-import { addEventParsersSwitchable, readSlugLists } from "./include/lib/computeEventList.js";
+import { addEventParsersSwitchable, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getEventsResults } from "./include/getEventResults.js";
@@ -27,7 +27,7 @@ let {
 let silent = doWePrintFromArgs(allArgs);
 if (silent) muteStdout();
 
-let events = await readSlugLists(eventSlugs, eventsFilenames);
+let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
 

@@ -1,4 +1,4 @@
-import { addEventParsers, readSlugLists } from "../include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "../include/lib/computeEventList.js";
 
 import { client } from "../include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
@@ -40,7 +40,7 @@ if (!getterLoader){
     process.exit(1);
 }
 
-let [events, eventObjects, getters] = await Promise.all([readSlugLists(eventSlugs, eventsFilenames), tryReadJSONArray(inputfile), getterLoader()]);
+let [events, eventObjects, getters] = await Promise.all([readEventSlugsLists(eventSlugs, eventsFilenames), tryReadJSONArray(inputfile), getterLoader()]);
 
 let limiter = new StartGGDelayQueryLimiter();
 let progressManager = cache ? await queriesProgressManager(cache, {writeThreshold: cache_frequency ?? 100}) : null;
