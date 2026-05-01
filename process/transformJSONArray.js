@@ -4,25 +4,6 @@ import { output, outputFromArgs, outputJSON, tryReadJSONArray } from "../include
 import { deep_get } from "startgg-helper-node";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
-let {inputfile, outputFormat, operations, allArgs} = argumentsManager()
-    .addParameter("inputfile")
-    .apply(addOutputParamsCustom(false, true, true))
-    .addMultiParameter("operations")
-    .enableHelpParameter()
-    .parseProcessArguments();
-
-let silent = doWePrintFromArgs(allArgs);
-if (silent) muteStdout();
-
-// ======== LOADING DATA
-
-let data = await tryReadJSONArray(inputfile);
-
-if (!(data instanceof Array)){
-    console.error("Input data is not an array");
-    process.exit(1);
-}
-
 // ======== OPERATIONS =======
 
 const transformOps = {
@@ -68,6 +49,32 @@ const transformOps = {
     }
 }
 
+// ======== CLI
+
+let {inputfile, operations, inplace, allArgs} = argumentsManager()
+    .addParameter("inputfile", {}, false)
+    .apply(addOutputParamsCustom(false, true, true))
+    .addMultiParameter("operations", {description: "Supported operations : " + (Object.keys(transformOps).join(", "))})
+    .addSwitch(["-I", "--inplace"], {description: "Writes the result in the output file. Does not work with formatted outputs"})
+    .enableHelpParameter()
+    .parseProcessArguments();
+
+if (inplace){
+    allArgs.outputFiles.push(inputfile.replace("@stdin", "@stdout"));
+}
+
+let silent = doWePrintFromArgs(allArgs);
+if (silent) muteStdout();
+
+// ======== LOADING DATA
+
+let data = await tryReadJSONArray(inputfile);
+
+if (!(data instanceof Array)){
+    console.error("Input data is not an array");
+    process.exit(1);
+}
+
 // ======== PROCESSING ========
 
 for (let i = 0; i < operations.length; i++){
@@ -96,7 +103,7 @@ if (silent) unmuteStdout()
 
 outputFromArgs(allArgs, data, data => {
     if (data instanceof Array){
-        return data.map(elt => elt.toString()).join("\n");
+        return data.map(elt => JSON.stringify(elt)).join("\n");
     }
-    return JSON.stringify(data, null, outputFormat == "prettyjson" ? 4 : null);
+    return JSON.stringify(data);
 });

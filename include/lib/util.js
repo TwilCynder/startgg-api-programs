@@ -140,7 +140,8 @@ function getFragmentFilenameFunction(filename){
 }
 
 function write(filename, text){
-    fs.writeFileSync(filename, text, {encoding: 'utf-8'});
+    if (filename == "@stdout") console.log(text);
+    else fs.writeFileSync(filename, text, {encoding: 'utf-8'});
 }
 
 function writeOutputs(filenames, text){
@@ -297,6 +298,10 @@ export function outputTextLazy(textTransform, outputFiles, printdata, data){
     }
 }
 
+export function extractUserDiscriminator(slug){
+    return slug.includes("/") ? slug = slug.split("/").at(-1) : slug;
+}
+
 /**
  * 
  * @param {string} filename 
@@ -309,9 +314,8 @@ export async function readUsersFile(filename, existingArray){
         if (lines && lines.length){
             let arr = lines.filter(line => !!line && line != "null" && line != "undefined").map(slug => {
                 slug = extractSlug(slug.trim());
-                if (slug.includes("/")){
-                    slug = slug.split("/").at(-1);
-                }
+                slug = extractUserDiscriminator(slug);
+                return slug;
             });
             return (existingArray && existingArray.length) ? existingArray.concat(arr) : arr;
         } 

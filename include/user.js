@@ -1,9 +1,15 @@
 import { GraphQLClient } from 'graphql-request';
 import { getUserInfo } from './getUserInfo.js'
 import { TimedQuerySemaphore } from 'startgg-helper';
-import { aggregateArrayDataPromises, readUsersFile, tryReadJSONArray } from './lib/util.js';
-import { readJSONInput } from './lib/readUtil.js';
-import fs from "fs/promises"
+import { extractUserDiscriminator, readUsersFile, tryReadJSONArray } from './lib/util.js';
+
+
+function _createUsersMap(usersData){
+    return new Map(usersData.map(userInfo => {
+        let user = new User(userInfo);
+        return [user.slug, user]
+    }));
+}
 
 export class User {
 
@@ -19,7 +25,8 @@ export class User {
         if (user == null){
             throw "Null user";
         }
-        this.slug = slug ?? user.discriminator;
+        slug = slug ?? user.discriminator ?? user.slug;
+        this.slug = extractUserDiscriminator(slug);
         this.id = user.player.id;
         this.name = user.player.gamerTag;
 
@@ -48,15 +55,16 @@ export class User {
             readUsersFile(slugsFile, slugs),
         ]);
     }
-    
+
+
     static async _createUsersMultimodal(client, limiter, slugs, slugsFile, datafile){
         let [usersData, slugs_] = await this._loadMultimodalInputs(slugs, slugsFile, datafile);
 
-        let usersMap = new Map(usersData.map(userInfo => [userInfo.discriminator, new User(userInfo)]));
+        let usersMap = _createUsersMap(usersData);
 
         await Promise.all(slugs_.map(async slug => {
             if (!usersMap.get(slug)){
-                const user = this.loadUser(client, slug, limiter);
+                const user = await this.loadUser(client, slug, limiter);
                 usersMap.set(slug, user);
             }
         }));
@@ -67,7 +75,7 @@ export class User {
     static async _createUsersMultimodalFiltered(client, limiter, slugs, slugsFile, datafile){
         let [usersData, slugs_] = await this._loadMultimodalInputs(slugs, slugsFile, datafile);
         
-        let usersMap = new Map(usersData.map(userInfo => [userInfo.discriminator, new User(userInfo)]));
+        let usersMap = _createUsersMap(usersData);
 
         return await Promise.all(slugs_.map(async slug => {
             let fromMap = usersMap.get(slug);

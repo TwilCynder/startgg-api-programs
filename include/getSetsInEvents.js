@@ -86,14 +86,12 @@ export function getSetsInEventsFromObjects(client, query, events, limiter, progr
     }))
 }
 
-const defaultLogConfig = {
-    query: params => `Fetching sets from event ${params.slug}, page ${yellow(params.page)} (${params.perPage} per page)`,
-    error: params => `Request failed for sets from event ${params.slug}, page ${yellow(params.page)} (${params.perPage} per page)`,
-}
 export function getQueryLogConfig(name){
-    return name ? {
-        query: params => `Fetching sets (${name}) from event ${params.slug}, page ${yellow(params.page)} (${params.perPage} per page)`,
-        error: params => `Request failed for sets (${name}) from event ${params.slug}, page ${yellow(params.page)} (${params.perPage} per page)`,
-    } : defaultLogConfig
+    const describeParams = params => `from event ${params.slug}, page ${yellow(params.page)}${params.perPage ? ` (${params.perPage} per page)` : ''}`
+    const log = name ? (params => '('+name+') ' + describeParams(params)) : describeParams;
 
+    return {
+        query: params => `Fetching sets ` + log(params),
+        error: params => `Request failed for sets ${name ? `(${name})` : ''} from event ${params.slug}, page ${yellow(params.page)} ${params.perPage ? `(${params.perPage} per page)` : ''}`,
+    }
 }
