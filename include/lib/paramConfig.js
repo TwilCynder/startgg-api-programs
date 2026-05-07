@@ -5,8 +5,14 @@ import { nullArray } from "./util.js";
 
 export function argumentsManager(abstract){
     let am = new ArgumentsManager()
-        .setParameters({guessLowDashes: true, recursiveResult: "allArgs"})
+        .setParameters({
+            guessLowDashes: true, recursiveResult: "allArgs",
+            onMissingArgument: {message: "Missing argument"},
+            onIncompleteArgument: {message: "Incomplete parameter : missing parameter after"},
+            onError: {errorCode: 2, throw: false}
+        })
         .enableHelpParameter()
+
     if (abstract) am.setAbstract(abstract);
     return am;
 }
