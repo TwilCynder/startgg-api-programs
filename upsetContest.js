@@ -11,6 +11,7 @@ import { columnsln, outputFromArgs, readMultimodalArrayInput } from "./include/l
 import { yellow } from "./include/lib/consoleUtil.js";
 import { loadCharactersInfo } from "./include/loadVideogameContent.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, top, min_sets, sprRange, game, game_file, inputfile, allArgs} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .apply(addOutputParams)
@@ -29,11 +30,9 @@ let {eventSlugs, eventsFilenames, top, min_sets, sprRange, game, game_file, inpu
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
 
-// ========  PREPROCESSING INPUT ========
+//======== LOADING DATA ========
 
 let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
-
-//========== LOADING DATA ==============
  
 let limiter = new StartGGDelayQueryLimiter();
 let [data, charactersInfo] = await Promise.all([
@@ -163,7 +162,6 @@ players = Object.entries(players).map( ([id, player]) => {
 });
 
 //========== OUTPUT ==============
-
 if (silent) unmuteStdout();
 
 if (logdata){

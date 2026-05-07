@@ -8,6 +8,7 @@ import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { processUniqueEntrantsLeague } from "./include/uniqueEntrantsUtil.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
@@ -17,21 +18,23 @@ let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, allArgs} = ar
     .addSwitch(["--name"], {description: "Output the name instead of the slug"})
     .enableHelpParameter()
     .parseProcessArguments();
- 
-eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
+
+//======== LOADING DATA ========
+eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
 let entrants = await readMultimodalArrayInput(inputfile, getEntrantsBasicForEvents(client, eventSlugs));
 limiter.stop();
 
+//======== PROCESSING DATA ========
 let users = minimum ? 
     getSortedAttendanceFromEvents(entrants, true).filter(entrant => entrant.count >= minimum).map(entrant => entrant.user) :
     processUniqueEntrantsLeague(entrants);
 
-
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

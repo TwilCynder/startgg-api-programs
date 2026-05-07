@@ -10,6 +10,7 @@ import { outputFromArgs, readEventFilterWords, readMultimodalArrayInput } from "
 import { filterEvents } from "./include/filterEvents.js";
 import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {
     eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers, inputfile,
     games, minEntrants, startDate, endDate, exclude_expression, filter, filterFiles, offline, online,
@@ -21,16 +22,15 @@ let {
     .apply(addOutputParamsCustom(false, true, true))
     .apply(addInputParams)
     .enableHelpParameter()
-    .setMissingArgumentBehavior("Missing argument", 1, false)
     .parseProcessArguments();
 
 let silent = doWePrintFromArgs(allArgs);
 if (silent) muteStdout();
 
+// ======== LOADING DATA ========
 let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter;
-
 let [users, eventsStandings, filters] = await Promise.all([
     User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile, filterUsers),
     readMultimodalArrayInput(inputfile, 
@@ -40,15 +40,14 @@ let [users, eventsStandings, filters] = await Promise.all([
     ),
     readEventFilterWords(filter, filterFiles)
 ])
-
 limiter.stop();
 
+//======== PROCESSING DATA ========
 eventsStandings = filterEvents(eventsStandings, exclude_expression, filters, offline, online);
-
-//console.log(users, eventsStandings);
 
 let matrix = SC.computeStandingComparisonFromStandings(users, eventsStandings);
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 outputFromArgs(allArgs, matrix, (matrix) => {

@@ -1,14 +1,14 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { addInputParams, addOutputParams, argumentsManager, doWeLog } from "./include/lib/paramConfig.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper-node";
-import { columnsln, output, outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
+import { columnsln, outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { getEventsResults } from "./include/getEventResults.js";
 import { createClientAuto } from "./include/lib/createClient.js";
 import { bgreen, yellow } from "./include/lib/consoleUtil.js";
 import { getUpsetFactor } from "startgg-helper-node"
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, inputfile,
     top, reverse, positive, negative, average, detailed, min_events, 
     allArgs
@@ -32,11 +32,8 @@ let {eventSlugs, eventsFilenames, inputfile,
 let [logdata, silent] = doWeLog(allArgs);
 if (silent) muteStdout();
 
-// ========  PREPROCESSING INPUT ========
-
+//======== LOADING DATA ========
 let [events, client] = await Promise.all([readEventSlugsLists(eventSlugs, eventsFilenames), createClientAuto()]);
-
-// ======== LOADING DATA ========
 
 let limiter = new StartGGDelayQueryLimiter();
 let data = await readMultimodalArrayInput(inputfile, getEventsResults(client, events, undefined, limiter));
@@ -124,7 +121,6 @@ if (average){
 }
 
 // ======== OUTPUT ========
-
 if (silent) unmuteStdout();
 
 if (logdata){

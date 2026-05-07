@@ -8,7 +8,7 @@ import { addEventParsersSwitchable, readEventSlugsLists } from "./include/lib/co
 import { logFilters } from "./include/logFilters.js";
 import { getEventsFromUsers } from "./include/getEventsFromUser.js";
 
-
+//======== CONFIGURING PARAMETERS ========
 let {
     userSlugs, filename, 
     eventSlugs, eventsFilenames, games, minEntrants, exclude_expression, filter, filterFiles, startDate, endDate, offline, online, display_filters,
@@ -34,6 +34,7 @@ let {
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
 
+//======== PREPROCESSING INPUT ========
 let [userSlugs_, filters, eventsBlacklist] = await Promise.all([
     readUsersFile(filename, userSlugs),
     readEventFilterWords(filter, filterFiles),
@@ -46,13 +47,16 @@ logFilters(startDate, endDate, games, minEntrants, exclude_expression, filters, 
 
 if (display_filters) process.exit(0);
 
+//======== LOADING DATA ========
 let limiter = new StartGGDelayQueryLimiter;
 let data = await getEventsFromUsers(client, userSlugs_, limiter, {startDate, endDate, games, minEntrants});
 limiter.stop();
 
+//======== PROCESSING DATA ========
 data = filterEvents(data, exclude_expression, filters, offline, online);
 data = filterEventsFromList(data, eventsBlacklist, true);
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

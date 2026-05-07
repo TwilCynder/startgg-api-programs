@@ -10,6 +10,7 @@ import { output, outputFromArgs, readMultimodalArrayInput } from "./include/lib/
 import { getEventsSetsBasic } from "./include/getEventsSets.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers, worldUsersFilename, inputfile, scoreonly, allArgs} = argumentsManager()
     .apply(addUsersParams)
     .apply(addEventParsersSwitchable)
@@ -23,14 +24,15 @@ let {eventSlugs, eventsFilenames, userSlugs, filename, userDataFile, filterUsers
     .parseProcessArguments();
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);
-
 if (silent) muteStdout();
 
+//======== PREPROCESSING INPUT ========
 let [events] = await Promise.all([
     readEventSlugsLists(eventSlugs, eventsFilenames),
 ])
-let limiter = new StartGGDelayQueryLimiter;
 
+//======== LOADING DATA ========
+let limiter = new StartGGDelayQueryLimiter;
 let [users, world, sets] = await Promise.all([
     User.createUsersMultimodal(client, limiter, userSlugs, filename, userDataFile, filterUsers),
     readLinesAsync(worldUsersFilename),
@@ -39,7 +41,7 @@ let [users, world, sets] = await Promise.all([
 
 limiter.stop();
 
-//============ PROCESSING ================
+//============ PROCESSING DATA ================
 
 users.forEach(user => Object.assign(user, {w: 0, l: 0}))
 
@@ -87,7 +89,7 @@ for (let set of sets){
     }
 }
 
-
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

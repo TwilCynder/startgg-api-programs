@@ -13,6 +13,7 @@ import { PlayerUserFilter } from "./include/processCharacterStatsFiltered.js";
 import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 import { loadCharactersInfo } from "./include/loadVideogameContent.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {list, extended, mains, minimum, game, gamefile, inputfile, allArgs} = argumentsManager()
     .addCustomParser(new EventListParser, "list")
     .apply(addInputParams)
@@ -25,17 +26,18 @@ let {list, extended, mains, minimum, game, gamefile, inputfile, allArgs} = argum
     .enableHelpParameter()
     .parseProcessArguments();
  
-let [logdata, silent] = doWeLogFromArgs(allArgs);
+extended ||= mains;
 
+let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
 
+//======== LOADING DATA ========
 let limiter = new StartGGDelayQueryLimiter;
 let entrants = await readMultimodalArrayInput(inputfile, 
     (extended && !mains) ? getEntrantsExtendedForEvents(client, list, limiter) : getEntrantsBasicForEvents(client, list, limiter)
 );
 
-extended ||= mains;
-
+//======== PROCESSING DATA ========
 entrants = entrants.filter(event => {
     if (!event.entrants){
         console.warn("No event found for slug", event.slug);
@@ -60,6 +62,7 @@ if (mains){
     }))
 }
 
+//======== OUTPUT ========
 limiter.stop();
 
 if (silent) unmuteStdout();

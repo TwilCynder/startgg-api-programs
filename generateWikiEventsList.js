@@ -1,5 +1,5 @@
 import { client } from "./include/lib/client.js";
-import { EventListParser } from "./include/lib/computeEventList.js";
+import { addEventParsers, EventListParser, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { getEventsResults} from "./include/getEventResults.js"
@@ -9,23 +9,28 @@ import { addInputParams, addOutputParamsBasic, argumentsManager, isSilent } from
 import { extractSlugs } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
-let {slugs, outputfile, printdata, silent, inputfile} = argumentsManager()
+//======== CONFIGURING PARAMETERS ========
+let {eventSlugs, eventsFilenames, outputfile, printdata, silent, inputfile} = argumentsManager()
     .apply(addOutputParamsBasic)
     .apply(addInputParams)
+    .apply(addEventParsers)
     .addCustomParser(new EventListParser, "slugs")
     .enableHelpParameter()
 
     .parseProcessArguments()
 
 printdata = printdata || !outputfile;
-let silent_ = isSilent(printdata, silent)
+let silent_ = isSilent(printdata, silent);
 if (silent_) muteStdout();
 
-let limiter = new StartGGDelayQueryLimiter();
+//======== LOADING DATA ========
+eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
-let data = await readMultimodalArrayInput(inputfile, getEventsResults(client, extractSlugs(slugs), 2, limiter));
+let limiter = new StartGGDelayQueryLimiter();
+let data = await readMultimodalArrayInput(inputfile, getEventsResults(client, eventSlugs, 2, limiter));
 limiter.stop();
 
+//======== PROCESSING DATA ========
 data = data.filter((ev) => !!ev);
 data = data.sort((a, b) => a.startAt - b.startAt);
 
@@ -49,10 +54,12 @@ for (let ev of data){
     result += "\n";
 }
 
+//======== OUTPUT ========
 if (silent_) unmuteStdout();
 outputText(result, outputfile, printdata);
 
 /*
+Example wiki line : 
 |-
 |[http://challonge.com/MSM0 Mega Smash Monday 0]||May 11th, 2015||38||{{Sm|K9sbruce}}||{{Sm|Zenyou}}
 */

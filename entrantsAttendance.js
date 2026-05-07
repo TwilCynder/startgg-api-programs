@@ -7,6 +7,7 @@ import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js"
 import { getEntrantsBasicForEvents } from "./include/getEntrantsBasic.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, inputfile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
@@ -18,6 +19,7 @@ let [logdata, silent] = doWeLogFromArgs(allArgs);
 
 if (silent) muteStdout();
 
+//======== LOADING DATA ========
 let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
@@ -26,6 +28,7 @@ let eventResults = await readMultimodalArrayInput(inputfile, getEntrantsBasicFor
 let attendance = getAttendanceFromEvents(eventResults);
 limiter.stop();
 
+//======== PROCESSING DATA ========
 let entrantsList = [];
 
 for (let entrant of Object.values(attendance)) {
@@ -46,6 +49,7 @@ for (let e of entrantsList){
 }
 pools[t] = count;
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

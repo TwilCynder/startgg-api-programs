@@ -7,6 +7,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { loadStagesInfo } from "./include/loadVideogameContent.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, inputfile, game, stagesfile, allArgs} = argumentsManager
     .addMultiParameter("eventSlugs")
     .addOption("--stages-filename", {dest: "stagesFile"})
@@ -19,9 +20,9 @@ let {eventSlugs, eventsFilenames, inputfile, game, stagesfile, allArgs} = argume
     .parseProcessArguments();
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);
-
 if (silent) muteStdout();
 
+//======== LOADING DATA ========
 let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
@@ -29,6 +30,7 @@ let data = await readMultimodalArrayInput(inputfile, getSetsCharsInEvents(client
 let stages = await loadStagesInfo(stagesfile, client, limiter, game, true);
 limiter.stop();
 
+//======== PROCESSING DATA ========
 let stats = {};
 
 for (let set of data){
@@ -50,6 +52,7 @@ let total = list.reduce((prev, curr) => prev + curr.count, 0)
 list.sort((a, b) => b.count - a.count);
 list.forEach(stage => stage.ratio = stage.count / total);
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){
@@ -57,7 +60,6 @@ if (logdata){
         console.log(stage.name, `${stage.count} (${(stage.ratio * 100).toFixed(2)}%)`);
     }
 }
-
 
 outputFromArgs(allArgs, list, list => {
     let res = "";

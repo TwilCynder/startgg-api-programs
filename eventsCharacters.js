@@ -10,6 +10,7 @@ import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
 import { getGamesNbInSets } from './include/getGamesNbInSets.js';
 import { cFormat, yellow } from './include/lib/consoleUtil.js';
 
+//======== CONFIGURING PARAMETERS ========
 let {charactersInfoFilename, gameSlug, 
     processSets, processPlayers, minGamesPlayer, percentages,
     eventSlugs, eventsFilenames, inputfile, 
@@ -46,33 +47,30 @@ let {charactersInfoFilename, gameSlug,
     .parseProcessArguments();
 
 if (minGamesPlayer > 0) processPlayers = true;
-
-let [logdata, silent] = doWeLogFromArgs(allArgs);
-
-if (silent) muteStdout();
-
 if (!gameSlug && !charactersInfoFilename){
     throw "Neither <charactersInfoFilename> or <gameSlug> were specified (using -s or -f respectively)"
 }
 
+let [logdata, silent] = doWeLogFromArgs(allArgs);
+if (silent) muteStdout();
+
+//======== LOADING DATA ========
 let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-
 let [data, charNames] = await Promise.all([
     readMultimodalArrayInput(inputfile, getSetsCharsDetailedInEvents(client, events, limiter)),
     loadCharactersInfo(charactersInfoFilename, client, limiter, gameSlug, true)
 ])
-
 limiter.stop();
 
-
+//======== PROCESSING DATA ========
 let charStats = getCharsStatsInSets(data, getUpdateFunction(processSets, processPlayers));
 
 let gamesN = percentages ? getGamesNbInSets(data) : null;
 let setsN = data.length;
 
-//-----------------------------------
+//------- Configuring process functions ---------
 
 const ratio = (val, total) => percentages ? (val / total) : null;
 const dp = (n) => yellow((n * 100).toFixed(2));
@@ -102,11 +100,12 @@ const CSVTransformSets = (prev, current) => prev + current.name + "\t" + current
 const CSVTransformPlayers = (prev, current) => (prev + current.name + "\t" + current.games + "\t" + current.players.map(player => player.name + "\t" + player.games).join("\t") + '\n');
 const CSVTransformPlayersSets = (prev, current) => (prev + current.name + "\t" + current.games + "\t" + current.players.map(player => player.name + "\t" + player.games + "\t" + player.sets).join("\t") + '\n');
 
+//------- Processing ---------
 
 let [finalize, logResult, CSVTransform] =
     processPlayers ?
         (processSets ?
-            [finalizeCharDataPlayersSets, logDataPlayersSets, CSVTransformPlayersSets   ] :
+            [finalizeCharDataPlayersSets, logDataPlayersSets, CSVTransformPlayersSets] :
             [finalizeCharDataPlayers, logDataPlayers, CSVTransformPlayers]) :
 
         (processSets ?
@@ -119,6 +118,7 @@ for (let char in charStats){
 }
 result.sort((a, b) => a.games - b.games);
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

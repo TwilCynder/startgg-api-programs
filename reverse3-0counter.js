@@ -9,6 +9,7 @@ import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, top, min_sets, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
@@ -20,15 +21,16 @@ let {eventSlugs, eventsFilenames, top, min_sets, allArgs} = argumentsManager()
     .parseProcessArguments();
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);
-
 if (silent) muteStdout();
 
+//======== LOADING DATA ========
 let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
 let data = await readMultimodalArrayInput(inputfile, getEventsSetsGames(client, events, limiter));
 limiter.stop();
 
+//======== PROCESSING DATA ========
 function detectReverse(games){
     let winnerChangeCounter = 0;
     let previousWinnerId = games[0].winnerId;
@@ -102,6 +104,7 @@ console.log(playerList)
 let totalList = playerList.sort((a, b) => b.reverses - a.reverses).slice(0, top);
 let averageList = playerList.sort((a, b) => b.average - a.average).slice(0, top);
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

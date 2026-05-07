@@ -2,16 +2,18 @@ import { getEventsResults } from "./include/getEventResults.js";
 import {client} from "./include/lib/client.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js"
 import { extractSlugs } from "startgg-helper-node"
-import { addEventParsers } from "./include/lib/computeEventList.js";
+import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addInputParams, addOutputParamsNoLog, argumentsManager, doWeLog, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { dateText, generateLineUsingLineFunctions, output, outputFromArgs, readMultimodalArrayInput, splitWhitespace } from "./include/lib/util.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
 import { getMostRelevantName } from "./include/getMostRelevantName.js";
 
-let {replacementsFile, eventsSlugs, sorted, line_format, inputfile, allArgs} = argumentsManager()
+//======== CONFIGURING PARAMETERS ========
+let {replacementsFile, eventSlugs, eventsFilenames, sorted, line_format, inputfile, allArgs} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .apply(addInputParams)
+    .apply(addEventParsers)
     .apply(addOutputParamsNoLog)
     .addOption(["-r", "--replacementsFile"])
     /*.addSwitch("--eventName", {
@@ -25,7 +27,7 @@ let {replacementsFile, eventsSlugs, sorted, line_format, inputfile, allArgs} = a
 
     .parseProcessArguments()
 
-let [logdata, silent] = doWeLogFromArgs(allArgs);
+let [_, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
 
 // ===== PREPARING OUTPUT =========
@@ -96,6 +98,8 @@ if (line_format){
 
 //========== LOADING DATA ==============
 
+eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames);
+
 let limiter = new StartGGDelayQueryLimiter();
 let events = await readMultimodalArrayInput(inputfile, getEventsResults(client, extractSlugs(eventsSlugs), undefined, limiter))  ;
 limiter.stop()
@@ -111,9 +115,8 @@ function getEventStartTime(event){
 events = events.filter(ev => !!ev)
 if (sorted) events = events.sort((a, b) => getEventStartTime(a) - getEventStartTime(b));
 
-if (silent) unmuteStdout();
-
 //========== OUTPUT ==============
+if (silent) unmuteStdout();
 
 outputFromArgs(allArgs, events, (events) => {
     let resultString = "";

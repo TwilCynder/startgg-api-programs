@@ -1,14 +1,14 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addEventDateFilterParams, addEventFilterParamsExcept, addOutputParams, argumentsManager, doWeLog, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { processGameListString } from "./include/loadGames.js";
 import { StartGGDelayQueryLimiter, toUNIXTimestamp } from "startgg-helper-node";
 import { getEventsByDate } from "./include/getEventsByDate.js";
 import { filterEventsFromTournament } from "./include/filterEvents.js";
 import { createClientAuto } from "./include/lib/createClient.js";
-import { output, outputFromArgs, readEventFilterWords } from "./include/lib/util.js";
+import { outputFromArgs, readEventFilterWords } from "./include/lib/util.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { bgreen } from "./include/lib/consoleUtil.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {games, minEntrants, exclude_expression, filter, filterFiles, future, singles_only, startDate, endDate, countryCode, online, offline, detailed, allArgs} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .addParameter("startDate", {description: "Starting date, can be a UNIX timestamp or a Javascript Date String", type: "number"})
@@ -34,27 +34,29 @@ if (offline && online){
 }
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);
-
 if (silent) muteStdout();
 
+//======== PREPROCESSING INPUT ========
 const client = await createClientAuto();
 let limiter = new StartGGDelayQueryLimiter;
 
-//---- Processing input
 games = await processGameListString(client, games, limiter);
 startDate = toUNIXTimestamp(startDate);
 endDate = toUNIXTimestamp(endDate);
 
 console.log("Games :", games);
 
+//======== LOADING DATA ========
 let [data, filters] = await Promise.all([
     getEventsByDate(client, limiter, startDate, endDate, {games, minEntrants, countryCode, future, online, singles_only}, detailed),
     readEventFilterWords(filter, filterFiles)
 ]);
-data = filterEventsFromTournament(data, exclude_expression, filters, minEntrants, offline, online);
-
 limiter.stop();
 
+//======== PROCESSING DATA ========
+data = filterEventsFromTournament(data, exclude_expression, filters, minEntrants, offline, online);
+
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

@@ -7,6 +7,7 @@ import { client } from "./include/lib/client.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { getEventsInTournament } from "./include/getEventsInTournament.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, allArgs} = argumentsManager()
     .setParameters({guessLowDashes: true})
     .setAbstract("Returns the full list of events for a set of tournaments. Also accepts events as input, returning the events at the tournaments they belong to.")
@@ -21,6 +22,7 @@ let {eventSlugs, eventsFilenames, sideEvents, blacklist, inputfile, allArgs} = a
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
  
+//======== LOADING DATA ========
 let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
@@ -33,6 +35,7 @@ let data = await readMultimodalArrayInput(inputfile, Promise.all(events.map(slug
 })));
 limiter.stop();
 
+//======== PROCESSING DATA ========
 data = data.filter(v => !!v).map(tournament => {
     if (sideEvents){
         tournament.events = tournament.events.filter(event => event.slug != tournament.baseSlug);
@@ -48,6 +51,7 @@ data = data.filter(v => !!v).map(tournament => {
     return tournament;
 })
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

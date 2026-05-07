@@ -1,11 +1,11 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addInputParams, addOutputParamsCustom, argumentsManager, doWeLog } from "./include/lib/paramConfig.js";
-import { outputTextLazy, readMultimodalArrayInput, readUsersFile } from "./include/lib/util.js";
+import { outputTextLazy, readUsersFile } from "./include/lib/util.js";
 import { getUsersInfoExtended } from "./include/getUserInfoExtended.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {userSlugs, file, inputfile, outputfile, printdata, silent, logdata, slug} = argumentsManager()
     .addMultiParameter("userSlugs")
     .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"})
@@ -19,6 +19,7 @@ let {userSlugs, file, inputfile, outputfile, printdata, silent, logdata, slug} =
 let [logdata_, silent_] = doWeLog(logdata, printdata, outputfile, silent);
 if (silent_) muteStdout();
 
+//======== LOADING DATA ========
 userSlugs = await readUsersFile(file, userSlugs);
 
 let users = await readMultimodalArrayInputWrapper(inputfile, (async()=>{
@@ -30,6 +31,9 @@ let users = await readMultimodalArrayInputWrapper(inputfile, (async()=>{
     }
     return [];
 }));
+
+//======== OUTPUT ========
+if (silent_) unmuteStdout();
 
 function locationString(location){
     return location ? [location.city, location.state, location.country].filter(e=>e).join(", ") : ""
@@ -44,9 +48,6 @@ function displayUser(user){
         console.log("Location : ", locationString(user.location));
     }
 }
-
-if (silent_) unmuteStdout();
-
 if (logdata_){
     if (users.length == 1){
         displayUser(users[0]);

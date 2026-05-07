@@ -7,7 +7,6 @@ import { StartGGDelayQueryLimiter } from 'startgg-helper';
 import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
 import { getGamesNbInSets } from './include/getGamesNbInSets.js';
 
-
 let {eventSlugs, eventsFilenames, inputfile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)

@@ -10,11 +10,15 @@ import {yellow} from "./include/lib/consoleUtil.js"
 import fs from "fs/promises";
 import { sumCashprizes } from "./include/cashprizeSum.js";
 
+//======== CONSTANTS ========
+
 const defaultCSVSchema = {
     url: 0,
     CPstart: 1,
     CPend: 16,
 }
+
+//======== CONFIGURING PARAMETERS ========
 
 let {filename, data_cache, cashprize_columns, slug_column, allArgs} = argumentsManager(
         "For a given list of tournaments with CP spread info and final standings, outputs the sum of Cashprizes earned by each participant over all tournaments. Takes the tournament list as a CSV table, each line contains the slug/URL of a tournament and its CP spread, with the CP for 1st in a column, then CP for 2nd in next column, etc. Column numbers for each info can be set through CLI arguments and in the code."
@@ -29,8 +33,9 @@ let {filename, data_cache, cashprize_columns, slug_column, allArgs} = argumentsM
     .parseProcessArguments();
 
 let [logdata_, silent_] = doWeLogFromArgs(allArgs);
-
 if (silent_) muteStdout();
+
+//======== PREPROCESSING INPUT ========
 
 cashprize_columns = cashprize_columns ?? [null, null];
 const CSVSchema = Object.assign(defaultCSVSchema, {
@@ -45,6 +50,7 @@ const [tournamentData, standingsCache] = await Promise.all([
     (data_cache && await stat(data_cache)) ? readJSONInput(data_cache) : {}
 ]);
 
+//======== LOADING DATA ========
 const extractResultInfo = (data) => {
     if (!data || !data.standings) return null;
     return data.standings.nodes.map(standing => {
@@ -56,7 +62,6 @@ const extractResultInfo = (data) => {
     })
 }
 
-
 const getFromCache = (slug) => {
     console.log("Loaded", slug, "from cache");
     return standingsCache[slug];
@@ -64,6 +69,9 @@ const getFromCache = (slug) => {
 
 let limiter = new StartGGDelayQueryLimiter();
 const loadResults = async (slug) => (standingsCache && standingsCache[slug]) ? getFromCache(slug) : extractResultInfo(await getEventResults(client, slug, maxCPStanding, limiter));
+limiter.stop();
+
+//======== PROCESSING DATA ========
 
 const tournaments = (await Promise.all(tournamentData.map(async tournament => {
     let slug = extractSlug(tournament[CSVSchema.url])
@@ -77,13 +85,11 @@ const tournaments = (await Promise.all(tournamentData.map(async tournament => {
     return isNumber(firstPlace) && firstPlace > 0;
 });
 
-limiter.stop();
-
 const users = sumCashprizes(tournaments);
 
 const sortedUsers = Object.entries(users).map(([slug, user]) => (Object.assign(user, {slug}))).sort((a, b) => b.money - a.money);
-console.log(sortedUsers)
 
+//======== OUTPUT ========
 if (data_cache){
     fs.writeFile(data_cache, JSON.stringify(Object.fromEntries(tournaments.map(tournament => [tournament.slug, tournament.results])), null, 4))
 }

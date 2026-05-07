@@ -1,15 +1,14 @@
-import { ArgumentsManager } from "@twilcynder/arguments-parser";
-import fs from "fs/promises"
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { readJSONInput, readLinesAsync } from "./include/lib/readUtil.js";
 import { getUniqueUsersBasicOverLeague } from "./include/getEntrantsBasic.js";
 import { createClient } from "startgg-helper-node";
 import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
-import { output, outputFromArgs, readEventFilterWords, readMultimodalArrayInputWrapper } from "./include/lib/util.js";
+import { outputFromArgs, readMultimodalArrayInputWrapper } from "./include/lib/util.js";
 import { bgreen, bred, yellow } from "./include/lib/consoleUtil.js"
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
  
+//======== CONFIGURING PARAMETERS ========
 let {inputfile, eventSlugs, eventsFilenames, names, namesfile, userDataFile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .addMultiParameter("names")
@@ -23,6 +22,7 @@ let {inputfile, eventSlugs, eventsFilenames, names, namesfile, userDataFile, all
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
 
+//======== LOADING DATA ========
 let list = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let [results, userData] = await Promise.all([
@@ -53,6 +53,7 @@ let [results, userData] = await Promise.all([
 ]) 
 let users = results.concat(userData);
 
+//======== PROCESSING DATA ========
 let result = names.map( (name, i) => {
     for (let user of users){
         if (name == user.player.gamerTag){
@@ -63,6 +64,7 @@ let result = names.map( (name, i) => {
     return {slug: null, name: name}
 })
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

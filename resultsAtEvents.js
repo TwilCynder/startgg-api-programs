@@ -12,7 +12,6 @@ import { getStandingsFromUsers } from "./include/getStandingsFromUser.js";
 import { getMostRelevantName } from "./include/getMostRelevantName.js";
 
 //========== CONFIGURING PARAMETERS ==============
-
 let {
     userSlugs, filename, userDataFile, filterUsers,
     eventSlugs, eventsFilenames, 
@@ -44,10 +43,6 @@ let {
 let silent = doWePrintFromArgs(allArgs);
 if (silent) muteStdout();
 
-// ========  PROCESSING INPUT PARAMETERS ========
-
-let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
-
 // ======== PREPARING OUTPUT =========
 
 const textFunctions = {
@@ -76,7 +71,7 @@ const defaultLineFunctions = [
 const lineFunctions = getLineFormatFunctions(line_format, textFunctions, defaultLineFunctions, ["results"]);
 
 //========== LOADING DATA ==============
-
+let events = await readEventSlugsLists(eventSlugs, eventsFilenames);
 let limiter = new StartGGDelayQueryLimiter;
 
 let [users, data, filters] = await Promise.all([
@@ -137,9 +132,8 @@ if (minimumIn){
 
 data = data.sort((a, b) => a.tournament.startAt - b.tournament.startAt);
 
-if (silent) unmuteStdout();
-
 //========== OUTPUT ==============
+if (silent) unmuteStdout();
 
 outputFromArgs(allArgs, data, (data) => {
     let resultString = "";

@@ -7,6 +7,7 @@ import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js"
 import { getEventsResults } from "./include/getEventResults.js";
 import { getResultsByPlayerInline } from "./include/getResultsByPlayer.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, inputfile, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
@@ -18,6 +19,7 @@ let {eventSlugs, eventsFilenames, inputfile, allArgs} = argumentsManager()
 let [logdata, silent] = doWeLogFromArgs(allArgs);
 if (silent) muteStdout();
 
+//======== LOADING DATA ========
 eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let client = await createClientAuto();
@@ -25,8 +27,10 @@ let limiter = new StartGGDelayQueryLimiter();
 
 let events = await readMultimodalArrayInput(inputfile, getEventsResults(client, extractSlugs(eventSlugs), undefined, limiter));
 
+//======== PROCESSING DATA ========
 let data = getResultsByPlayerInline(events);
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){

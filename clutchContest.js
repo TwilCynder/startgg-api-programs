@@ -11,6 +11,7 @@ import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { outputFromArgs, readMultimodalArrayInput } from "./include/lib/util.js";
 import { yellow } from "./include/lib/consoleUtil.js";
 
+//======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, inputfile, names, top, min_sets, allArgs} = argumentsManager()
     .apply(addEventParsers)
     .apply(addInputParams)
@@ -25,15 +26,16 @@ let [logdata, silent] = doWeLogFromArgs(allArgs);
 
 if (silent) muteStdout();
 
+// ======== LOADING DATA ========
 eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames)
 
 let client = createClient();
 let limiter = new StartGGDelayQueryLimiter();
-
 let data = await readMultimodalArrayInput(inputfile, 
     eventSlugs.length > 0 ? getEventsSetsBasic(client, eventSlugs, limiter) : null
 )
 
+//======== PROCESSING DATA ========
 data = data.reduce( (prev, curr) => {
     return curr ? prev.concat(curr) : prev;
 }, []);
@@ -98,6 +100,7 @@ if (names){
 
 limiter.stop();
 
+//======== OUTPUT ========
 if (silent) unmuteStdout();
 
 if (logdata){
