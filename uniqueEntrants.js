@@ -10,9 +10,9 @@ import { getSortedAttendanceFromEvents } from "./include/getAttendance.js";
 
 //======== CONFIGURING PARAMETERS ========
 let {eventSlugs, eventsFilenames, name, count, minimum, inputfile, allArgs} = argumentsManager()
-    .apply(addEventParsers)
     .apply(addInputParams)
     .apply(addOutputParams)
+    .apply(addEventParsers)
     .addOption(["-m", "--minimum"], {description: "Filter users who attended less than this many events", type: "number"})
     .addSwitch(["-c", "--count"], {description: "Output the number of unique entrants"})
     .addSwitch(["--name"], {description: "Output the name instead of the slug"})

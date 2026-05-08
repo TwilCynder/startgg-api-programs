@@ -329,6 +329,10 @@ function isThereAnyOutputFile(outputFiles, formattedOutput){
     return (outputFiles && outputFiles.length) || (formattedOutput && formattedOutput.files);
 }
 
+function areWePrintingAnything(printdata, formattedOutput){
+    return printdata || (formattedOutput && formattedOutput.prints);
+}
+
 /**
  * @param {boolean} printdata 
  * @param {string} outputfile 
@@ -357,6 +361,7 @@ export function doWePrintFromArgs(args){
  * @returns [logdata, silent]
  */
 export function doWeLog(logdata, printdata, outputfile, silent, formattedOutput){
+    printdata = areWePrintingAnything(printdata, formattedOutput)
     return [
         logdata || (!printdata && !isThereAnyOutputFile(outputfile, formattedOutput) && !silent),
         isSilent(printdata, silent)
