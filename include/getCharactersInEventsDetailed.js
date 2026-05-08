@@ -1,6 +1,6 @@
 import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
-import { getQueryLogConfig, getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap, reduceSetsInEvents } from './getSetsInEvents.js';
+import { getQueryLogConfig, getSetsInEvent, getSetsInEvents, getSetsInEventsAsEventObjects, getSetsInEventsFromObjects, getSetsInEventsHashmap, reduceSetsInEvents } from './getSetsInEvents.js';
 import { processSets } from './processCharacterStats.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSetsCharacter.gql");
@@ -26,6 +26,10 @@ export function getSetsCharsDetailedInEventsHashMap(client, slugs, limiter){
 
 export function getSetsCharsDetailedInEventsFromObjects(client, events, limiter){
     return getSetsInEventsFromObjects(client, query, events, limiter);
+}
+
+export function getSetsCharsDetailedInEventsAsEventObjects(client, events, limiter){
+    return getSetsInEventsAsEventObjects(client, query, events, limiter);
 }
 
 export async function getCharsDetailedInEvent(client, slug, limiter, updateFunction){

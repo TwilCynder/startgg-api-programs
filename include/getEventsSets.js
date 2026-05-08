@@ -1,5 +1,5 @@
 import { Query } from 'startgg-helper';
-import { getQueryLogConfig, getSetsInEvent, getSetsInEvents, getSetsInEventsFromObjects, getSetsInEventsHashmap, getSetsInEventsSeparated} from './getSetsInEvents.js';
+import { getQueryLogConfig, getSetsInEvent, getSetsInEvents, getSetsInEventsAsEventObjects, getSetsInEventsFromObjects, getSetsInEventsHashmap, getSetsInEventsSeparated} from './getSetsInEvents.js';
 import { readSchema } from './lib/util.js';
 
 const schema = readSchema(import.meta.url, "./GraphQLSchemas/EventSets.gql");
@@ -25,4 +25,8 @@ export function getEventsSetsBasicHashmap(client, slugs, limiter){
 
 export function getEventsSetsBasicFromObjects(client, events, limiter){
     return getSetsInEventsFromObjects(client, query, events, limiter);
+}
+
+export function getEventsSetsBasicAsEventObjects(client, slugs, limiter){
+    return getSetsInEventsAsEventObjects(client, query, slugs, limiter);
 }

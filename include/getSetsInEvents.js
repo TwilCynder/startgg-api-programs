@@ -68,22 +68,41 @@ export async function reduceSetsInEvents(client, query, slugs, callback, initVal
 /**
  * @param {GraphQLClient} client 
  * @param {Query} query 
+ * @param {Object} event
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {QueriesProgressManager | string?} progressManager 
+ */
+async function getSetsInEventFromObject(client, query, event, limiter, progressManager){
+    if (!event.slug) {
+        console.error("Event object with no slug :", event);
+        return event;
+    }
+    const data = await getSetsInEvent(client, query, event.slug, limiter, progressManager);
+    event.sets = data;
+    return event;
+}
+
+/**
+ * @param {GraphQLClient} client 
+ * @param {Query} query 
  * @param {Object[]} events 
  * @param {TimedQuerySemaphore} limiter 
  * @param {QueriesProgressManager | string?} progressManager 
- * @returns 
  */
 export function getSetsInEventsFromObjects(client, query, events, limiter, progressManager){
-    return Promise.all(events.map(async event => {
+    return Promise.all(events.map(event => getSetsInEventFromObject(client, query, event, limiter, progressManager)));
+}
 
-        if (!event.slug) {
-            console.error("Event object with no slug :", event);
-            return event;
-        }
-        const data = await getSetsInEvent(client, query, event.slug, limiter, progressManager);
-        event.sets = data;
-        return event;
-    }))
+/**
+ * 
+ * @param {GraphQLClient} client 
+ * @param {Query} query 
+ * @param {string[]} slugs 
+ * @param {TimedQuerySemaphore} limiter 
+ * @param {QueriesProgressManager | string?} progressManager 
+ */
+export function getSetsInEventsAsEventObjects(client, query, slugs, limiter, progressManager){
+    return Promise.all(slugs.map(slug => getSetsInEventFromObject(client, query, {slug}, limiter, progressManager)));
 }
 
 export function getQueryLogConfig(name){
