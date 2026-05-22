@@ -1,5 +1,5 @@
 import { ArgumentsManager, Parser } from "@twilcynder/arguments-parser"
-import { nullArray } from "./util.js";
+import { isThereAnyOutputFile, nullArray } from "./util.js";
 
 //ça ça reste ici
 
@@ -325,10 +325,6 @@ export function addUsersParams(argumentsManager){
     })
 }
 
-function isThereAnyOutputFile(outputFiles, formattedOutput){
-    return (outputFiles && outputFiles.length) || (formattedOutput && formattedOutput.files);
-}
-
 function areWePrintingAnything(printdata, formattedOutput){
     return printdata || (formattedOutput && formattedOutput.prints);
 }
@@ -358,16 +354,19 @@ export function doWePrintFromArgs(args){
  * @param {string[]} outputfile 
  * @param {boolean} silent 
  * @param {Output[]} formattedOutput 
- * @returns [logdata, silent]
+ * @returns [logdata, silent, printdata]
  */
 export function doWeLog(logdata, printdata, outputfile, silent, formattedOutput){
-    printdata = areWePrintingAnything(printdata, formattedOutput)
+    printdata = printdata || !isThereAnyOutputFile(outputfile, formattedOutput);
     return [
-        logdata || (!printdata && !isThereAnyOutputFile(outputfile, formattedOutput) && !silent),
-        isSilent(printdata, silent)
+        logdata || (!printdata && !silent),
+        isSilent(areWePrintingAnything(printdata, formattedOutput), silent),
+        printdata
     ]
 }
 
 export function doWeLogFromArgs(args){
-    return doWeLog(args.logdata, args.printdata, args.outputFiles, args.silent, args.formattedOutput);
+    const res = doWeLog(args.logdata, args.printdata, args.outputFiles, args.silent, args.formattedOutput);
+    args.printdata = res[2];
+    return res;
 }

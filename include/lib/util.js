@@ -208,6 +208,10 @@ function registerOutput(formatArrays, filename, format){
     arr.push(filename);
 }
 
+export function isThereAnyOutputFile(outputFiles, formattedOutput){
+    return (outputFiles && outputFiles.length) || (formattedOutput && formattedOutput.files);
+}
+
 /**
  * Manages output for a script able to log readable data, output JSON, and output CSV
  * @template T

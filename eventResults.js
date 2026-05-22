@@ -22,7 +22,6 @@ let {replacementsFile, eventSlugs, eventsFilenames, sorted, line_format, inputfi
     .addSwitch(["-S", "--sorted"], {description: "Sort by start time"})
     //.addSwitch(["-u", "--output-slug"], {dest: "outSlug", description: "Include event slugs in the csv output"})
     .addOption(["-L", "--line-format"], {description: 'String describing the format of each line. It should contain words separated by spaces ; words should be "date", "eventName", "tournamentName", "name", "slug", "size", "blank" and "results". "results" is added automatically at the end if not present.'})
-    .apply(addEventParsers)
     .enableHelpParameter()
 
     .parseProcessArguments()
@@ -67,7 +66,8 @@ const textFunctions = {
         name = substituteName(name);
         return name;
     }).join("\t"),
-    weekly: (event) => event.isWeekly ? "TRUE" : "FALSE"
+    weekly: (event) => event.isWeekly ? "TRUE" : "FALSE",
+    blank: () => ""
 }
 
 const defaultLineFunctions = [
@@ -80,6 +80,7 @@ const defaultLineFunctions = [
 /** @type {(typeof textFunctions.date)[]} */
 let lineFunctions;
 if (line_format){
+    lineFunctions = [];
     let resultsUsed = false;
     for (const word of line_format.split(/\s+/g)){
         if (!word) continue;
@@ -101,10 +102,8 @@ if (line_format){
 eventSlugs = await readEventSlugsLists(eventSlugs, eventsFilenames);
 
 let limiter = new StartGGDelayQueryLimiter();
-let events = await readMultimodalArrayInput(inputfile, getEventsResults(client, extractSlugs(eventsSlugs), undefined, limiter))  ;
+let events = await readMultimodalArrayInput(inputfile, getEventsResults(client, eventSlugs, undefined, limiter))  ;
 limiter.stop()
-
-console.log(events.length);
 
 function getEventStartTime(event){
     return event.startAt ?? event.tournament.startAt;

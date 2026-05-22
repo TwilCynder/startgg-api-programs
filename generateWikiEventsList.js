@@ -10,7 +10,7 @@ import { extractSlugs } from "startgg-helper";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 //======== CONFIGURING PARAMETERS ========
-let {eventSlugs, eventsFilenames, outputfile, printdata, silent, inputfile} = argumentsManager()
+let {eventSlugs, eventsFilenames, outputFiles, printdata, silent, inputfile} = argumentsManager()
     .apply(addOutputParamsBasic)
     .apply(addInputParams)
     .apply(addEventParsers)
@@ -56,7 +56,7 @@ for (let ev of data){
 
 //======== OUTPUT ========
 if (silent_) unmuteStdout();
-outputText(result, outputfile, printdata);
+outputText(result, outputFiles, printdata);
 
 /*
 Example wiki line : 
