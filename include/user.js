@@ -98,13 +98,19 @@ export class User {
      * @param {boolean} asMap Returns the users in a map, with the slug as key for each user
      */
     static async createUsersMultimodal(client, limiter, slugs, slugsFile, datafile, listOnly, asMap){
-        if (listOnly){
-            let array = await this._createUsersMultimodalFiltered(client, limiter, slugs, slugsFile, datafile);
-            return asMap ? new Map(array.map(user => [user.slug, user])) : array;
+        if (datafile){
+            if (listOnly){
+                let array = await this._createUsersMultimodalFiltered(client, limiter, slugs, slugsFile, datafile);
+                return asMap ? new Map(array.map(user => [user.slug, user])) : array;
+            } else {
+                let map = await this._createUsersMultimodal(client, limiter, slugs, slugsFile, datafile);
+                return asMap ? map : Array.from(map.values());
+            }
         } else {
-            let map = await this._createUsersMultimodal(client, limiter, slugs, slugsFile, datafile);
-            return asMap ? map : Array.from(map.values());
+            slugs = await readUsersFile(slugsFile, slugs);
+            return await Promise.all(slugs.map(slug => this.loadUser(client, slug, limiter)));
         }
+
     }
 
 }

@@ -43,6 +43,8 @@ limiter.stop();
 
 //============ PROCESSING DATA ================
 
+console.log(users, world)
+
 users.forEach(user => Object.assign(user, {w: 0, l: 0}))
 
 function get_user_slug(slot){
@@ -52,7 +54,7 @@ function get_user_slug(slot){
 function find_user(users, slot){
     let slug = get_user_slug(slot);
     for (let user of users){
-        if (slug == user.slug){
+        if (slug && slug.includes(user.slug)){
             return user;
         }
     }
@@ -106,6 +108,7 @@ if (logdata){
 }
 
 outputFromArgs(allArgs, users, (users) => {
+    let res = "";
     if (scoreonly){
         for (let user of users){
             res += user.w + '\t' + user.l + '\n';
@@ -116,5 +119,5 @@ outputFromArgs(allArgs, users, (users) => {
         }
     }
 
-    return result;
+    return res;
 })

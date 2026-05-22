@@ -106,6 +106,10 @@ export function columnsln(...text){
     return columns(...text) + '\n';
 }
 
+export function nonNulltext(text){
+    return text ?? "";
+}
+
 //======== OUTPUT ========
 const PRETTY_JSON_SPACES = 4;
 const FORMAT_ALIASES = {
