@@ -357,7 +357,7 @@ export function doWePrintFromArgs(args){
  * @returns [logdata, silent, printdata]
  */
 export function doWeLog(logdata, printdata, outputfile, silent, formattedOutput){
-    printdata = printdata || !isThereAnyOutputFile(outputfile, formattedOutput);
+    printdata = printdata || (!isThereAnyOutputFile(outputfile, formattedOutput) && !logdata);
     return [
         logdata || (!printdata && !silent),
         isSilent(areWePrintingAnything(printdata, formattedOutput), silent),
