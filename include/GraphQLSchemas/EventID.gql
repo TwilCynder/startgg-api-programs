@@ -1,0 +1,5 @@
+query MyTournamentsQuery ($slug: String!) {
+	event(slug: $slug){
+    id
+  }
+}
