@@ -48,7 +48,7 @@ let {charactersInfoFilename, gameSlug,
 
 if (minGamesPlayer > 0) processPlayers = true;
 if (!gameSlug && !charactersInfoFilename){
-    errorExit(1, "Neither <charactersInfoFilename> or <gameSlug> were specified (using -s or -f respectively)")
+    errorExit(1, "Neither <charactersInfoFilename> or <gameSlug> were specified (using -f or -g respectively)")
 }
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);
