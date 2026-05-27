@@ -4,7 +4,7 @@ import { StartGGDelayQueryLimiter, toUNIXTimestamp } from "startgg-helper-node";
 import { getEventsByDate } from "./include/getEventsByDate.js";
 import { filterEventsFromTournament } from "./include/filterEvents.js";
 import { createClientAuto } from "./include/lib/createClient.js";
-import { outputFromArgs, readEventFilterWords } from "./include/lib/util.js";
+import { errorExit, outputFromArgs, readEventFilterWords } from "./include/lib/util.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { bgreen } from "./include/lib/consoleUtil.js";
 
@@ -24,13 +24,11 @@ let {games, minEntrants, exclude_expression, filter, filterFiles, future, single
     .parseProcessArguments();
 
 if (!startDate || !endDate){
-    console.error("Must specify a start and end date");
-    process.exit(1);
+    errorExit(1, "Must specify a start and end date");
 }
 
 if (offline && online){
-    console.error("Using both --offline and --online doesn't make sense");
-    process.exit(1);
+    errorExit(1, "Using both --offline and --online doesn't make sense");
 }
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);

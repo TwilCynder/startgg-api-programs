@@ -8,8 +8,7 @@ let {inputfile} = argumentsManager("Returns the number of elements in a JSON arr
 
 let data = await tryReadJSONArray(inputfile);
 if (!data) {
-    console.error("No input");
-    process.exit(1);
+    errorExit(2, "No input");
 }
 
 console.log(data.length);

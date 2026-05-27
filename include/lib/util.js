@@ -159,7 +159,7 @@ function writeOutputs(filenames, text){
 }
 
 function handleTextOutputs(filenames, data, CSVTransform){
-    const text = CSVTransform(data);
+    const text = CSVTransform ? CSVTransform(data) : String(data);
     writeOutputs(filenames, text);
 }
 
@@ -387,7 +387,7 @@ export function aggregateArrayDataPromises(promises){
  * @returns 
  */
 export function readMultimodalArrayInput(inputfile, APIPromise){
-    return aggregateArrayDataPromises([tryReadJSONInput(inputfile), APIPromise]);
+    return aggregateArrayDataPromises([tryReadJSONArray(inputfile), APIPromise]);
 }
 
 /**
@@ -440,8 +440,7 @@ export function getLineFormatFunctions(line_format, textFunctions, defaultLineFu
 
             const f = textFunctions[word];
             if (!f) {
-                console.error("Bad property name in line format :", word, ". Possible names are " + Object.keys(textFunctions).join(", "));
-                process.exit(1);
+                errorExit(1, "Bad property name in line format :", word, ". Possible names are " + Object.keys(textFunctions).join(", "));
             }
             if (f) lineFunctions.push(f);
         }
@@ -467,4 +466,9 @@ export function generateLineUsingLineFunctions(object, lineFunctions){
 
 export function nullArray(arr){
     return !arr || arr.length < 1
+}
+
+export function errorExit(code, ...errors){
+    console.error(...errors);
+    process.exit(code);
 }

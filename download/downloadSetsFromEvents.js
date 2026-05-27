@@ -5,7 +5,7 @@ import { StartGGDelayQueryLimiter } from "startgg-helper";
 
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 import { addInputParams, addOutputParamsJSON, argumentsManager, doWePrintFromArgs } from "../include/lib/paramConfig.js";
-import { outputJSONFromArgs, tryReadJSONArray } from "../include/lib/util.js";
+import { errorExit, outputJSONFromArgs, tryReadJSONArray } from "../include/lib/util.js";
 import { queriesProgressManager } from "../include/progressSaver.js";
 import { formatM } from "../include/lib/consoleUtil.js";
 
@@ -36,8 +36,7 @@ if (silent) muteStdout();
 /** @type {typeof GETTER_LOADERS.basic} */
 const getterLoader = GETTER_LOADERS[type];
 if (!getterLoader){
-    console.error("Invalid type (value of -T/--type argument can only be bare, basic, chars, charsOnly or games");
-    process.exit(1);
+    errorExit(1, "Invalid type (value of -T/--type argument can only be bare, basic, chars, charsOnly or games");
 }
 
 let [events, eventObjects, getters] = await Promise.all([readEventSlugsLists(eventSlugs, eventsFilenames), tryReadJSONArray(inputfile), getterLoader()]);

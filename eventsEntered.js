@@ -2,7 +2,7 @@ import { addEventFilterParams, addOutputParams, argumentsManager, doWeLogFromArg
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { client } from "./include/lib/client.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
-import { outputFromArgs, readEventFilterWords, readUsersFile } from "./include/lib/util.js";
+import { errorExit, outputFromArgs, readEventFilterWords, readUsersFile } from "./include/lib/util.js";
 import { filterEvents, filterEventsFromList } from "./include/filterEvents.js";
 import { addEventParsersSwitchable, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { logFilters } from "./include/logFilters.js";

@@ -1,6 +1,6 @@
 import { addOutputParams, argumentsManager, doWeLog, doWeLogFromArgs } from "./include/lib/paramConfig.js";
 import { readJSONInput, readText, stat } from "./include/lib/readUtil.js";
-import { columnsln, outputFromArgs, parseCSV } from "./include/lib/util.js";
+import { columnsln, errorExit, outputFromArgs, parseCSV } from "./include/lib/util.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 import { getEventResults } from "./include/getEventResults.js";
 import { client } from "./include/lib/client.js";
@@ -46,7 +46,7 @@ const CSVSchema = Object.assign(defaultCSVSchema, {
 const maxCPStanding = CSVSchema.CPend - CSVSchema.CPstart + 1;
 
 const [tournamentData, standingsCache] = await Promise.all([
-    readText(filename).then(text => parseCSV(text, {separator: "\t"})).catch(err => {console.error("Could not read input file :", err) ; process.exit(1)}),
+    readText(filename).then(text => parseCSV(text, {separator: "\t"})).catch(err => errorExit(2, "Could not read input file :", err)),
     (data_cache && await stat(data_cache)) ? readJSONInput(data_cache) : {}
 ]);
 

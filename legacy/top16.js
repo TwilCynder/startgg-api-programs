@@ -1,4 +1,5 @@
 import { request, GraphQLClient } from 'graphql-request';
+import { errorExit } from '../include/lib/util';
 
 const endpoint = 'https://api.smash.gg/gql/alpha'
 
@@ -32,8 +33,7 @@ query EventStandings($eventId: ID!, $page: Int!, $perPage: Int!) {
 `
 
 if (process.argv.length < 3 ){
-  console.log("Need one argument");
-  process.exit()
+  errorExit(1, "Need one argument");
 }
 
 let eventId = parseInt(process.argv[2]);

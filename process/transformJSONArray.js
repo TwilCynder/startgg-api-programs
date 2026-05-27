@@ -1,6 +1,6 @@
 import { ArgumentsManager } from "@twilcynder/arguments-parser";
 import { addOutputParams, addOutputParamsCustom, addOutputParamsJSON, argumentsManager, doWePrintFromArgs, isSilent } from "../include/lib/paramConfig.js";
-import { output, outputFromArgs, outputJSON, tryReadJSONArray } from "../include/lib/util.js";
+import { errorExit, output, outputFromArgs, outputJSON, tryReadJSONArray } from "../include/lib/util.js";
 import { deep_get } from "startgg-helper-node";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
@@ -71,8 +71,7 @@ if (silent) muteStdout();
 let data = await tryReadJSONArray(inputfile);
 
 if (!(data instanceof Array)){
-    console.error("Input data is not an array");
-    process.exit(1);
+    errorExit(3, "Input data is not an array");
 }
 
 // ======== PROCESSING ========
@@ -82,15 +81,13 @@ for (let i = 0; i < operations.length; i++){
     const op = transformOps[word];
 
     if (!op){
-        console.error("Unknown operation :", word);
-        process.exit(1);
+        errorExit(1, "Unknown operation :", word);
     }
 
     const nbParams = op.params ?? 0;
 
     if(operations.length < i + nbParams){
-        console.error("Not enough arguments for operation", word);
-        process.exit(1);
+        errorExit(1, "Not enough arguments for operation", word);
     }
 
     const params = operations.slice(i + 1, i + nbParams + 1);

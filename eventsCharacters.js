@@ -4,7 +4,7 @@ import { getCharsStatsInSets, getUpdateFunction } from './include/processCharact
 import { client } from './include/lib/client.js';
 import { loadCharactersInfo } from './include/loadVideogameContent.js';
 import { addInputParams, addOutputParams, argumentsManager, doWeLogFromArgs } from './include/lib/paramConfig.js';
-import {  outputFromArgs, readMultimodalArrayInput } from './include/lib/util.js';
+import {  errorExit, outputFromArgs, readMultimodalArrayInput } from './include/lib/util.js';
 import { StartGGDelayQueryLimiter } from 'startgg-helper';
 import { muteStdout, unmuteStdout } from './include/lib/fileUtil.js';
 import { getGamesNbInSets } from './include/getGamesNbInSets.js';
@@ -48,7 +48,7 @@ let {charactersInfoFilename, gameSlug,
 
 if (minGamesPlayer > 0) processPlayers = true;
 if (!gameSlug && !charactersInfoFilename){
-    throw "Neither <charactersInfoFilename> or <gameSlug> were specified (using -s or -f respectively)"
+    errorExit(1, "Neither <charactersInfoFilename> or <gameSlug> were specified (using -s or -f respectively)")
 }
 
 let [logdata, silent] = doWeLogFromArgs(allArgs);

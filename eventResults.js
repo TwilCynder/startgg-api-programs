@@ -5,7 +5,7 @@ import { extractSlugs } from "startgg-helper-node"
 import { addEventParsers, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { StartGGDelayQueryLimiter } from "startgg-helper";
 import { addInputParams, addOutputParamsNoLog, argumentsManager, doWeLog, doWeLogFromArgs } from "./include/lib/paramConfig.js";
-import { dateText, generateLineUsingLineFunctions, output, outputFromArgs, readMultimodalArrayInput, splitWhitespace } from "./include/lib/util.js";
+import { dateText, errorExit, generateLineUsingLineFunctions, output, outputFromArgs, readMultimodalArrayInput, splitWhitespace } from "./include/lib/util.js";
 import { readLinesAsync } from "./include/lib/readUtil.js";
 import { getMostRelevantName } from "./include/getMostRelevantName.js";
 
@@ -86,8 +86,7 @@ if (line_format){
         if (!word) continue;
         const f = textFunctions[word];
         if (!f) {
-            console.error("Bad property name in line format :", word, ". Possible names are " + Object.keys(textFunctions).join(", "));
-            process.exit(1);
+            errorExit(1, "Bad property name in line format :", word, ". Possible names are " + Object.keys(textFunctions).join(", "));
         }
         if (f == textFunctions.results) resultsUsed = true;
         if (f) lineFunctions.push(f);

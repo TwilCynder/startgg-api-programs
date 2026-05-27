@@ -47,7 +47,7 @@ if (logdata){
     }
 }
 
-outputFromArgs(allArgs, count ? users.length : users, (users) => {
+outputFromArgs(allArgs, count ? users.length : users, count ? null : (users) => {
     let resultString = "";
     if (name){
         for (let user of users){

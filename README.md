@@ -24,3 +24,9 @@ Each script has a -h/--help option that can be used to get more information abou
 Files read as event slug lists (passed to some scripts using the -F/--events-file option) will be read according to the SLL format : 
 - One slug per line
 - If a slug contains the character "%", and is followed by two integers, it will be *expanded* by replacing the "%" with all integers between the two specified (inclusive on both sides)
+
+### Error codes
+- 1 : Bad parameters
+- 2 : Could not read file / No input
+- 3 : Bad Input (loaded)
+- 4 : Couldn't read from start.gg (note : in these cases, most programs will display a message but won't exit with a code)

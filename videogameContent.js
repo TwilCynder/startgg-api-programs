@@ -1,7 +1,7 @@
 import { client } from "./include/lib/client.js";
 import { addOutputParamsText, argumentsManager, doWeLog } from "./include/lib/paramConfig.js";
 import { loadVideogameContent } from "./include/loadVideogameContent.js";
-import { outputTextLazy } from "./include/lib/util.js";
+import { errorExit, outputTextLazy } from "./include/lib/util.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";
 
 //======== CONFIGURING PARAMETERS ========
@@ -22,8 +22,7 @@ if (silent_) muteStdout();
 let result = await loadVideogameContent(filename, client, null, game, true);
 
 if (!result) {
-    console.error("Couldn't load videogame data.");
-    process.exit(1);
+    errorExit(4, "Couldn't load videogame data.");
 }
 
 
