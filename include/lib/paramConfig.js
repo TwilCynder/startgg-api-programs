@@ -68,8 +68,8 @@ export class FormattedOutputsParser extends Parser {
 }
 
 /**
- * Added dests : outputFiles, printdata, silent  
- * Added switchs : [o]uput_file, [p]rint-output, [s]silent  
+ * Added dests : outputFiles, printdata, silent, verbose
+ * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [v]erbose
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsBasic(argumentsManager){
@@ -84,6 +84,9 @@ export function addOutputParamsBasic(argumentsManager){
         })
         .addSwitch(["-s", "--silent"], {
             description: "Do not log anything besides the output. True by default if printing the output to stdout"
+        })
+        .addSwitch(["-v", "--verbose"], {
+            description: "Always log to the standard output, even if printing the output there. For debug purposes mainly"
         })
 }
 
@@ -331,15 +334,15 @@ function areWePrintingAnything(printdata, formattedOutput){
 
 /**
  * @param {boolean} printdata 
- * @param {string} outputfile 
+ * @param {boolean} verbose 
  * @param {boolean} silent 
  */
-export function isSilent(printdata, silent){
-    return silent || printdata;
+export function isSilent(printdata, silent, verbose){
+    return !verbose && (silent || printdata);
 }
 
 export function isSilentFromArgs(args){
-    return isSilent(args.printdata, args.silent);
+    return isSilent(args.printdata, args.silent, args.verbose);
 }
 
 export function doWePrintFromArgs(args){
@@ -356,17 +359,17 @@ export function doWePrintFromArgs(args){
  * @param {Output[]} formattedOutput 
  * @returns [logdata, silent, printdata]
  */
-export function doWeLog(logdata, printdata, outputfile, silent, formattedOutput){
+export function doWeLog(logdata, printdata, outputfile, silent, formattedOutput, verbose){
     printdata = printdata || (!isThereAnyOutputFile(outputfile, formattedOutput) && !logdata);
     return [
         logdata || (!printdata && !silent),
-        isSilent(areWePrintingAnything(printdata, formattedOutput), silent),
+        isSilent(areWePrintingAnything(printdata, formattedOutput), silent, verbose),
         printdata
     ]
 }
 
 export function doWeLogFromArgs(args){
-    const res = doWeLog(args.logdata, args.printdata, args.outputFiles, args.silent, args.formattedOutput);
+    const res = doWeLog(args.logdata, args.printdata, args.outputFiles, args.silent, args.formattedOutput, args.verbose);
     args.printdata = res[2];
     return res;
 }

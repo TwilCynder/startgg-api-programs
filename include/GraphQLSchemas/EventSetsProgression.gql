@@ -1,0 +1,27 @@
+query EventSetsProgression ($slug: String!, $page: Int) {
+	event(slug: $slug){
+    sets (page: $page) {
+      pageInfo {
+        totalPages
+      }
+      nodes {
+        id
+        state
+        identifier
+        fullRoundText
+        #Progression data starts here
+        winnerProgressionSeed {
+          id
+        }
+        entrant1Source {
+          type
+          typeId
+        }
+        entrant2Source {
+          type
+          typeId
+        }
+      }
+    }
+  }
+}

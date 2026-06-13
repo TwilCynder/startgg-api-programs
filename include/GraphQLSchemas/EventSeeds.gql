@@ -1,0 +1,25 @@
+query EventSeeds ($slug: String!) {
+	event(slug: $slug){
+		phaseGroups {
+      seeds (query: {page: 1, perPage: 500}) {
+        pageInfo {
+          totalPages
+        }
+				nodes {
+          id
+          entrant {
+            participants {
+              user {
+                slug
+              }
+              player {
+                id
+                gamerTag
+              }
+            }
+          }
+      	}
+      }
+    }
+  }
+}
