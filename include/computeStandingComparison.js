@@ -85,8 +85,8 @@ function processEvent(ev, matrix){
         if (standing.entrant.isDisqualified) continue;
         if (!standing.entrant.participants[0].user) continue;
 
-        let id = standing.entrant.participants[0].user.id;
-        
+        let id = standing.entrant.participants[0].player.id;
+
         if (matrix[id]){
             for (let userID of currentTier){
                 draw(matrix, userID, id);

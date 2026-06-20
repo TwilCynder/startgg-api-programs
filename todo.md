@@ -1,5 +1,6 @@
 ## Small things
 
+- Finir l'amélioration des head2head (voir le stash)
 - Généraliser l'utilisation de tryReadJSONArray
 - Généraliser l'utilsation du saveManager (à partir de downloadSetsFromEventsBare)
   - Commencer par propager aux autres downloadSetsFromEvents, puis aux autres downloads
@@ -8,6 +9,7 @@
 - Supporter directement les * (ou équivalent) dans les input filename, avec fs.glob()
 - Généraliser le système de format string (voir --line-format)
 - Utiliser (ou au moins supporter) la version Bare des données pour les scripts genre standingComparison, leagueHead2Head, globalement tous ceux qui supportent un "users file", vu qu'avec un users file fetch le gamerTag à chaque fois c'est redondant (et coûteux)
+- Créer un système de types, qui simplifierait les objets traités (voir comment je crée des objets simplifiés dans le rankingLopraz) ; peut être en profiter pour unifier certains types au niveau graphql, créer des typedefs une fois que c'est fait voire passer à typescript
 - Implémenter un QueryManager, avec un tryLoad, pour les fonctions qui peuvent utiliser plusieurs queries *ou pas*
 - Ajouter le système de gestion de game content à sgg-helper
 - Faire un package NPM
