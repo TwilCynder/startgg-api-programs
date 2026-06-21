@@ -322,7 +322,7 @@ export function addUsersParams(argumentsManager){
         dest: "userDataFile",
         description: "File containing user data"
     })
-    .addSwitch(["--users-list-only"], {
+    .addSwitch(["-U", "--users-list-only"], {
         dest: "filterUsers",
         description: "Use only the users in the list specified with -f, even if more are present in the data file specified with -D"
     })
