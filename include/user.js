@@ -4,11 +4,29 @@ import { TimedQuerySemaphore } from 'startgg-helper';
 import { extractUserDiscriminator, readUsersFile, tryReadJSONArray } from './lib/util.js';
 
 
+/**
+ * @param {any[]} usersData 
+ */
 function _createUsersMap(usersData){
     return new Map(usersData.map(userInfo => {
         let user = new User(userInfo);
         return [user.slug, user]
     }));
+}
+
+/**
+ * @param {User[]} array 
+ */
+function _mapFromArray(array){
+    return new Map(array.map(user => [user.slug, user]))
+}
+
+/**
+ * @param {User[]} array 
+ * @param {boolean | "both"} asMap 
+ */
+function _arrayAndOrMapFromArray(array, asMap){
+    return asMap == "both" ? [array, _mapFromArray(array)] : asMap ? _mapFromArray(array) : array;
 }
 
 export class User {
@@ -78,6 +96,7 @@ export class User {
         let usersMap = _createUsersMap(usersData);
 
         return await Promise.all(slugs_.map(async slug => {
+            slug = extractUserDiscriminator(slug)
             let fromMap = usersMap.get(slug);
             if (fromMap){
                 return fromMap;
@@ -95,20 +114,20 @@ export class User {
      * @param {string} slugsFile File containing a list of slugs
      * @param {string} datafile File containing an array of pre-fetched user data
      * @param {boolean} listOnly Use only the users present in the slugs list ; the data file is only used to avoid redundant fetches.
-     * @param {boolean} asMap Returns the users in a map, with the slug as key for each user
+     * @param {boolean | "both"} asMap Returns the users in a map, with the slug as key for each user
      */
     static async createUsersMultimodal(client, limiter, slugs, slugsFile, datafile, listOnly, asMap){
         if (datafile){
             if (listOnly){
                 let array = await this._createUsersMultimodalFiltered(client, limiter, slugs, slugsFile, datafile);
-                return asMap ? new Map(array.map(user => [user.slug, user])) : array;
+                return _arrayAndOrMapFromArray(array, asMap);
             } else {
                 let map = await this._createUsersMultimodal(client, limiter, slugs, slugsFile, datafile);
-                return asMap ? map : Array.from(map.values());
+                return asMap == "both" ? [Array.from(map.values(), map)] : asMap ? map : Array.from(map.values());
             }
         } else {
             slugs = await readUsersFile(slugsFile, slugs);
-            return await Promise.all(slugs.map(slug => this.loadUser(client, slug, limiter)));
+            return await Promise.all(slugs.map(slug => this.loadUser(client, slug, limiter))).then(array => _arrayAndOrMapFromArray(array, asMap));
         }
 
     }
