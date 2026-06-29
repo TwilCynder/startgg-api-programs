@@ -1,4 +1,4 @@
-import { getEntrants, getEntrantsForEvents, getUniqueUsersOverLeague } from './getEntrantsGeneric.js';
+import { getEntrants, getEntrantsForEvents, getEntrantsFromObjects, getUniqueUsersOverLeague } from './getEntrantsGeneric.js';
 import { Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
 
@@ -16,6 +16,10 @@ export function getEntrantsExtended(client, slug, limiter, silentErrors){
 
 export function getEntrantsExtendedForEvents(client, slugs, limiter, silentErrors){
     return getEntrantsForEvents(query, client, slugs, limiter, silentErrors);
+}
+
+export function getEntrantsExtendedFromObjects(client, events, limiter, silentErrors){
+    return getEntrantsFromObjects(query, client, events, limiter, silentErrors)
 }
 
 export function getUniqueUsersExtendedOverLeague(client, slugs, limiter, silentErrors){

@@ -21,6 +21,18 @@ export async function getEntrantsCount(client, slug, limiter, silentErrors = fal
     return data.event.numEntrants;
 }
 
+export function getEntrantsCountFromObjects(query, client, events, limiter, silentError = false){
+    return Promise.all(events.map( async event => {
+        if (!event.slug) {
+            console.error("Event object with no slug :", event);
+            return event;
+        }
+        const count = await getEntrantsCount(query, client, event.slug, limiter, silentError);
+        event.numEntrants = count;
+        return event;
+    }));
+}
+
 export async function getEntrantsCountOverLeague(client, eventSlugs, limiter = null, saveManager){ 
     let cs = await Promise.all(eventSlugs.map( async (slug) => await getEntrantsCount(client, slug, limiter, false, saveManager)))
 
