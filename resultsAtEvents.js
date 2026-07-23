@@ -178,7 +178,6 @@ data = data.sort((a, b) => a.tournament.startAt - b.tournament.startAt);
 
 //========== OUTPUT ==============
 if (silent) unmuteStdout();
-
 if (logdata){
     if (table_mode){
         console.log("Results for", usersArray.map(user => user.name).join(", "));

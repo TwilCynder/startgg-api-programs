@@ -41,6 +41,6 @@ export async function downloadScript(parametersConfig, downloadFunction){
  * @param {Promise<any[]>} slugReadPromise
  * @param {string?} inputfile
  */
-export async function readSlugsAndObjects(slugReadPromise, inputfile){
+export async function readFileAndJSONArray(slugReadPromise, inputfile){
     return await Promise.all([slugReadPromise, tryReadJSONArray(inputfile)]);
 }

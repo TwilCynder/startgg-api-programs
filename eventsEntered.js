@@ -11,7 +11,7 @@ import { getEventsFromUsers } from "./include/getEventsFromUser.js";
 //======== CONFIGURING PARAMETERS ========
 let {
     userSlugs, filename, 
-    eventSlugs, eventsFilenames, games, minEntrants, exclude_expression, filter, filterFiles, startDate, endDate, offline, online, display_filters,
+    eventSlugs, eventsFilenames, games, minEntrants, minimumIn, exclude_expression, filter, filterFiles, startDate, endDate, offline, online, display_filters,
     slugOnly, allArgs
 } = argumentsManager()
     .setParameters({guessLowDashes: true})
@@ -26,6 +26,11 @@ let {
     .apply(addEventParsersSwitchable)
     .addSwitch("--display-filters", {description: "If this option is used the program does nothing, only displays the active filters"})
     .addSwitch(["-u", "--slug-only"], {dest: "slugOnly", description: "Only output the slug for each event"})
+    .addOption(["-M", "--minimum-in"], {
+        dest: "minimumIn",
+        type: "number",
+        description: "Minimum amount of users for an event to be included in the output"
+    })
     .setAbstract("Uses the provided events list as a blacklist")
     .enableHelpParameter()
 
@@ -49,7 +54,7 @@ if (display_filters) process.exit(0);
 
 //======== LOADING DATA ========
 let limiter = new StartGGDelayQueryLimiter;
-let data = await getEventsFromUsers(client, userSlugs_, limiter, {startDate, endDate, games, minEntrants});
+let data = await getEventsFromUsers(client, userSlugs_, limiter, {startDate, endDate, games, minEntrants}, minimumIn);
 limiter.stop();
 
 //======== PROCESSING DATA ========

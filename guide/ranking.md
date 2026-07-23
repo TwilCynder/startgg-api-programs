@@ -11,15 +11,15 @@ Also, if in a command you see text between `<>`, always replace it, braces inclu
 ## TL;DR
 - Make an algorithm ranking on braacket or smth, get a list of the top X (X being enough players to include everyone you think has a chance of getting in the final ranking, so for a final Top 20 take the top 40-50 here), copy the list of names in `data/names.txt`
 - List your local events (the events that count for your ranking ; if you want to rank them based on their performance in all tournaments they attended during the season, just make a list of events such that all the eligible players have attended at least one)
-- Run `node namesearchUsers.js -f slugs.txt --events-file data/localEvents.txt -o data/slugs.txt`
+- Run `node namesearchUsers.js -f data/names.txt --events-file data/localEvents.txt -o data/slugs.txt`
 - Check `data/slugs.txt` for "undefined" or "null" lines : you need to fill these slugs yourself (can be found on their startgg page)
 - Run `download/downloadUserInfo.js -f data/slugs.txt -o data/users.json`
 - Run `node eventsEntered.js -f data/slugs.txt -o data/events.txt --start-date <start of season date> --end-date <end of season date> --format csv -u -b session -b amateur -b ladder -b doubles -b squad-strike -g <game slug> -O`
 - Run `node download/downloadEventsStandings.js --events-file data/events.txt -o data/standings.json`. 
 - Run `node resultsAtEvents.js -i data/standings.json -D data/users.json -o out/results.csv --eventName --format csv -M 2 -u`   
   If you want two separate lists with local and outside events, instead run : 
-    - `node process/filterEvents.js -i data/standings.json --events-file data/localEvents.txt -o data/standingsLocal.json`
-    - `node process/filterEvents.js -i data/standings.json -B --events-file data/localEvents.txt -o data/standingsExt.json`
+    - `node process/filterEvents.js data/standings.json --events-file data/localEvents.txt -o data/standingsLocal.json`
+    - `node process/filterEvents.js data/standings.json -B --events-file data/localEvents.txt -o data/standingsExt.json`
     - `node resultsAtEvents.js -i data/standingsLocal.json -D data/users.json -o out/resultsLocal.csv --eventName --format csv -M 2 -u`
     - `node resultsAtEvents.js -i data/standingsExt.json -D data/users.json -o out/resultsExt.csv --eventName --format csv -M 2 -u`
 - In any case, import the CSV(s) into a spreadsheet and remove irrelevant tournaments, then copy the slugs column into `data/events.txt`

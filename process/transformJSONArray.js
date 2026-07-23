@@ -55,7 +55,7 @@ let {inputfile, operations, inplace, allArgs} = argumentsManager()
     .addParameter("inputfile", {}, false)
     .apply(addOutputParamsCustom(false, true, true))
     .addMultiParameter("operations", {description: "Supported operations : " + (Object.keys(transformOps).join(", "))})
-    .addSwitch(["-I", "--inplace"], {description: "Writes the result in the output file. Does not work with formatted outputs"})
+    .addSwitch(["-I", "--inplace"], {description: "Writes the result in the input file. Does not work with formatted outputs"})
     .enableHelpParameter()
     .parseProcessArguments();
 

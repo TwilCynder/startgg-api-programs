@@ -10,15 +10,19 @@ query.log = {
     error: params => `Request failed for event ${params.slug} ...`
 }
 
-export async function getEntrantsCount(client, slug, limiter, silentErrors = false, saveManager){
+export async function getEntrantsCountObject(client, slug, limiter, silentErrors = false, saveManager){
     let data = await executeWithSaveManager(query, saveManager, slug, client, {slug}, limiter, silentErrors);
-    //let data = await query.execute(client, {slug}, limiter, silentErrors);
     if (!data.event) {
-        console.warn("Couldn't fetch entrants for slug", slug);
+        console.warn("Couldn't fetch entrants count for slug", slug);
         return null
     };
     console.log("Fetched entrants count for slug", slug,":", data.event.numEntrants);
-    return data.event.numEntrants;
+    return data.event;
+}
+
+export async function getEntrantsCount(client, slug, limiter, silentErrors = false, saveManager){
+    let obj = (await getEntrantsCountObject(client, slug, limiter, silentErrors, saveManager));
+    return obj ? obj.numEntrants : null;
 }
 
 export function getEntrantsCountFromObjects(query, client, events, limiter, silentError = false){
@@ -29,8 +33,19 @@ export function getEntrantsCountFromObjects(query, client, events, limiter, sile
         }
         const count = await getEntrantsCount(query, client, event.slug, limiter, silentError);
         event.numEntrants = count;
-        return event;
+        return count;
     }));
+}
+
+export async function getEntrantsCountObjectForEvents(client, slugs, limiter, silentErrors = false, saveManager){
+    return Promise.all(slugs.map( async slug => ({
+        numEntrants: await getEntrantsCount(query, client, slug, limiter, silentErrors).catch( err => console.log("Slug", slug, "kaput : ", err)), 
+        slug
+    })));
+}
+
+export async function getEntrantsCountForEvents(client, slugs, limiter, silentErrors = false, saveManager){
+    return Promise.all(slugs.map(slug => getEntrantsCount(query, client, slug, limiter, silentErrors).catch( err => console.log("Slug", slug, "kaput : ", err))));
 }
 
 export async function getEntrantsCountOverLeague(client, eventSlugs, limiter = null, saveManager){ 

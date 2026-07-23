@@ -7,7 +7,7 @@
 - Généraliser l'utilisation de columns()
 - Généraliser l'utilisation du ClientManager
 - Supporter directement les * (ou équivalent) dans les input filename, avec fs.glob()
-- Généraliser le système de format string (voir --line-format)
+- Généraliser le système de format string (voir --line-format), ajouter un système de titres de lignes ?
 - Utiliser (ou au moins supporter) la version Bare des données pour les scripts genre standingComparison, leagueHead2Head, globalement tous ceux qui supportent un "users file", vu qu'avec un users file fetch le gamerTag à chaque fois c'est redondant (et coûteux)
 - Créer un système de types, qui simplifierait les objets traités (voir comment je crée des objets simplifiés dans le rankingLopraz) ; peut être en profiter pour unifier certains types au niveau graphql, créer des typedefs une fois que c'est fait voire passer à typescript
 - Implémenter un QueryManager, avec un tryLoad, pour les fonctions qui peuvent utiliser plusieurs queries *ou pas*

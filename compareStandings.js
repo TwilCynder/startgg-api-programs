@@ -1,6 +1,6 @@
 import { client } from "./include/lib/client.js";
 import { User } from "./include/user.js";
-import * as SC from "./include/computeStandingComparison.js";   
+import * as SC from "./include/computeStandingComparison.js";
 import { addEventFilterParams, addInputParams, addOutputParamsCustom, addUsersParams, argumentsManager, doWePrintFromArgs } from "./include/lib/paramConfig.js";
 import { addEventParsersSwitchable, readEventSlugsLists } from "./include/lib/computeEventList.js";
 import { muteStdout, unmuteStdout } from "./include/lib/fileUtil.js";

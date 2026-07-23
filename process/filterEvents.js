@@ -4,7 +4,7 @@ import { outputJSONFromArgs, readEventFilterWords, tryReadJSONInput } from "../i
 import { filterEventsFromList, filterEventsFromTournament } from "../include/filterEvents.js";
 import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
 
-let {inputfile, eventSlugs, eventsFilenames, exclude_expression, filter, filterFiles, blacklistMode, offline, online, minEntrants, allArgs} = argumentsManager()
+let {inputfile, inplace, eventSlugs, eventsFilenames, exclude_expression, filter, filterFiles, blacklistMode, offline, online, minEntrants, allArgs} = argumentsManager()
     .setAbstract("Applies various filters to an array of events (with or without standings). See options to see all awailable filters. Keep in mind that if any events is specified, only these events will be kept ; -B reverses this.")
     .addParameter("inputfile", {}, true)
     .apply(addEventParsersSwitchable)
@@ -12,9 +12,12 @@ let {inputfile, eventSlugs, eventsFilenames, exclude_expression, filter, filterF
     .apply(addEventGenericFilterParams)
     .apply(addEventOnlineFilterParams)
     .apply(addOutputParamsJSON)
+    .addSwitch(["-I", "--inplace"], {description: "Writes the result in the output file. Does not work with formatted outputs"})
     
     .enableHelpParameter()
     .parseProcessArguments()
+
+if (inplace) allArgs.outputFiles = [inputfile]
 
 let silent = doWePrintFromArgs(allArgs);
 if (silent) muteStdout();

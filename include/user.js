@@ -123,7 +123,7 @@ export class User {
                 return _arrayAndOrMapFromArray(array, asMap);
             } else {
                 let map = await this._createUsersMultimodal(client, limiter, slugs, slugsFile, datafile);
-                return asMap == "both" ? [Array.from(map.values(), map)] : asMap ? map : Array.from(map.values());
+                return asMap == "both" ? [Array.from(map.values()), map] : asMap ? map : Array.from(map.values());
             }
         } else {
             slugs = await readUsersFile(slugsFile, slugs);
