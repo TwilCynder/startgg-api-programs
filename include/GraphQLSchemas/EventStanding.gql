@@ -1,4 +1,4 @@
-query EventStandingsQuery($slug: String!, $numEntrants: Int) {
+query EventStandingsQuery($slug: String!, $page: Int, $perPage: Int) {
 	event(slug: $slug) {
     name
     tournament {
@@ -10,9 +10,13 @@ query EventStandingsQuery($slug: String!, $numEntrants: Int) {
     startAt
     numEntrants
     standings (query : {
-      perPage: $numEntrants,
-      page: 1
+      perPage: $perPage,
+      page: $page
     }){
+      pageInfo {
+        total
+        totalPages
+      }
       nodes {
         placement
         entrant {

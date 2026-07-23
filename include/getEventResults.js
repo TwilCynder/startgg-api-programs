@@ -1,4 +1,4 @@
-import { Query } from 'startgg-helper';
+import { PageResult, Query } from 'startgg-helper';
 import { readSchema } from './lib/util.js';
 import { GraphQLClient } from 'graphql-request';
 import { TimedQuerySemaphore } from 'startgg-helper';
@@ -15,14 +15,18 @@ query.log = {
  * 
  * @param {GraphQLClient} client 
  * @param {string} slug 
- * @param {number} numEntrants 
+ * @param {number} numEntrants Deprecated
  * @param {TimedQuerySemaphore} limiter 
  * @returns {Promise<{}>}
  */
-export async function getEventResults(client, slug, numEntrants = 192, limiter = null){
+export async function getEventResults(client, slug, numEntrants, limiter = null){
     console.log("Getting standings from event : ", slug);
 
-    let res = await query.execute(client, {slug, numEntrants}, limiter);
+    let res = await query.executePaginated(client, {slug}, "event.standings", limiter, {perPage: 120, includeWholeQuery: Query.IWQModes.INLINE, callback: (localResult, previousResult) => {
+        if (!numEntrants) return;
+        if (localResult && previousResult && (localResult.length + previousResult.length > numEntrants)) 
+            return new PageResult(localResult.slice(0, numEntrants - previousResult.length), true);
+    }});
     if (!res.event) {
         console.warn("Couldn't fetch resuls for event", slug);
         return {slug};
@@ -41,10 +45,10 @@ export async function getEventResults(client, slug, numEntrants = 192, limiter =
  * @param {TimedQuerySemaphore} limiter 
  * @returns {Promise<{}[]>}
  */
-export function getEventsResults(client, slugs, numEntrants = 192, limiter = null){
+export function getEventsResults(client, slugs, numEntrants, limiter = null){
     return Promise.all(slugs.map((slug) => getEventResults(client, slug, numEntrants, limiter)
         .catch((err) => console.warn("Slug", slug, "kaput : ", err))
-        .then(data => Object.assign(data, {slug}))
+        .then(data => data ? Object.assign(data, {slug}) : null)
     ));
 }
 
