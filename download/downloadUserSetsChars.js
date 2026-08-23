@@ -18,7 +18,7 @@ let {userSlugs, file, inputfile, allArgs} = argumentsManager()
 
 let silent = doWePrintFromArgs(allArgs);
 
-if (silent_) muteStdout();
+if (silent) muteStdout();
 
 let [users, userObjects] = await Promise.all([readUsersFile(file, userSlugs), tryReadJSONArray(inputfile)])
 
@@ -26,7 +26,7 @@ let limiter = new StartGGDelayQueryLimiter();
 let data = await aggregateArrayDataPromises([getUsersSetsChars(client, users, limiter), getUserSetsCharsFromObjects(client, userObjects, limiter)]);
 limiter.stop();
 
-if (silent_){
+if (silent){
     unmuteStdout();
 }
 

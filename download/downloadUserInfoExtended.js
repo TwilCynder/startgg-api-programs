@@ -1,33 +1,13 @@
+import { aggregateArrayDataPromises, readUsersFile, tryReadJSONArray } from "../include/lib/util.js";
+import { downloadScript } from "../include/downloadScriptFramework.js";
 
+await downloadScript(
+    (am) => am
+        .addMultiParameter("userSlugs")
+        .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"}),
+    async (client, limiter, {userSlugs, file, inputfile}) => {
+        let [users, userObjects] = await Promise.all([readUsersFile(file, userSlugs), tryReadJSONArray(inputfile)])
 
-import { client } from "../include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper";
-
-import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
-import { addInputParams, addOutputParamsJSON, argumentsManager, doWePrintFromArgs } from "../include/lib/paramConfig.js";
-import { aggregateArrayDataPromises, outputJSONFromArgs, readUsersFile, tryReadJSONInput } from "../include/lib/util.js";
-import { getUsersInfoExtended, getUsersInfoExtendedFromObjects } from "../include/getUserInfoExtended.js";
-
-let {userSlugs, file, inputfile, allArgs} = argumentsManager()
-    .addMultiParameter("userSlugs")
-    .addOption(["-f", "--users-file"], {dest: "file", description: "File containing a list of user slugs"})
-    .apply(addInputParams)
-    .apply(addOutputParamsJSON)
-    .enableHelpParameter()
-    .parseProcessArguments();
-
-let silent = doWePrintFromArgs(allArgs);
-
-if (silent_) muteStdout();
-
-let [users, userObjects] = await Promise.all([readUsersFile(file, userSlugs), tryReadJSONInput(inputfile)])
-
-let limiter = new StartGGDelayQueryLimiter();
-let data = await aggregateArrayDataPromises([getUsersInfoExtended(client, users, limiter), getUsersInfoExtendedFromObjects(client, userObjects, limiter)]);
-limiter.stop();
-
-if (silent_){
-    unmuteStdout();
-}
-
-outputJSONFromArgs(allArgs, data);
+        return await aggregateArrayDataPromises([getUsersInfoExtended(client, users, limiter), getUsersInfoExtendedFromObjects(client, userObjects, limiter)]);
+    }
+);

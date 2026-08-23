@@ -1,33 +1,13 @@
 import { addEventParsers, readEventSlugsLists } from "../include/lib/computeEventList.js";
-
-import { client } from "../include/lib/client.js";
-import { StartGGDelayQueryLimiter } from "startgg-helper";
-
-import { muteStdout, unmuteStdout } from "../include/lib/fileUtil.js";
-import { addInputParams, addOutputParamsJSON, argumentsManager, doWePrintFromArgs } from "../include/lib/paramConfig.js";
-import { outputJSONFromArgs } from "../include/lib/util.js";
 import { getOtherEventsFromEvents } from "../include/getOtherEvents.js";
+import { downloadScript, readFileAndJSONArray } from "../include/downloadScriptFramework.js";
 
-let {eventSlugs, eventsFilenames, inputfile, outputFiles, printdata, allArgs} = argumentsManager()
-    .apply(addEventParsers)
-    .apply(addInputParams)
-    .apply(addOutputParamsJSON)
-    .enableHelpParameter()
-    .parseProcessArguments();
-
-let silent = doWePrintFromArgs(allArgs);
-
-if (silent) muteStdout();
-
-let [events, eventObjects] = await Promise.all([readEventSlugsLists(eventSlugs, eventsFilenames), tryReadJSONInput(inputfile)]);
-events = events.concat(eventObjects.filter(event => !!event.slug).map(event => event.slug));
-
-let limiter = new StartGGDelayQueryLimiter();
-let data = await getOtherEventsFromEvents(client, events, limiter);
-limiter.stop();
-
-if (silent){
-    unmuteStdout();
-}
-
-outputJSONFromArgs(allArgs, data);
+await downloadScript(
+    (am) => am
+        .apply(addEventParsers),
+    async (client, limiter, {eventSlugs, eventsFilenames, inputfile}) => {
+        let [events, eventObjects] = await readFileAndJSONArray(readEventSlugsLists(eventSlugs, eventsFilenames), inputfile);
+        events = events.concat(eventObjects.filter (event => !!event.slug).map(event => event.slug));
+        return await getOtherEventsFromEvents(client, events, limiter);
+    }
+);

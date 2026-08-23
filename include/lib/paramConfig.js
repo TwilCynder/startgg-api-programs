@@ -148,7 +148,7 @@ export function addOutputParamsText(argumentsManager){
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsJSON(argumentsManager){
-    let descriptionGroup = "Output"
+    let descriptionGroup = OUTPUT_DESCGROUP;
     addOutputParamsBasic(argumentsManager);
     addFragmentParameter(argumentsManager);
     argumentsManager
