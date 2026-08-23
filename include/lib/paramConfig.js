@@ -67,26 +67,33 @@ export class FormattedOutputsParser extends Parser {
     }
 }
 
+
+const OUTPUT_DESCGROUP = "Output options";
+const INPUT_DESCGROUP = "Input options";
+const CACHE_DESCGROUP = "Requests cache";
+const FILTER_DESCGROUP = "Event filtering options";
+
 /**
  * Added dests : outputFiles, printdata, silent, verbose
  * Added switchs : [o]uput_file, [p]rint-output, [s]silent, [v]erbose
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsBasic(argumentsManager){
+    const descriptionGroup = OUTPUT_DESCGROUP
     argumentsManager
         .addMultiOption(["-o", "--output-file"], {
             dest: "outputFiles",
-            description: "A file to save the output to. If not specified, the output will be sent to the std output."
+            description: "A file to save the output to. If not specified, the output will be sent to the std output.", descriptionGroup
         })
         .addSwitch(["-p", "--print-output"], {
             dest: "printdata",
-            description: "Output the result to stdout"
+            description: "Output the result to stdout", descriptionGroup
         })
         .addSwitch(["-s", "--silent"], {
-            description: "Do not log anything besides the output. True by default if printing the output to stdout"
+            description: "Do not log anything besides the output. True by default if printing the output to stdout", descriptionGroup
         })
         .addSwitch(["-v", "--verbose"], {
-            description: "Always log to the standard output, even if printing the output there. For debug purposes mainly"
+            description: "Always log to the standard output, even if printing the output there. For debug purposes mainly", descriptionGroup
         })
 }
 
@@ -94,20 +101,22 @@ export function addOutputParamsBasic(argumentsManager){
 function addLogParameter(argumentsManager){
     argumentsManager.addSwitch(["-l", "--log-data"], {
         dest: "logdata",
-        description: "Use to log the processed data (in a nice and pretty format) to the std output. True by default if neither -o or -p are specified."
+        description: "Use to log the processed data (in a nice and pretty format) to the std output. True by default if neither -o or -p are specified.",
+        descriptionGroup: OUTPUT_DESCGROUP
     })
 }
 
 /** @param {ArgumentsManager} argumentsManager */
 function addFormatParameter(argumentsManager){
+    const descriptionGroup = OUTPUT_DESCGROUP;
     argumentsManager
         .addOption("--format", {
             dest: "outputFormat",
-            description: "The output format. Either json (default) or csv"
+            description: "The output format. Either json (default) or csv", descriptionGroup
         })
         .addCustomParser(
             new FormattedOutputsParser("json", "prettyjson", "readable", "csv", "text"), 
-            "formattedOutput", {}, true
+            "formattedOutput", {descriptionGroup}, true
         )
 }
 
@@ -117,6 +126,7 @@ function addFragmentParameter(argumentsManager){
         dest: "fragmentOutput",
         default: null,
         description: "Use this option to fragment the JSON output for array data into multiple files. Each file will contain at most the number of elements specified.",
+        descriptionGroup: OUTPUT_DESCGROUP,
         type: "number"
     })
 }
@@ -138,11 +148,12 @@ export function addOutputParamsText(argumentsManager){
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addOutputParamsJSON(argumentsManager){
+    let descriptionGroup = "Output"
     addOutputParamsBasic(argumentsManager);
     addFragmentParameter(argumentsManager);
     argumentsManager
-        .addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson"})
-        .addCustomParser(new FormattedOutputsParser("json", "prettyjson", "readable"), "formattedOutput")
+        .addSwitch(["-r", "--readable-json"], {description: "Makes the JSON output human-readable", dest: "prettyjson", descriptionGroup})
+        .addCustomParser(new FormattedOutputsParser("json", "prettyjson", "readable"), "formattedOutput", {descriptionGroup})
 }
 
 /**
@@ -187,9 +198,14 @@ export function addOutputParams(argumentsManager){
     addFragmentParameter(argumentsManager);
 }
 
+/**
+ * Added dests : inputfile
+ * Added switchs : [i]nput-file
+ * @param {ArgumentsManager} argumentsManager 
+ */
 function addInputParams_(argumentsManager, mandatory){
     argumentsManager
-        .addOption(["-i", "--input-file"], {dest: "inputfile", description: "A file containing pre-downloaded data"}, !mandatory)
+        .addOption(["-i", "--input-file"], {dest: "inputfile", description: "A file containing pre-downloaded data", descriptionGroup: INPUT_DESCGROUP}, !mandatory)
 }
 
 /**
@@ -216,9 +232,10 @@ export function addInputParamsMandatory(argumentsManager){
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addCacheParams(argumentsManager){
+    const descriptionGroup = CACHE_DESCGROUP
     argumentsManager
-        .addOption(["-c", "--cache"], {description: "File to use as cache for queries (useful is the program crashes during execution)"})
-        .addOption(["--cache-frequency"], {description: "How often does the program write to cache (in number of queries)"})
+        .addOption(["-c", "--cache"], {description: "File to use as cache for queries (useful is the program crashes during execution)", descriptionGroup})
+        .addOption(["--cache-frequency"], {description: "How often does the program write to cache (in number of queries)", descriptionGroup})
 }
 
 /**
@@ -227,14 +244,15 @@ export function addCacheParams(argumentsManager){
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventDateFilterParams(argumentsManager){
+    const descriptionGroup = FILTER_DESCGROUP;
     argumentsManager
         .addOption("--start-date", {
             dest: "startDate",
-            description: "Only count tournaments after this UNIX date"
+            description: "Only count tournaments after this UNIX date", descriptionGroup
         })
         .addOption("--end-date", {
             dest: "endDate",
-            description: "Only count tournaments before this UNIX date"
+            description: "Only count tournaments before this UNIX date", descriptionGroup
         })
 }
 
@@ -245,7 +263,7 @@ export function addEventDateFilterParams(argumentsManager){
  */
 export function addEventGameFilterParams(argumentsManager){
     argumentsManager
-        .addOption(["-g", "--games"], {description: "Comma-separated list of videogames to limit search to. Can be start.gg game slugs or numerical IDs"})
+        .addOption(["-g", "--games"], {description: "Comma-separated list of videogames to limit search to. Can be start.gg game slugs or numerical IDs", descriptionGroup: FILTER_DESCGROUP})
 }
 
 /**
@@ -254,9 +272,10 @@ export function addEventGameFilterParams(argumentsManager){
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventOnlineFilterParams(argumentsManager){
+    const descriptionGroup = FILTER_DESCGROUP;
     argumentsManager
-        .addSwitch(["-O", "--offline"], {description: "Only keep offline events"})
-        .addSwitch(["-N", "--online"], {description: "Only keep online events"})
+        .addSwitch(["-O", "--offline"], {description: "Only keep offline events", descriptionGroup})
+        .addSwitch(["-N", "--online"], {description: "Only keep online events", descriptionGroup})
 }
 
 /**
@@ -265,11 +284,12 @@ export function addEventOnlineFilterParams(argumentsManager){
  * @param {ArgumentsManager} argumentsManager 
  */
 export function addEventGenericFilterParams(argumentsManager){
+    const descriptionGroup = FILTER_DESCGROUP;
     argumentsManager
-        .addMultiOption(["-R", "--exclude_expression"], {description: "Regular expressions that will remove events they match with"})
-        .addMultiOption(["-b", "--filter"], {description: "Add a word filter. Events containing one of these words will be ignored"})
-        .addMultiOption(["--filter-file"], {dest: "filterFiles", description: "File containing a list of word filters (one filter per line)"})
-        .addOption(["-m", "--min-entrants"], {dest: "minEntrants", type: "number", description: "Only count events with at least this number of entrants"})
+        .addMultiOption(["-R", "--exclude_expression"], {description: "Regular expressions that will remove events they match with", descriptionGroup})
+        .addMultiOption(["-b", "--filter"], {description: "Add a word filter. Events containing one of these words will be ignored", descriptionGroup})
+        .addMultiOption(["--filter-file"], {dest: "filterFiles", description: "File containing a list of word filters (one filter per line)", descriptionGroup})
+        .addOption(["-m", "--min-entrants"], {dest: "minEntrants", type: "number", description: "Only count events with at least this number of entrants", descriptionGroup})
 }
 
 const eventFilterParamFunctions = [
